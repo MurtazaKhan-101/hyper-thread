@@ -64,7 +64,13 @@ export default function Login() {
           message: "Login successful! Redirecting...",
         });
         setTimeout(() => {
-          window.location.href = ROUTES.DASHBOARD;
+          // Check if onboarding is completed
+          const { user } = result;
+          if (user && !user.onboardingCompleted) {
+            window.location.href = ROUTES.ONBOARDING;
+          } else {
+            window.location.href = ROUTES.DASHBOARD;
+          }
         }, 1000);
       } else {
         setAlert({ type: "error", message: result.message || "Login failed" });

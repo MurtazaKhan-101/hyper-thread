@@ -35,7 +35,7 @@ export const AuthProvider = ({ children }) => {
       if (response.success) {
         setUser(response.user);
         setIsAuthenticated(true);
-        return { success: true };
+        return { success: true, user: response.user };
       }
 
       return { success: false, message: response.message };
@@ -77,7 +77,11 @@ export const AuthProvider = ({ children }) => {
       if (response.success) {
         setUser(response.user);
         setIsAuthenticated(true);
-        return { success: true, message: response.message };
+        return {
+          success: true,
+          message: response.message,
+          user: response.user,
+        };
       }
 
       return { success: false, message: response.message };
@@ -175,6 +179,12 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Update user data
+  const updateUser = (updatedUser) => {
+    setUser(updatedUser);
+    authService.saveUserData(updatedUser);
+  };
+
   const value = {
     user,
     loading,
@@ -189,6 +199,7 @@ export const AuthProvider = ({ children }) => {
     logout,
     refresh,
     fetchCurrentUser,
+    updateUser,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

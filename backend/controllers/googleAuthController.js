@@ -148,6 +148,8 @@ class GoogleAuthController {
         email: existingUser.email,
         isVerified: existingUser.isVerified,
         profileImage: existingUser.profileImage,
+        onboardingCompleted: existingUser.onboardingCompleted,
+        onboardingStep: existingUser.onboardingStep,
       };
 
       const encodedUserData = encodeURIComponent(JSON.stringify(userData));

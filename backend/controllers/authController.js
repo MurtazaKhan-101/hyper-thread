@@ -45,7 +45,7 @@ class AuthController {
       }
 
       // Hash the password
-      const saltRounds = parseInt(process.env.SALT_ROUNDS) || 12;
+      const saltRounds = parseInt(process.env.SALT_ROUNDS);
       const hashedPassword = await bcrypt.hash(password, saltRounds);
 
       // Create new user
@@ -161,6 +161,8 @@ class AuthController {
           email: user.email,
           isVerified: user.isVerified,
           profileImage: user.profileImage,
+          onboardingCompleted: user.onboardingCompleted,
+          onboardingStep: user.onboardingStep,
         },
         token: token,
       });
@@ -232,6 +234,8 @@ class AuthController {
           email: user.email,
           isVerified: user.isVerified,
           profileImage: user.profileImage,
+          onboardingCompleted: user.onboardingCompleted,
+          onboardingStep: user.onboardingStep,
         },
         token: token,
       });

@@ -9,6 +9,13 @@ export const saveAuthData = (token, user) => {
   }
 };
 
+// Save user data to localStorage
+export const saveUserData = (user) => {
+  if (typeof window !== "undefined") {
+    localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(user));
+  }
+};
+
 // Get auth data from localStorage
 export const getAuthData = () => {
   if (typeof window !== "undefined") {

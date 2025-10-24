@@ -78,7 +78,7 @@ export const Card = ({ children, className = "" }) => {
 };
 
 // Alert Component - Reddit style
-export const Alert = ({ type = "info", message, onClose }) => {
+export const Alert = ({ type = "info", message, children, onClose }) => {
   const types = {
     success:
       "bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800 text-green-800 dark:text-green-200",
@@ -93,7 +93,7 @@ export const Alert = ({ type = "info", message, onClose }) => {
     <div
       className={`p-4 rounded border ${types[type]} flex justify-between items-center`}
     >
-      <span className="text-sm">{message}</span>
+      <span className="text-sm">{children || message}</span>
       {onClose && (
         <button onClick={onClose} className="ml-4 font-bold hover:opacity-70">
           ×

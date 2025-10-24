@@ -61,7 +61,13 @@ export default function VerifyOtp() {
           message: "Email verified! Redirecting...",
         });
         setTimeout(() => {
-          window.location.href = ROUTES.DASHBOARD;
+          // Check if onboarding is completed
+          const { user } = result;
+          if (user && !user.onboardingCompleted) {
+            window.location.href = ROUTES.ONBOARDING;
+          } else {
+            window.location.href = ROUTES.DASHBOARD;
+          }
         }, 1500);
       } else {
         setAlert({ type: "error", message: result.message || "Invalid OTP" });

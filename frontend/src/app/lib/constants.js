@@ -1,6 +1,6 @@
 // API Base URL
 export const API_BASE_URL =
-  process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3005";
+  process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3003";
 
 // API Endpoints
 export const API_ENDPOINTS = {
@@ -19,6 +19,26 @@ export const API_ENDPOINTS = {
   GOOGLE_AUTH: "/auth/google",
   GOOGLE_CALLBACK: "/auth/google/callback",
   GOOGLE_REFRESH_TOKEN: "/auth/google/refresh-token",
+
+  // Onboarding endpoints
+  GENERATE_USERNAME: "/onboarding/generate-username",
+  CHECK_USERNAME: "/onboarding/check-username",
+  UPDATE_USERNAME: "/onboarding/username",
+  UPDATE_INTERESTS: "/onboarding/interests",
+  GET_INTERESTS: "/onboarding/interests",
+
+  // Post endpoints
+  CREATE_POST: "/posts",
+  UPLOAD_MEDIA: "/posts/media/upload",
+  CREATE_MEDIA_POST: "/posts/media",
+  GENERATE_LINK_PREVIEW: "/posts/link-preview",
+  GET_POSTS: "/posts",
+  GET_TRENDING_POSTS: "/posts/trending",
+  SEARCH_POSTS: "/posts/search",
+  GET_POST_BY_ID: "/posts",
+  LIKE_POST: "/posts",
+  ADD_COMMENT: "/posts",
+  DELETE_POST: "/posts",
 };
 
 // Local Storage Keys
@@ -38,7 +58,9 @@ export const ROUTES = {
   VERIFY_RESET_OTP: "/auth/verify-reset-otp",
   RESET_PASSWORD: "/auth/reset-password",
   OAUTH_SUCCESS: "/auth/oauth-success",
+  ONBOARDING: "/onboarding",
   DASHBOARD: "/dashboard",
+  CREATE_POST: "/create-post",
 };
 
 // Error Messages

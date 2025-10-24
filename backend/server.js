@@ -21,6 +21,8 @@ app.use(express.urlencoded({ extended: true }));
 // Routes
 app.use("/auth", require("./routes/authRoutes"));
 app.use("/auth", require("./routes/googleAuthRoutes"));
+app.use("/onboarding", require("./routes/onboardingRoutes"));
+app.use("/posts", require("./routes/postRoutes"));
 
 // Health check route
 app.get("/", (req, res) => {
