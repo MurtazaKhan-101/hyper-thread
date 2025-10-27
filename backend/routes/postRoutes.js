@@ -38,6 +38,22 @@ router.post(
   validateComment,
   postController.addComment
 );
+router.post(
+  "/:postId/comment/:commentId/reply",
+  authenticate,
+  validateComment,
+  postController.addReply
+);
+router.post(
+  "/:postId/comment/:commentId/like",
+  authenticate,
+  postController.toggleCommentLike
+);
+router.post(
+  "/:postId/comment/:commentId/reply/:replyId/like",
+  authenticate,
+  postController.toggleReplyLike
+);
 
 // Post management routes
 router.delete("/:postId", authenticate, postController.deletePost);

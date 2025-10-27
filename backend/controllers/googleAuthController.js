@@ -94,6 +94,7 @@ class GoogleAuthController {
         // Update refresh token if a new one is provided
         if (tokenData.refresh_token) {
           existingUser.googleRefreshToken = tokenData.refresh_token;
+          existingUser.profileImage = googleUser.picture;
           await existingUser.save();
           console.log("🔄 Updated refresh token for existing user");
         }
