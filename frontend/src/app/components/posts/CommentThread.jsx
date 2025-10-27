@@ -5,11 +5,17 @@ import { useAuth } from "../../context/AuthContext";
 import { postService, formatPostTime, formatNumber } from "../../lib/posts";
 import { Button } from "../ui";
 
-export const CommentThread = ({ comment, postId, onUpdate, depth = 0 }) => {
+export const CommentThread = ({
+  comment,
+  postId,
+  onUpdate,
+  depth = 0,
+  isDiscussionView = false,
+}) => {
   const { user, isAuthenticated } = useAuth();
   const [localComment, setLocalComment] = useState(comment);
   const [showReplyForm, setShowReplyForm] = useState(false);
-  const [showReplies, setShowReplies] = useState(true);
+  const [showReplies, setShowReplies] = useState(depth === 0); // Only show replies for root comments by default
   const [newReply, setNewReply] = useState("");
   const [isSubmittingReply, setIsSubmittingReply] = useState(false);
   const [isLiked, setIsLiked] = useState(
@@ -88,13 +94,203 @@ export const CommentThread = ({ comment, postId, onUpdate, depth = 0 }) => {
     }));
   };
 
-  const maxDepth = 6; // Reddit-like max nesting depth
-  const indentClass = depth > 0 ? `ml-${Math.min(depth * 4, 20)}` : "";
+  const maxDepth = isDiscussionView ? 6 : 6; // Limit depth for discussion view to match backend capability
 
+  // For discussion view, use dynamic margin-left with scroll for deeper levels
+  const getDiscussionIndent = (depth) => {
+    if (!isDiscussionView || depth === 0) return {};
+
+    // Mobile-specific indentation (smaller increments)
+    const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
+
+    if (isMobile) {
+      // On mobile, use very small indentation and strict max to prevent zoom-out
+      const mobileIndent = depth * 8; // 8px per level on mobile
+      return { marginLeft: `${Math.min(mobileIndent, 24)}px` }; // Max 24px on mobile
+    }
+
+    // Desktop logic (original)
+    if (depth >= 4) {
+      return { marginLeft: "64px" }; // Fixed max indent for deeper levels (4-6)
+    }
+    const desktopIndent = depth * 16; // 16px per level
+    return { marginLeft: `${desktopIndent}px` };
+  };
+
+  const indentClass =
+    depth > 0 && !isDiscussionView ? `ml-${Math.min(depth * 4, 20)}` : "";
+
+  // Discussion view layout (chat-like) with overflow protection
+  if (isDiscussionView) {
+    const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
+
+    return (
+      <div className="w-full min-w-0">
+        <div
+          style={getDiscussionIndent(depth)}
+          className={`min-w-0 ${
+            depth > 0 ? "border-l-2 border-blue-800 pl-3" : ""
+          }`}
+        >
+          <div className="group hover:bg-gray-600/50 rounded-lg p-3 transition-colors min-w-0">
+            <div className="flex gap-3 min-w-0">
+              <div className="flex-shrink-0">
+                {localComment.user?.profileImage ? (
+                  <img
+                    src={localComment.user.profileImage}
+                    alt={localComment.user.username}
+                    className="w-8 h-8 rounded-full"
+                  />
+                ) : (
+                  <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                    <span className="text-xs font-medium text-white">
+                      {localComment.user?.firstName?.[0] || "U"}
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex-1 min-w-0">
+                {/* Message Header */}
+                <div className="flex items-baseline gap-2 mb-1">
+                  <span className="font-medium text-gray-100 text-sm">
+                    {localComment.user?.firstName ||
+                      localComment.user?.username ||
+                      "Unknown"}
+                  </span>
+                  <span className="text-xs text-gray-400">
+                    {formatPostTime(localComment.createdAt)}
+                  </span>
+                </div>
+
+                {/* Message Content */}
+                <div className="text-sm text-gray-200 whitespace-pre-wrap break-words overflow-wrap-anywhere word-break-break-word">
+                  {localComment.comment}
+                </div>
+
+                {/* Message Actions */}
+                <div className="flex items-center gap-3 mt-2">
+                  <button
+                    onClick={handleCommentLike}
+                    disabled={!isAuthenticated}
+                    className={`flex items-center gap-1 text-xs px-2 py-1 rounded transition-colors ${
+                      isLiked
+                        ? "text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20"
+                        : "text-gray-400 hover:text-gray-300 hover:bg-gray-700"
+                    }`}
+                  >
+                    <svg
+                      className="w-3 h-3"
+                      fill={isLiked ? "currentColor" : "none"}
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                      />
+                    </svg>
+                    {likeCount > 0 && formatNumber(likeCount)}
+                  </button>
+
+                  {depth < maxDepth && (
+                    <button
+                      onClick={() => setShowReplyForm(!showReplyForm)}
+                      className="text-xs text-blue-400 hover:text-blue-300 px-2 py-1 rounded hover:bg-blue-900/20 transition-colors font-medium"
+                    >
+                      Reply
+                    </button>
+                  )}
+
+                  {/* Hide/Show Replies Button for Discussion View */}
+                  {localComment.replies && localComment.replies.length > 0 && (
+                    <button
+                      onClick={() => setShowReplies(!showReplies)}
+                      className="text-xs text-purple-400 hover:text-purple-300 px-2 py-1 rounded hover:bg-purple-900/20 transition-colors font-medium"
+                    >
+                      {showReplies ? "Hide" : "Show"}{" "}
+                      {localComment.replies.length}{" "}
+                      {localComment.replies.length === 1 ? "reply" : "replies"}
+                    </button>
+                  )}
+                </div>
+
+                {/* Reply Form */}
+                {showReplyForm && (
+                  <div className="mt-3 pl-2 border-l-2 border-blue-800">
+                    <form onSubmit={handleReply} className="space-y-2">
+                      <textarea
+                        value={newReply}
+                        onChange={(e) => setNewReply(e.target.value)}
+                        placeholder="Reply..."
+                        className="w-full p-2 border border-gray-700 rounded text-sm resize-none bg-gray-800 text-gray-100"
+                        rows={2}
+                      />
+                      <div className="flex justify-end gap-2">
+                        <Button
+                          type="button"
+                          onClick={() => setShowReplyForm(false)}
+                          variant="outline"
+                          className="text-xs px-3 py-1"
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          type="submit"
+                          disabled={!newReply.trim() || isSubmittingReply}
+                          className="text-xs px-3 py-1"
+                        >
+                          {isSubmittingReply ? "Sending..." : "Reply"}
+                        </Button>
+                      </div>
+                    </form>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Replies */}
+            {showReplies &&
+              localComment.replies &&
+              localComment.replies.length > 0 && (
+                <div className="mt-3 space-y-2">
+                  {localComment.replies.map((reply) => (
+                    <CommentThread
+                      key={reply._id}
+                      comment={reply}
+                      postId={postId}
+                      onUpdate={(updatedReply) => {
+                        const updatedComment = {
+                          ...localComment,
+                          replies: localComment.replies.map((r) =>
+                            r._id === reply._id ? updatedReply : r
+                          ),
+                        };
+                        setLocalComment(updatedComment);
+
+                        if (onUpdate) {
+                          onUpdate(updatedComment);
+                        }
+                      }}
+                      depth={depth + 1}
+                      isDiscussionView={true}
+                    />
+                  ))}
+                </div>
+              )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Standard post view layout
   return (
     <div
       className={`${indentClass} ${
-        depth > 0 ? "border-l-2 border-gray-200 dark:border-gray-700 pl-4" : ""
+        depth > 0 ? "border-l-2 border-gray-700 pl-4" : ""
       }`}
     >
       {/* Comment */}
@@ -107,8 +303,8 @@ export const CommentThread = ({ comment, postId, onUpdate, depth = 0 }) => {
               className="w-8 h-8 rounded-full"
             />
           ) : (
-            <div className="w-8 h-8 bg-gray-300 dark:bg-gray-600 rounded-full flex items-center justify-center">
-              <span className="text-xs font-medium text-gray-600 dark:text-gray-300">
+            <div className="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center">
+              <span className="text-xs font-medium text-gray-300">
                 {localComment.user?.firstName?.[0] || "U"}
               </span>
             </div>
@@ -118,7 +314,7 @@ export const CommentThread = ({ comment, postId, onUpdate, depth = 0 }) => {
         <div className="flex-1">
           {/* Comment Header */}
           <div className="flex items-center gap-2 mb-2">
-            <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+            <span className="text-sm font-medium text-gray-100">
               u/{localComment.user?.username || "unknown"}
             </span>
             {localComment.user?.isVerified && (
@@ -134,13 +330,13 @@ export const CommentThread = ({ comment, postId, onUpdate, depth = 0 }) => {
                 />
               </svg>
             )}
-            <span className="text-xs text-gray-500">
+            <span className="text-xs text-gray-400">
               {formatPostTime(localComment.createdAt)}
             </span>
           </div>
 
           {/* Comment Content */}
-          <p className="text-sm text-gray-800 dark:text-gray-200 mb-3 whitespace-pre-wrap">
+          <p className="text-sm text-gray-800 dark:text-gray-200 mb-3 whitespace-pre-wrap break-words overflow-wrap-anywhere word-break-break-word">
             {localComment.comment}
           </p>
 
@@ -152,7 +348,7 @@ export const CommentThread = ({ comment, postId, onUpdate, depth = 0 }) => {
               className={`flex items-center gap-1 text-xs transition-colors ${
                 isLiked
                   ? "text-red-600 dark:text-red-400"
-                  : "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                  : "text-gray-400 hover:text-gray-300"
               }`}
             >
               <svg
@@ -174,7 +370,7 @@ export const CommentThread = ({ comment, postId, onUpdate, depth = 0 }) => {
             {isAuthenticated && depth < maxDepth && (
               <button
                 onClick={() => setShowReplyForm(!showReplyForm)}
-                className="text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 transition-colors"
+                className="text-xs text-gray-400 hover:text-gray-300 transition-colors"
               >
                 Reply
               </button>
@@ -183,7 +379,7 @@ export const CommentThread = ({ comment, postId, onUpdate, depth = 0 }) => {
             {comment.replies && comment.replies.length > 0 && (
               <button
                 onClick={() => setShowReplies(!showReplies)}
-                className="text-xs text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
+                className="text-xs text-blue-400 hover:text-blue-300 transition-colors"
               >
                 {showReplies ? "Hide" : "Show"} {comment.replies.length}{" "}
                 {comment.replies.length === 1 ? "reply" : "replies"}
@@ -198,7 +394,7 @@ export const CommentThread = ({ comment, postId, onUpdate, depth = 0 }) => {
                 value={newReply}
                 onChange={(e) => setNewReply(e.target.value)}
                 placeholder="Write a reply..."
-                className="w-full p-2 text-sm border border-gray-200 dark:border-gray-700 rounded resize-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                className="w-full p-2 text-sm border border-gray-700 rounded resize-none bg-gray-800 text-gray-100"
                 rows={2}
               />
               <div className="flex justify-end gap-2 mt-2">
@@ -208,7 +404,7 @@ export const CommentThread = ({ comment, postId, onUpdate, depth = 0 }) => {
                     setShowReplyForm(false);
                     setNewReply("");
                   }}
-                  className="px-3 py-1 text-xs text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+                  className="px-3 py-1 text-xs text-gray-400 hover:text-gray-200"
                 >
                   Cancel
                 </button>

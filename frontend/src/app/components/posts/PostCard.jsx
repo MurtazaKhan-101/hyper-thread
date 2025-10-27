@@ -208,80 +208,89 @@ export const PostCard = ({ post, onUpdate }) => {
 
   return (
     <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg hover:border-gray-300 dark:hover:border-gray-700 transition-colors">
-      {/* Post Header */}
-      <div className="p-4">
-        <div className="flex items-center gap-2 mb-3">
-          <div className="flex items-center gap-2">
-            {post.author?.profileImage ? (
-              <img
-                src={post.author.profileImage}
-                alt={post.author.username}
-                className="w-6 h-6 rounded-full"
-              />
-            ) : (
-              <div className="w-6 h-6 bg-gray-300 dark:bg-gray-600 rounded-full flex items-center justify-center">
-                <span className="text-xs font-medium text-gray-600 dark:text-gray-300">
-                  {post.author?.firstName?.[0] || "U"}
-                </span>
-              </div>
-            )}
-            <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
-              u/{post.author?.username || "unknown"}
-            </span>
-            {post.author?.isVerified && (
-              <svg
-                className="w-4 h-4 text-blue-500"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                  clipRule="evenodd"
+      {/* Clickable Post Content */}
+      <Link href={`/discussion/${post._id}`} className="block">
+        {/* Post Header */}
+        <div className="p-4">
+          <div className="flex items-center gap-2 mb-3">
+            <div className="flex items-center gap-2">
+              {post.author?.profileImage ? (
+                <img
+                  src={post.author.profileImage}
+                  alt={post.author.username}
+                  className="w-6 h-6 rounded-full"
                 />
-              </svg>
+              ) : (
+                <div className="w-6 h-6 bg-gray-300 dark:bg-gray-600 rounded-full flex items-center justify-center">
+                  <span className="text-xs font-medium text-gray-600 dark:text-gray-300">
+                    {post.author?.firstName?.[0] || "U"}
+                  </span>
+                </div>
+              )}
+              <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                u/{post.author?.username || "unknown"}
+              </span>
+              {post.author?.isVerified && (
+                <svg
+                  className="w-4 h-4 text-blue-500"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              )}
+            </div>
+            <span className="text-xs text-gray-500">•</span>
+            <span className="text-xs text-gray-500">
+              {formatPostTime(post.createdAt)}
+            </span>
+            {post.flair && (
+              <>
+                <span className="text-xs text-gray-500">•</span>
+                <span className="text-xs bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded-full text-gray-600 dark:text-gray-400">
+                  {post.flair}
+                </span>
+              </>
             )}
           </div>
-          <span className="text-xs text-gray-500">•</span>
-          <span className="text-xs text-gray-500">
-            {formatPostTime(post.createdAt)}
-          </span>
-          {post.flair && (
-            <>
-              <span className="text-xs text-gray-500">•</span>
-              <span className="text-xs bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded-full text-gray-600 dark:text-gray-400">
-                {post.flair}
-              </span>
-            </>
+
+          {/* Post Title */}
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
+            {post.title}
+          </h3>
+
+          {/* Tags */}
+          {post.tags && post.tags.length > 0 && (
+            <div className="flex flex-wrap gap-2 mb-3">
+              {post.tags.map((tag, index) => (
+                <span
+                  key={index}
+                  className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded-full"
+                >
+                  #{tag}
+                </span>
+              ))}
+            </div>
           )}
+
+          {/* Post Content */}
+          {renderPostContent()}
         </div>
+      </Link>
 
-        {/* Post Title */}
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
-          {post.title}
-        </h3>
-
-        {/* Tags */}
-        {post.tags && post.tags.length > 0 && (
-          <div className="flex flex-wrap gap-2 mb-3">
-            {post.tags.map((tag, index) => (
-              <span
-                key={index}
-                className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded-full"
-              >
-                #{tag}
-              </span>
-            ))}
-          </div>
-        )}
-
-        {/* Post Content */}
-        {renderPostContent()}
-
-        {/* Post Actions */}
-        <div className="flex items-center gap-4 mt-4 pt-3 border-t border-gray-100 dark:border-gray-800">
+      {/* Post Actions - Outside of Link */}
+      <div className="px-4 pb-4">
+        <div className="flex items-center gap-4 pt-3 border-t border-gray-100 dark:border-gray-800">
           <button
-            onClick={handleLike}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              handleLike();
+            }}
             disabled={!isAuthenticated}
             className={`flex items-center gap-2 px-3 py-1 rounded-full text-sm transition-colors ${
               isLiked
@@ -305,8 +314,8 @@ export const PostCard = ({ post, onUpdate }) => {
             {formatNumber(likeCount)}
           </button>
 
-          <button
-            onClick={() => setShowComments(!showComments)}
+          <Link
+            href={`/discussion/${post._id}`}
             className="flex items-center gap-2 px-3 py-1 rounded-full text-sm hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400 transition-colors"
           >
             <svg
@@ -323,7 +332,7 @@ export const PostCard = ({ post, onUpdate }) => {
               />
             </svg>
             {formatNumber(getTotalCommentCount(comments))}
-          </button>
+          </Link>
 
           <button className="flex items-center gap-2 px-3 py-1 rounded-full text-sm hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400 transition-colors">
             <svg
@@ -343,57 +352,7 @@ export const PostCard = ({ post, onUpdate }) => {
           </button>
         </div>
 
-        {/* Comments Section */}
-        {showComments && (
-          <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800">
-            {/* Add Comment Form */}
-            {isAuthenticated && (
-              <form onSubmit={handleComment} className="mb-4">
-                <textarea
-                  value={newComment}
-                  onChange={(e) => setNewComment(e.target.value)}
-                  placeholder="Add a comment..."
-                  className="w-full p-3 border border-gray-200 dark:border-gray-700 rounded-lg resize-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                  rows={3}
-                />
-                <div className="flex justify-end mt-2">
-                  <Button
-                    type="submit"
-                    disabled={!newComment.trim() || isSubmittingComment}
-                    className="px-4 py-2"
-                  >
-                    {isSubmittingComment ? "Posting..." : "Comment"}
-                  </Button>
-                </div>
-              </form>
-            )}
-
-            {/* Comments Thread */}
-            <div className="space-y-3">
-              {isRefreshingComments && (
-                <div className="flex justify-center py-2">
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500"></div>
-                </div>
-              )}
-              {comments?.map((comment) => (
-                <CommentThread
-                  key={comment._id}
-                  comment={comment}
-                  postId={post._id}
-                  onUpdate={(updatedComment) =>
-                    updateComment(comment._id, updatedComment)
-                  }
-                  depth={0}
-                />
-              ))}
-              {comments?.length === 0 && !isRefreshingComments && (
-                <p className="text-gray-500 dark:text-gray-400 text-center py-4">
-                  No comments yet. Be the first to comment!
-                </p>
-              )}
-            </div>
-          </div>
-        )}
+        {/* Comments Section - Removed, now handled in discussion page */}
       </div>
     </div>
   );
