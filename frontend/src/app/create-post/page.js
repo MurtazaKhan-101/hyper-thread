@@ -7,7 +7,7 @@ import { Button, Input, Spinner } from "../components/ui";
 import { postService } from "../lib/posts";
 import { ROUTES } from "../lib/constants";
 import Link from "next/link";
-
+import { FileText, Link as LinkIcon, Image as ImageIcon } from "lucide-react";
 export default function CreatePostPage() {
   const router = useRouter();
   const { user, loading, isAuthenticated } = useAuth();
@@ -146,45 +146,57 @@ export default function CreatePostPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-[#030303]">
-      {/* Header */}
-      <header className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 sticky top-0 z-50">
-        <div className="max-w-4xl mx-auto px-4">
-          <div className="flex items-center justify-between h-14">
-            <Link href={ROUTES.DASHBOARD} className="flex items-center gap-2">
-              <h1 className="text-xl font-bold text-[#FF4500]">Hyper Thread</h1>
-            </Link>
-            <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-200">
-              Create post
-            </h2>
-            <div className="w-32"></div> {/* Spacer for center alignment */}
-          </div>
-        </div>
-      </header>
+    <div className="min-h-screen bg-gray-50 dark:bg-030303] py-4">
+
 
       {/* Main Content */}
       <div className="max-w-4xl mx-auto px-4 py-6">
         <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800">
-          {/* Post Type Tabs */}
-          <div className="border-b border-gray-200 dark:border-gray-800">
-            <div className="flex">
-              {["text", "link", "media"].map((tab) => (
+
+          {/* Post Type Tabs with Gradient Background */}
+            <div className="border-b border-gray-200 dark:border-gray-800">
+              <div className="flex justify-around py-3">
+                {/* Text Tab */}
                 <button
-                  key={tab}
-                  onClick={() => setActiveTab(tab)}
-                  className={`flex-1 py-3 px-4 text-sm font-medium border-b-2 transition-colors ${
-                    activeTab === tab
-                      ? "border-[#0079D3] text-[#0079D3]"
-                      : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-                  }`}
-                >
-                  {tab === "text" && "Text"}
-                  {tab === "link" && "Link"}
-                  {tab === "media" && "Images & Video"}
-                </button>
-              ))}
+        onClick={() => setActiveTab("text")}
+        className={`flex flex-col items-center gap-1 px-4 py-2 rounded-md text-sm font-medium transition-all duration-300
+          ${activeTab === "text"
+            ? "text-white bg-buttons-gradient"
+            : "text-gray-500 dark:text-gray-400 hover:bg-buttons-gradient hover:text-white"
+          }`}
+      >
+        <FileText className="w-5 h-5" />
+        <span>Text</span>
+      </button>
+
+      {/* Link Tab */}
+      <button
+        onClick={() => setActiveTab("link")}
+        className={`flex flex-col items-center gap-1 px-4 py-2 rounded-md text-sm font-medium transition-all duration-300
+          ${activeTab === "link"
+            ? "text-white bg-buttons-gradient"
+            : "text-gray-500 dark:text-gray-400 hover:bg-buttons-gradient hover:text-white"
+          }`}
+      >
+        <LinkIcon className="w-5 h-5" />
+        <span>Link</span>
+      </button>
+
+      {/* Media Tab */}
+      <button
+        onClick={() => setActiveTab("media")}
+        className={`flex flex-col items-center gap-1 px-4 py-2 rounded-md text-sm font-medium transition-all duration-300
+          ${activeTab === "media"
+            ? "text-white bg-buttons-gradient"
+            : "text-gray-500 dark:text-gray-400 hover:bg-buttons-gradient hover:text-white"
+          }`}
+      >
+        <ImageIcon className="w-5 h-5" />
+        <span>Media</span>
+      </button>
+               </div>
             </div>
-          </div>
+
 
           {/* Form Content */}
           <form onSubmit={handleSubmit} className="p-6">
@@ -368,6 +380,7 @@ export default function CreatePostPage() {
                 type="submit"
                 disabled={isSubmitting || !title.trim()}
                 className="min-w-20"
+                variant="primary"
               >
                 {isSubmitting ? <Spinner size="sm" /> : "Post"}
               </Button>
