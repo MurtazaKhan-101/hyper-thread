@@ -4,17 +4,15 @@
   --color-background: #ffffff;
   --color-foreground: #171717;
 
-  --gradient-sidebar: linear-gradient( #B733A7 0%, #F05D24 100%);
-  --gradient-trending: linear-gradient(90deg, #0E004C 0%, #6100A3 100%);
-  --gradient-buttons: linear-gradient(90deg, #1A94D0 0%, #A41C5E 100%);
-  --gradient-buttons-hover: linear-gradient(90deg, #A41C5E 0%, #1A94D0 100%);
-  --gradient-ui-cards: linear-gradient(90deg, #E01254 0%, #FFAD3B 100%);
-  --gradient-post-hover:linear-gradient(180deg, rgba(26, 148, 208, 0.4) 0%, rgba(164, 28, 94, 0.4) 100%);
+  --gradient-sidebar: linear-gradient(#b733a7 0%, #f05d24 100%);
+  --gradient-trending: linear-gradient(90deg, #0e004c 0%, #6100a3 100%);
+  --gradient-buttons: linear-gradient(90deg, #1a94d0 0%, #a41c5e 100%);
+  --gradient-chat: linear-gradient(180deg, #1a94d0 0%, #a41c5e 100%);
+  --gradient-buttons-hover: linear-gradient(90deg, #a41c5e 0%, #1a94d0 100%);
+  --gradient-ui-cards: linear-gradient(90deg, #e01254 0%, #ffad3b 100%);
 
-  --color-auth-btn-bg: #1A94D0;
+  --color-auth-btn-bg: #1a94d0;
 }
-
-
 
 @layer base, components, utilities;
 
@@ -40,6 +38,9 @@
   }
   .bg-buttons-gradient {
     background: var(--gradient-buttons);
+  }
+  .bg-chat-gradient {
+    background: var(--gradient-chat);
   }
   .bg-buttons-gradient-hover:hover {
     background: var(--gradient-buttons-hover);
@@ -111,8 +112,6 @@
   }
 }
 
-
-
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
@@ -145,8 +144,22 @@ body {
   display: none; /* Chrome, Safari, Opera */
 }
 .scrollbar-hide {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;     /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+/* Text wrapping utilities for better overflow handling */
+.break-words {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.overflow-wrap-anywhere {
+  overflow-wrap: anywhere;
+}
+
+.word-break-break-word {
+  word-break: break-word;
 }
 
 /* Moving border animation */
@@ -165,11 +178,11 @@ body {
 .moving-border {
   background: linear-gradient(
     45deg,
-    #B733A7 0%,
-    #F05D24 25%,
-    #1A94D0 50%,
-    #A41C5E 75%,
-    #B733A7 100%
+    #b733a7 0%,
+    #f05d24 25%,
+    #1a94d0 50%,
+    #a41c5e 75%,
+    #b733a7 100%
   );
   background-size: 400% 400%;
   animation: moving-border 3s ease-in-out infinite;
@@ -178,11 +191,11 @@ body {
 .moving-border-fast {
   background: linear-gradient(
     45deg,
-    #B733A7 0%,
-    #F05D24 25%,
-    #1A94D0 50%,
-    #A41C5E 75%,
-    #B733A7 100%
+    #b733a7 0%,
+    #f05d24 25%,
+    #1a94d0 50%,
+    #a41c5e 75%,
+    #b733a7 100%
   );
   background-size: 400% 400%;
   animation: moving-border 1.5s ease-in-out infinite;
