@@ -38,6 +38,9 @@ export const API_ENDPOINTS = {
   GET_POST_BY_ID: "/posts",
   LIKE_POST: "/posts",
   ADD_COMMENT: "/posts",
+  ADD_REPLY: "/posts",
+  LIKE_COMMENT: "/posts",
+  LIKE_REPLY: "/posts",
   DELETE_POST: "/posts",
 };
 

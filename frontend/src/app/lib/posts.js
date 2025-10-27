@@ -134,6 +134,40 @@ export const postService = {
     }
   },
 
+  // Add reply to comment
+  async addReply(postId, commentId, comment) {
+    try {
+      return await apiClient.post(
+        `${API_ENDPOINTS.ADD_REPLY}/${postId}/comment/${commentId}/reply`,
+        { comment }
+      );
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  // Like/unlike a comment
+  async toggleCommentLike(postId, commentId) {
+    try {
+      return await apiClient.post(
+        `${API_ENDPOINTS.LIKE_COMMENT}/${postId}/comment/${commentId}/like`
+      );
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  // Like/unlike a reply
+  async toggleReplyLike(postId, commentId, replyId) {
+    try {
+      return await apiClient.post(
+        `${API_ENDPOINTS.LIKE_REPLY}/${postId}/comment/${commentId}/reply/${replyId}/like`
+      );
+    } catch (error) {
+      throw error;
+    }
+  },
+
   // Delete post
   async deletePost(postId) {
     try {

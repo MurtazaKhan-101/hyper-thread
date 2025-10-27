@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { postService, formatPostTime, formatNumber } from "../../lib/posts";
 import { Button } from "../ui";
+import { CommentThread } from "./CommentThread";
 import Link from "next/link";
 
 export const PostCard = ({ post, onUpdate }) => {
@@ -15,6 +16,31 @@ export const PostCard = ({ post, onUpdate }) => {
   const [showComments, setShowComments] = useState(false);
   const [newComment, setNewComment] = useState("");
   const [isSubmittingComment, setIsSubmittingComment] = useState(false);
+
+  // Local comment state management
+  const [comments, setComments] = useState(post.comments || []);
+  const [isRefreshingComments, setIsRefreshingComments] = useState(false);
+
+  // Update comments when post prop changes
+  useEffect(() => {
+    setComments(post.comments || []);
+  }, [post.comments]);
+
+  // Helper function to count total comments including nested replies
+  const getTotalCommentCount = (commentsList) => {
+    let count = 0;
+    const countComments = (comments) => {
+      if (!comments) return 0;
+      comments.forEach((comment) => {
+        count++;
+        if (comment.replies && comment.replies.length > 0) {
+          countComments(comment.replies);
+        }
+      });
+    };
+    countComments(commentsList);
+    return count;
+  };
 
   const handleLike = async () => {
     if (!isAuthenticated) return;
@@ -28,15 +54,41 @@ export const PostCard = ({ post, onUpdate }) => {
     }
   };
 
+  // Function to refresh only the comments section
+  const refreshComments = async () => {
+    try {
+      setIsRefreshingComments(true);
+      const response = await postService.getPostById(post._id);
+      setComments(response.post.comments || []);
+    } catch (error) {
+      console.error("Failed to refresh comments:", error);
+    } finally {
+      setIsRefreshingComments(false);
+    }
+  };
+
+  // Function to update a specific comment in the local state
+  const updateComment = (commentId, updatedComment) => {
+    setComments((prevComments) =>
+      prevComments.map((comment) =>
+        comment._id === commentId ? updatedComment : comment
+      )
+    );
+  };
+
   const handleComment = async (e) => {
     e.preventDefault();
     if (!newComment.trim() || !isAuthenticated) return;
 
     setIsSubmittingComment(true);
     try {
-      await postService.addComment(post._id, newComment.trim());
+      const response = await postService.addComment(
+        post._id,
+        newComment.trim()
+      );
       setNewComment("");
-      if (onUpdate) onUpdate();
+      // Add new comment to local state immediately
+      setComments((prevComments) => [...prevComments, response.comment]);
     } catch (error) {
       console.error("Failed to add comment:", error);
     }
@@ -270,7 +322,7 @@ export const PostCard = ({ post, onUpdate }) => {
                 d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
               />
             </svg>
-            {formatNumber(post.comments?.length || 0)}
+            {formatNumber(getTotalCommentCount(comments))}
           </button>
 
           <button className="flex items-center gap-2 px-3 py-1 rounded-full text-sm hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400 transition-colors">
@@ -316,40 +368,29 @@ export const PostCard = ({ post, onUpdate }) => {
               </form>
             )}
 
-            {/* Comments List */}
-            <div className="space-y-4">
-              {post.comments?.map((comment, index) => (
-                <div key={index} className="flex gap-3">
-                  <div className="flex-shrink-0">
-                    {comment.user?.profileImage ? (
-                      <img
-                        src={comment.user.profileImage}
-                        alt={comment.user.username}
-                        className="w-6 h-6 rounded-full"
-                      />
-                    ) : (
-                      <div className="w-6 h-6 bg-gray-300 dark:bg-gray-600 rounded-full flex items-center justify-center">
-                        <span className="text-xs font-medium text-gray-600 dark:text-gray-300">
-                          {comment.user?.firstName?.[0] || "U"}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                        u/{comment.user?.username || "unknown"}
-                      </span>
-                      <span className="text-xs text-gray-500">
-                        {formatPostTime(comment.createdAt)}
-                      </span>
-                    </div>
-                    <p className="text-sm text-gray-800 dark:text-gray-200">
-                      {comment.comment}
-                    </p>
-                  </div>
+            {/* Comments Thread */}
+            <div className="space-y-3">
+              {isRefreshingComments && (
+                <div className="flex justify-center py-2">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500"></div>
                 </div>
+              )}
+              {comments?.map((comment) => (
+                <CommentThread
+                  key={comment._id}
+                  comment={comment}
+                  postId={post._id}
+                  onUpdate={(updatedComment) =>
+                    updateComment(comment._id, updatedComment)
+                  }
+                  depth={0}
+                />
               ))}
+              {comments?.length === 0 && !isRefreshingComments && (
+                <p className="text-gray-500 dark:text-gray-400 text-center py-4">
+                  No comments yet. Be the first to comment!
+                </p>
+              )}
             </div>
           </div>
         )}
