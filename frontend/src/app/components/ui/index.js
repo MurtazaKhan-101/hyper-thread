@@ -12,7 +12,7 @@ export const Button = ({
     "px-4 py-2 rounded-full font-bold text-sm transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed";
 
   const variants = {
-    primary: "bg-[#FF4500] text-white hover:bg-[#ff5414] active:bg-[#cc3700]",
+    primary: "bg-buttons-gradient text-white transition-all duration-300 ease-in-out hover:bg-buttons-gradient-hover",
     secondary:
       "bg-transparent border border-[#0079D3] text-[#0079D3] hover:bg-[#0079D3] hover:text-white",
     outline:
@@ -57,7 +57,7 @@ export const Input = ({
         className={`w-full px-4 py-3 rounded border ${
           error
             ? "border-red-500 focus:border-red-500"
-            : "border-gray-300 dark:border-gray-600 focus:border-[#0079D3]"
+            : "border-gray-300 dark:border-gray-600 focus:border-bg-buttons-gradient"
         } bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#0079D3] focus:ring-opacity-50 transition-all ${className}`}
         {...props}
       />
@@ -113,8 +113,9 @@ export const Spinner = ({ size = "md", className = "" }) => {
 
   return (
     <div
-      className={`${sizes[size]} border-gray-200 border-t-[#FF4500] rounded-full animate-spin ${className}`}
+      className={`${sizes[size]} border-gray-200 border-t-blue-500 rounded-full animate-spin ${className}`}
     ></div>
+
   );
 };
 
@@ -123,7 +124,7 @@ export const Link = ({ href, children, className = "" }) => {
   return (
     <a
       href={href}
-      className={`text-[#0079D3] hover:underline text-sm ${className}`}
+      className={`text-bg-buttons-gradient hover:underline text-sm ${className}`}
     >
       {children}
     </a>
