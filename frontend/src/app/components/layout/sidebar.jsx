@@ -19,7 +19,7 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
 
   const mainMenuItems = [
     { id: 'home', label: 'Home', icon: Home, href: '/dashboard' },
-    { id: 'trending', label: 'Trending', icon: TrendingUp, href: '/trending' },
+    { id: 'trending', label: 'Trending', icon: TrendingUp, href: 'dashboard/trending' },
     { id: 'explore', label: 'Explore', icon: Compass, href: '/explore' },
   ];
 
@@ -32,10 +32,10 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
   ];
 
   const resourcesItems = [
-    { id: 'about', label: 'About' },
-    { id: 'help', label: 'Help' },
-    { id: 'terms', label: 'Terms' },
-    { id: 'privacy', label: 'Privacy' },
+    { id: 'about', label: 'About', href: '/about'},
+    { id: 'help', label: 'Help', href: '/help'},
+    { id: 'terms', label: 'Terms', href: '/community-rules' },
+    { id: 'privacy', label: 'Privacy' , href: '/privacy-policy' },
   ];
 
   const handleMenuClick = (href) => {
@@ -180,7 +180,7 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
                 {resourcesItems.map((item) => (
                   <button
                     key={item.id}
-                    onClick={() => handleMenuClick()}
+                    onClick={() => handleMenuClick(item.href)}
                     className="w-full text-left px-4 py-2 text-white hover:bg-buttons-gradient hover:bg-opacity-80 rounded-lg transition-all duration-200"
                   >
                     {item.label}

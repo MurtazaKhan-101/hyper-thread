@@ -146,8 +146,16 @@ export default function CreatePostPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-030303] py-4">
-
+    <div className="min-h-screen bg-gray-50 dark:bg-[#030303] py-4">
+      {/* SVG Gradient Definition */}
+      <svg width="0" height="0" style={{ position: 'absolute' }}>
+        <defs>
+          <linearGradient id="buttons-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#1A94D0" />
+            <stop offset="100%" stopColor="#A41C5E" />
+          </linearGradient>
+        </defs>
+      </svg>
 
       {/* Main Content */}
       <div className="max-w-4xl mx-auto px-4 py-6">
@@ -158,42 +166,60 @@ export default function CreatePostPage() {
               <div className="flex justify-around py-3">
                 {/* Text Tab */}
                 <button
-        onClick={() => setActiveTab("text")}
-        className={`flex flex-col items-center gap-1 px-4 py-2 rounded-md text-sm font-medium transition-all duration-300
-          ${activeTab === "text"
-            ? "text-white bg-buttons-gradient"
-            : "text-gray-500 dark:text-gray-400 hover:bg-buttons-gradient hover:text-white"
-          }`}
-      >
-        <FileText className="w-5 h-5" />
-        <span>Text</span>
-      </button>
+                  onClick={() => setActiveTab("text")}
+                  className={`flex flex-col items-center gap-1 px-4 py-2 rounded-md text-sm font-medium transition-all duration-300
+                    ${activeTab === "text"
+                      ? "text-buttons-gradient"
+                      : "text-blue-500 dark:text-blue-500"
+                    }`}
+                >
+                  <FileText 
+                    className={`w-5 h-5 transition-all duration-300 ${
+                      activeTab === "text" 
+                        ? "stroke-buttons-gradient" 
+                        : "stroke-blue-500 dark:stroke-blue-400"
+                    }`} 
+                  />
+                  <span>Text</span>
+                </button>
 
-      {/* Link Tab */}
-      <button
-        onClick={() => setActiveTab("link")}
-        className={`flex flex-col items-center gap-1 px-4 py-2 rounded-md text-sm font-medium transition-all duration-300
-          ${activeTab === "link"
-            ? "text-white bg-buttons-gradient"
-            : "text-gray-500 dark:text-gray-400 hover:bg-buttons-gradient hover:text-white"
-          }`}
-      >
-        <LinkIcon className="w-5 h-5" />
-        <span>Link</span>
-      </button>
+                {/* Link Tab */}
+                <button
+                  onClick={() => setActiveTab("link")}
+                  className={`flex flex-col items-center gap-1 px-4 py-2 rounded-md text-sm font-medium transition-all duration-300
+                    ${activeTab === "link"
+                      ? "text-buttons-gradient"
+                      : "text-blue-500 dark:text-blue-400"
+                    }`}
+                >
+                  <LinkIcon 
+                    className={`w-5 h-5 transition-all duration-300 ${
+                      activeTab === "link" 
+                        ? "stroke-buttons-gradient" 
+                        : "stroke-blue-500 dark:stroke-blue-400"
+                    }`} 
+                  />
+                  <span>Link</span>
+                </button>
 
-      {/* Media Tab */}
-      <button
-        onClick={() => setActiveTab("media")}
-        className={`flex flex-col items-center gap-1 px-4 py-2 rounded-md text-sm font-medium transition-all duration-300
-          ${activeTab === "media"
-            ? "text-white bg-buttons-gradient"
-            : "text-gray-500 dark:text-gray-400 hover:bg-buttons-gradient hover:text-white"
-          }`}
-      >
-        <ImageIcon className="w-5 h-5" />
-        <span>Media</span>
-      </button>
+                {/* Media Tab */}
+                <button
+                  onClick={() => setActiveTab("media")}
+                  className={`flex flex-col items-center gap-1 px-4 py-2 rounded-md text-sm font-medium transition-all duration-300
+                    ${activeTab === "media"
+                      ? "text-buttons-gradient"
+                      : "text-blue-500 dark:text-blue-400"
+                    }`}
+                >
+                  <ImageIcon 
+                    className={`w-5 h-5 transition-all duration-300 ${
+                      activeTab === "media" 
+                        ? "stroke-buttons-gradient" 
+                        : "stroke-blue-500 dark:stroke-blue-400"
+                    }`} 
+                  />
+                  <span>Media</span>
+                </button>
                </div>
             </div>
 
@@ -282,7 +308,7 @@ export default function CreatePostPage() {
                     htmlFor="media-upload"
                     className="cursor-pointer flex flex-col items-center"
                   >
-                    <div className="text-4xl mb-2">📷</div>
+                    <div className="text-4xl mb-2"><ImageIcon /></div>
                     <p className="text-gray-600 dark:text-gray-400">
                       Drag and drop images and videos, or{" "}
                       <span className="text-[#0079D3] underline">browse</span>

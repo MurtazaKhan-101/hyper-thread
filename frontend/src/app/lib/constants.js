@@ -64,6 +64,9 @@ export const ROUTES = {
   ONBOARDING: "/onboarding",
   DASHBOARD: "/dashboard",
   CREATE_POST: "/create-post",
+  HELP: "/help",
+  ABOUT: "/about",
+  RULES: "/rules",
 };
 
 // Error Messages

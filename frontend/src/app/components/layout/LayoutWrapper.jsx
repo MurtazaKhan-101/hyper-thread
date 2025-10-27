@@ -21,6 +21,16 @@ const LayoutWrapper = ({ children }) => {
   ];
 
   const isAuthPage = authPages.includes(pathname) || pathname === '/';
+
+  // Show loading spinner while determining auth state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-buttons-gradient"></div>
+      </div>
+    );
+  }
+
   const shouldUseAppLayout = !isAuthPage && isAuthenticated;
 
   if (shouldUseAppLayout) {

@@ -26,6 +26,10 @@
   .bg-sidebar-gradient {
     background: var(--gradient-sidebar);
   }
+  .hover\:bg-post-hover:hover {
+    background: var(--gradient-post-hover);
+  }
+
   .bg-gradient-sidebar {
     background: var(--gradient-sidebar);
   }
@@ -53,6 +57,58 @@
   .border-buttons-gradient {
     border-image: var(--gradient-buttons) 1;
     border-image-slice: 1;
+  }
+  .text-buttons-gradient {
+    background: var(--gradient-buttons);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+  .stroke-buttons-gradient {
+    stroke: url(#buttons-gradient);
+  }
+  .stroke-gray-500 {
+    stroke: #6b7280;
+  }
+  .dark .dark\:stroke-gray-400 {
+    stroke: #9ca3af;
+  }
+
+  /* Holographic hover effect */
+  .holographic-hover {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.5s ease;
+  }
+
+  .holographic-hover::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+      0deg,
+      transparent,
+      transparent 30%,
+      rgb(157,48,122,0.4)
+    );
+    transform: rotate(-45deg);
+    transition: all 0.5s ease;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .holographic-hover:hover {
+    transform: scale(1.02);
+    box-shadow: 0 0 20px rgba(26, 148, 208, 0.4);
+  }
+
+  .holographic-hover:hover::before {
+    opacity: 1;
+    transform: rotate(-45deg) translateY(100%);
   }
 }
 
