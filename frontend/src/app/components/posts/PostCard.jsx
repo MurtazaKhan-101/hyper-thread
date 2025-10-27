@@ -207,7 +207,7 @@ export const PostCard = ({ post, onUpdate }) => {
   };
 
   return (
-    <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg hover:border-gray-300 dark:hover:border-gray-700 transition-colors">
+    <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg transition-all holographic-hover">
       {/* Post Header */}
       <div className="p-4">
         <div className="flex items-center gap-2 mb-3">
