@@ -180,10 +180,10 @@ const postSchema = new mongoose.Schema(
 );
 
 // Indexes for better performance
-// postSchema.index({ author: 1, createdAt: -1 });
-// postSchema.index({ postType: 1 });
-// postSchema.index({ status: 1 });
-// postSchema.index({ tags: 1 });
+postSchema.index({ author: 1, createdAt: -1 });
+postSchema.index({ postType: 1 });
+postSchema.index({ status: 1 });
+postSchema.index({ tags: 1 });
 
 // Virtual for comment count
 postSchema.virtual("commentCount").get(function () {

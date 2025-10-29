@@ -110,7 +110,7 @@ export const DiscussionPanel = ({
           <div className="w-2 h-2 bg-green-500 rounded-full"></div>
           <div>
             <h2 className="font-semibold text-gray-100">Discussion</h2>
-            <p className="text-sm text-gray-400">
+            <p className="text-sm text-gray-300">
               {getTotalCommentCount(localComments)}{" "}
               {getTotalCommentCount(localComments) === 1
                 ? "message"
@@ -139,10 +139,7 @@ export const DiscussionPanel = ({
                 style={{ minHeight: "44px", maxHeight: "120px" }}
               />
             </div>
-            <div className="flex justify-between items-center">
-              <span className="text-xs text-gray-400">
-                Press Enter to send, Shift+Enter for new line
-              </span>
+            <div className="flex justify-end items-center">
               <Button
                 type="submit"
                 disabled={!newComment.trim() || isSubmittingComment}
@@ -158,7 +155,9 @@ export const DiscussionPanel = ({
       {/* Comments Area */}
       <div
         className={`flex-1 ${
-          isMobile ? "overflow-y-auto" : "overflow-y-auto"
+          isMobile
+            ? "overflow-y-auto scrollbar-hide"
+            : "overflow-y-auto scrollbar-hide"
         } px-6 py-4 space-y-4`}
       >
         {isRefreshingComments && (
@@ -225,7 +224,7 @@ export const DiscussionPanel = ({
                 }}
                 onKeyDown={handleKeyDown}
                 placeholder="Type your message..."
-                className="flex-1 p-3 border border-gray-700 rounded-lg resize-none bg-gray-800 text-gray-100 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="flex-1 scrollbar-hide p-3 border border-gray-700 rounded-lg resize-none bg-gray-800 text-gray-100 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 rows={1}
                 style={{ minHeight: "44px", maxHeight: "120px" }}
               />

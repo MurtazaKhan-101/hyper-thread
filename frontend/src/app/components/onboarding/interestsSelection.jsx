@@ -111,8 +111,8 @@ export default function InterestsSelection({ onComplete }) {
                   px-4 py-3 rounded-md border-2 text-sm font-medium transition-all
                   ${
                     isSelected
-                      ? "bg-[#FF4500] border-[#FF4500] text-white"
-                      : "bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-[#FF4500] dark:hover:border-[#FF4500]"
+                      ? "bg-buttons-gradient border-gray-300 text-white"
+                      : "bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-blue-400"
                   }
                 `}
               >

@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { PostView } from "./PostView";
 import { DiscussionPanel } from "./DiscussionPanel";
-import { Button } from "../ui";
 
 export const DiscussionLayout = ({ post, onPostUpdate }) => {
   const router = useRouter();
@@ -26,43 +25,12 @@ export const DiscussionLayout = ({ post, onPostUpdate }) => {
 
   return (
     <div className="bg-gray-50 dark:bg-[#030303] w-full overflow-x-hidden mt-5">
-      {/* Header with back button */}
-      {/* <div className="bg-white dark:bg-[#1a1a1a] border-b border-gray-200 dark:border-gray-800 mt-4">
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <div className="flex items-center gap-4">
-            <Button
-              onClick={() => router.push("/dashboard")}
-              variant="outline"
-              className="flex items-center gap-2"
-            >
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M10 19l-7-7m0 0l7-7m-7 7h18"
-                />
-              </svg>
-              Back to Feed
-            </Button>
-            <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-              Discussion
-            </h1>
-          </div>
-        </div>
-      </div> */}
-
       {/* Main content - Split layout for desktop, stacked for mobile */}
       <div className="w-full mx-auto">
         {/* Desktop layout */}
         <div className="hidden md:flex h-[calc(100vh-80px)]">
           {/* Left side - Post content */}
-          <div className="w-1/2 overflow-y-auto">
+          <div className="w-1/2 overflow-y-auto scrollbar-hide">
             <div className="p-6">
               <PostView
                 post={postWithUpdatedComments}
@@ -72,7 +40,7 @@ export const DiscussionLayout = ({ post, onPostUpdate }) => {
             </div>
           </div>
 
-          {/* Right side - Discussion panel (reduced width) */}
+          {/* Right side - Discussion panel*/}
           <div className="w-1/2 border-l border-gray-200 dark:border-gray-800 bg-white dark:bg-[#1a1a1a]">
             <DiscussionPanel
               post={post}

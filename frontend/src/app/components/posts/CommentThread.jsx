@@ -158,7 +158,7 @@ export const CommentThread = ({
                       localComment.user?.username ||
                       "Unknown"}
                   </span>
-                  <span className="text-xs text-gray-400">
+                  <span className="text-xs text-gray-300">
                     {formatPostTime(localComment.createdAt)}
                   </span>
                 </div>
@@ -176,7 +176,7 @@ export const CommentThread = ({
                     className={`flex items-center gap-1 text-xs px-2 py-1 rounded transition-colors ${
                       isLiked
                         ? "text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20"
-                        : "text-gray-400 hover:text-gray-300 hover:bg-gray-700"
+                        : "text-gray-300 hover:text-gray-300 hover:bg-gray-700"
                     }`}
                   >
                     <svg
@@ -232,7 +232,7 @@ export const CommentThread = ({
                         <Button
                           type="button"
                           onClick={() => setShowReplyForm(false)}
-                          variant="outline"
+                          variant="outline_secondary"
                           className="text-xs px-3 py-1"
                         >
                           Cancel

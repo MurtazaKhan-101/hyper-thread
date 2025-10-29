@@ -121,7 +121,9 @@ export const PostFeed = ({ feedType = "latest", searchQuery = "" }) => {
             disabled={loadingMore}
             className="min-w-32"
           >
-            {loadingMore ? <Spinner size="sm" /> : "Load More"}
+            <span className="flex items-center justify-center min-w-[80px]">
+              {loadingMore ? <Spinner size="sm" /> : "Load More"}
+            </span>
           </Button>
         </div>
       )}

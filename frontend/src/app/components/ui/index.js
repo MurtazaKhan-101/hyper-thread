@@ -17,7 +17,9 @@ export const Button = ({
     secondary:
       "bg-transparent border border-[#0079D3] text-[#0079D3] hover:bg-[#0079D3] hover:text-white",
     outline:
-      "bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800",
+      "bg-transparent border border-gray-300 text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800",
+    outline_secondary:
+      "bg-transparent border border-gray-300 text-white hover:bg-gray-50 hover:text-gray-700",
     google:
       "bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700",
   };

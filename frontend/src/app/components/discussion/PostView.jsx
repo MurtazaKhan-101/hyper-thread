@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { postService, formatPostTime, formatNumber } from "../../lib/posts";
 import { Button } from "../ui";
+import { ImageSlider } from "../posts/ImageSlider";
 import Link from "next/link";
 
 export const PostView = ({ post, onUpdate, isDiscussionView = false }) => {
@@ -100,33 +101,7 @@ export const PostView = ({ post, onUpdate, isDiscussionView = false }) => {
               </div>
             )}
             {post.media && post.media.length > 0 && (
-              <div className="grid gap-3">
-                {post.media.map((media, index) => (
-                  <div key={index} className="overflow-hidden rounded-lg">
-                    {media.type === "image" ? (
-                      <img
-                        src={media.url}
-                        alt={`Media ${index + 1}`}
-                        className="w-full h-auto max-h-64 object-cover"
-                      />
-                    ) : media.type === "video" ? (
-                      <video
-                        src={media.url}
-                        controls
-                        className="w-full h-auto max-h-64"
-                      >
-                        Your browser does not support video playback.
-                      </video>
-                    ) : (
-                      <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg">
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
-                          File: {media.originalName || "Unknown file"}
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
+              <ImageSlider media={post.media} />
             )}
           </div>
         );

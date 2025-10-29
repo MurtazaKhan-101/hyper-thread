@@ -42,36 +42,36 @@ const upload = multer({
 
 class PostController {
   // Helper function to recursively populate comments and their replies
-  async populateCommentsRecursively(comments, depth = 0, maxDepth = 5) {
-    if (depth > maxDepth) return comments;
+  // async populateCommentsRecursively(comments, depth = 0, maxDepth = 5) {
+  //   if (depth > maxDepth) return comments;
 
-    const populatedComments = await Comment.populate(comments, [
-      {
-        path: "user",
-        select: "firstName lastName username profileImage isVerified",
-      },
-      {
-        path: "replies",
-        populate: {
-          path: "user",
-          select: "firstName lastName username profileImage isVerified",
-        },
-      },
-    ]);
+  //   const populatedComments = await Comment.populate(comments, [
+  //     {
+  //       path: "user",
+  //       select: "firstName lastName username profileImage isVerified",
+  //     },
+  //     {
+  //       path: "replies",
+  //       populate: {
+  //         path: "user",
+  //         select: "firstName lastName username profileImage isVerified",
+  //       },
+  //     },
+  //   ]);
 
-    // Recursively populate nested replies
-    for (let comment of populatedComments) {
-      if (comment.replies && comment.replies.length > 0) {
-        comment.replies = await this.populateCommentsRecursively(
-          comment.replies,
-          depth + 1,
-          maxDepth
-        );
-      }
-    }
+  //   // Recursively populate nested replies
+  //   for (let comment of populatedComments) {
+  //     if (comment.replies && comment.replies.length > 0) {
+  //       comment.replies = await this.populateCommentsRecursively(
+  //         comment.replies,
+  //         depth + 1,
+  //         maxDepth
+  //       );
+  //     }
+  //   }
 
-    return populatedComments;
-  }
+  //   return populatedComments;
+  // }
   // Create a new post
   async createPost(req, res) {
     try {
@@ -84,6 +84,7 @@ class PostController {
         linkUrl,
         linkTitle,
         linkDescription,
+        linkThumbnail,
         isMarkdown,
       } = req.body;
       const userId = req.user._id;
@@ -145,6 +146,7 @@ class PostController {
         postData.linkUrl = linkUrl.trim();
         postData.linkTitle = linkTitle?.trim() || null;
         postData.linkDescription = linkDescription?.trim() || null;
+        postData.linkThumbnail = linkThumbnail?.trim() || null;
 
         // Generate link preview if not provided
         if (!linkTitle || !linkDescription) {
@@ -378,14 +380,15 @@ class PostController {
         })
         .sort(sortOption)
         .skip(skip)
-        .limit(limit);
+        .limit(limit)
+        .lean();
 
       // Populate comments recursively
-      for (let post of posts) {
-        if (post.comments && post.comments.length > 0) {
-          post.comments = await this.populateCommentsRecursively(post.comments);
-        }
-      }
+      // for (let post of posts) {
+      //   if (post.comments && post.comments.length > 0) {
+      //     post.comments = await this.populateCommentsRecursively(post.comments);
+      //   }
+      // }
 
       const totalPosts = await Post.countDocuments(filter);
       const totalPages = Math.ceil(totalPosts / limit);
@@ -409,6 +412,70 @@ class PostController {
       });
     }
   }
+
+  // async getPosts(req, res) {
+  //   try {
+  //     const page = parseInt(req.query.page) || 1;
+  //     const limit = parseInt(req.query.limit) || 10;
+  //     const skip = (page - 1) * limit;
+
+  //     const filter = { status: "published" };
+  //     if (
+  //       req.query.postType &&
+  //       ["text", "media", "link"].includes(req.query.postType)
+  //     )
+  //       filter.postType = req.query.postType;
+  //     if (req.query.author) filter.author = req.query.author;
+  //     if (req.query.tags) {
+  //       const tagArray = Array.isArray(req.query.tags)
+  //         ? req.query.tags
+  //         : [req.query.tags];
+  //       filter.tags = { $in: tagArray };
+  //     }
+
+  //     const sortOption =
+  //       req.query.sort === "oldest"
+  //         ? { createdAt: 1 }
+  //         : req.query.sort === "likes"
+  //         ? { likes: -1, createdAt: -1 }
+  //         : { createdAt: -1 };
+
+  //     const [posts, totalPosts] = await Promise.all([
+  //       Post.find(
+  //         filter,
+  //         "title content mediaUrl tags createdAt likes comments"
+  //       )
+  //         .populate(
+  //           "author",
+  //           "firstName lastName username profileImage isVerified"
+  //         )
+  //         .sort(sortOption)
+  //         .skip(skip)
+  //         .limit(limit)
+  //         .lean(),
+  //       Post.countDocuments(filter),
+  //     ]);
+
+  //     const totalPages = Math.ceil(totalPosts / limit);
+
+  //     res.status(200).json({
+  //       success: true,
+  //       posts,
+  //       pagination: {
+  //         currentPage: page,
+  //         totalPages,
+  //         totalPosts,
+  //         hasNext: page < totalPages,
+  //         hasPrev: page > 1,
+  //       },
+  //     });
+  //   } catch (error) {
+  //     console.error("Error fetching posts:", error);
+  //     res
+  //       .status(500)
+  //       .json({ success: false, message: "Server error fetching posts" });
+  //   }
+  // }
 
   // Get single post by ID
   async getPostById(req, res) {
@@ -436,9 +503,9 @@ class PostController {
       }
 
       // Populate comments recursively
-      if (post.comments && post.comments.length > 0) {
-        post.comments = await this.populateCommentsRecursively(post.comments);
-      }
+      // if (post.comments && post.comments.length > 0) {
+      //   post.comments = await this.populateCommentsRecursively(post.comments);
+      // }
 
       res.status(200).json({
         success: true,

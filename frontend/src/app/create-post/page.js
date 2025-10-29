@@ -6,7 +6,6 @@ import { useAuth } from "../context/AuthContext";
 import { Button, Input, Spinner } from "../components/ui";
 import { postService } from "../lib/posts";
 import { ROUTES } from "../lib/constants";
-import Link from "next/link";
 import { FileText, Link as LinkIcon, Image as ImageIcon } from "lucide-react";
 export default function CreatePostPage() {
   const router = useRouter();
@@ -43,6 +42,7 @@ export default function CreatePostPage() {
         setIsGeneratingPreview(true);
         try {
           const response = await postService.generateLinkPreview(linkUrl);
+          console.log("Link preview response:", response);
           setLinkPreview(response.preview);
         } catch (error) {
           console.error("Failed to generate preview:", error);
@@ -57,9 +57,11 @@ export default function CreatePostPage() {
 
   const handleMediaUpload = async (files) => {
     try {
+      setIsSubmitting(true);
       const response = await postService.uploadMedia(files);
       setUploadedMedia(response.files);
       setMediaFiles([]);
+      setIsSubmitting(false);
     } catch (error) {
       setErrors({ media: "Failed to upload media files" });
     }
@@ -114,6 +116,7 @@ export default function CreatePostPage() {
           linkUrl: linkUrl.trim(),
           linkTitle: linkPreview?.title || null,
           linkDescription: linkPreview?.description || null,
+          linkThumbnail: linkPreview?.thumbnail || null,
         };
 
         const response = await postService.createPost(postData);
@@ -148,9 +151,15 @@ export default function CreatePostPage() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-[#030303] py-4">
       {/* SVG Gradient Definition */}
-      <svg width="0" height="0" style={{ position: 'absolute' }}>
+      <svg width="0" height="0" style={{ position: "absolute" }}>
         <defs>
-          <linearGradient id="buttons-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+          <linearGradient
+            id="buttons-gradient"
+            x1="0%"
+            y1="0%"
+            x2="100%"
+            y2="0%"
+          >
             <stop offset="0%" stopColor="#1A94D0" />
             <stop offset="100%" stopColor="#A41C5E" />
           </linearGradient>
@@ -160,69 +169,70 @@ export default function CreatePostPage() {
       {/* Main Content */}
       <div className="max-w-4xl mx-auto px-4 py-6">
         <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800">
-
           {/* Post Type Tabs with Gradient Background */}
-            <div className="border-b border-gray-200 dark:border-gray-800">
-              <div className="flex justify-around py-3">
-                {/* Text Tab */}
-                <button
-                  onClick={() => setActiveTab("text")}
-                  className={`flex flex-col items-center gap-1 px-4 py-2 rounded-md text-sm font-medium transition-all duration-300
-                    ${activeTab === "text"
-                      ? "text-buttons-gradient"
-                      : "text-blue-500 dark:text-blue-500"
+          <div className="border-b border-gray-200 dark:border-gray-800">
+            <div className="flex justify-around py-3">
+              {/* Text Tab */}
+              <button
+                onClick={() => setActiveTab("text")}
+                className={`flex flex-col items-center gap-1 px-4 py-2 rounded-md text-sm font-medium transition-all duration-300
+                    ${
+                      activeTab === "text"
+                        ? "text-buttons-gradient"
+                        : "text-blue-500 dark:text-blue-500"
                     }`}
-                >
-                  <FileText 
-                    className={`w-5 h-5 transition-all duration-300 ${
-                      activeTab === "text" 
-                        ? "stroke-buttons-gradient" 
-                        : "stroke-blue-500 dark:stroke-blue-400"
-                    }`} 
-                  />
-                  <span>Text</span>
-                </button>
+              >
+                <FileText
+                  className={`w-5 h-5 transition-all duration-300 ${
+                    activeTab === "text"
+                      ? "stroke-buttons-gradient"
+                      : "stroke-blue-500 dark:stroke-blue-400"
+                  }`}
+                />
+                <span>Text</span>
+              </button>
 
-                {/* Link Tab */}
-                <button
-                  onClick={() => setActiveTab("link")}
-                  className={`flex flex-col items-center gap-1 px-4 py-2 rounded-md text-sm font-medium transition-all duration-300
-                    ${activeTab === "link"
-                      ? "text-buttons-gradient"
-                      : "text-blue-500 dark:text-blue-400"
+              {/* Link Tab */}
+              <button
+                onClick={() => setActiveTab("link")}
+                className={`flex flex-col items-center gap-1 px-4 py-2 rounded-md text-sm font-medium transition-all duration-300
+                    ${
+                      activeTab === "link"
+                        ? "text-buttons-gradient"
+                        : "text-blue-500 dark:text-blue-400"
                     }`}
-                >
-                  <LinkIcon 
-                    className={`w-5 h-5 transition-all duration-300 ${
-                      activeTab === "link" 
-                        ? "stroke-buttons-gradient" 
-                        : "stroke-blue-500 dark:stroke-blue-400"
-                    }`} 
-                  />
-                  <span>Link</span>
-                </button>
+              >
+                <LinkIcon
+                  className={`w-5 h-5 transition-all duration-300 ${
+                    activeTab === "link"
+                      ? "stroke-buttons-gradient"
+                      : "stroke-blue-500 dark:stroke-blue-400"
+                  }`}
+                />
+                <span>Link</span>
+              </button>
 
-                {/* Media Tab */}
-                <button
-                  onClick={() => setActiveTab("media")}
-                  className={`flex flex-col items-center gap-1 px-4 py-2 rounded-md text-sm font-medium transition-all duration-300
-                    ${activeTab === "media"
-                      ? "text-buttons-gradient"
-                      : "text-blue-500 dark:text-blue-400"
+              {/* Media Tab */}
+              <button
+                onClick={() => setActiveTab("media")}
+                className={`flex flex-col items-center gap-1 px-4 py-2 rounded-md text-sm font-medium transition-all duration-300
+                    ${
+                      activeTab === "media"
+                        ? "text-buttons-gradient"
+                        : "text-blue-500 dark:text-blue-400"
                     }`}
-                >
-                  <ImageIcon 
-                    className={`w-5 h-5 transition-all duration-300 ${
-                      activeTab === "media" 
-                        ? "stroke-buttons-gradient" 
-                        : "stroke-blue-500 dark:stroke-blue-400"
-                    }`} 
-                  />
-                  <span>Media</span>
-                </button>
-               </div>
+              >
+                <ImageIcon
+                  className={`w-5 h-5 transition-all duration-300 ${
+                    activeTab === "media"
+                      ? "stroke-buttons-gradient"
+                      : "stroke-blue-500 dark:stroke-blue-400"
+                  }`}
+                />
+                <span>Media</span>
+              </button>
             </div>
-
+          </div>
 
           {/* Form Content */}
           <form onSubmit={handleSubmit} className="p-6">
@@ -308,7 +318,9 @@ export default function CreatePostPage() {
                     htmlFor="media-upload"
                     className="cursor-pointer flex flex-col items-center"
                   >
-                    <div className="text-4xl mb-2"><ImageIcon /></div>
+                    <div className="text-4xl mb-2">
+                      <ImageIcon />
+                    </div>
                     <p className="text-gray-600 dark:text-gray-400">
                       Drag and drop images and videos, or{" "}
                       <span className="text-[#0079D3] underline">browse</span>
@@ -321,10 +333,15 @@ export default function CreatePostPage() {
                     <Button
                       type="button"
                       onClick={() => handleMediaUpload(mediaFiles)}
+                      disabled={isSubmitting}
                       variant="secondary"
                       className="mb-2"
                     >
-                      Upload {mediaFiles.length} file(s)
+                      {isSubmitting ? (
+                        <Spinner size="sm" />
+                      ) : (
+                        `Upload ${mediaFiles.length} file(s)`
+                      )}
                     </Button>
                   </div>
                 )}
@@ -405,7 +422,7 @@ export default function CreatePostPage() {
               <Button
                 type="submit"
                 disabled={isSubmitting || !title.trim()}
-                className="min-w-20"
+                className="min-w-20 flex items-center justify-center"
                 variant="primary"
               >
                 {isSubmitting ? <Spinner size="sm" /> : "Post"}

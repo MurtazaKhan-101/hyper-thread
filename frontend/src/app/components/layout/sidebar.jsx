@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   Home,
   TrendingUp,
@@ -9,8 +9,8 @@ import {
   ChevronUp,
   ChevronDown,
   X,
-  Menu
-} from 'lucide-react';
+  Menu,
+} from "lucide-react";
 
 const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
   const router = useRouter();
@@ -18,24 +18,24 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
   const [resourcesExpanded, setResourcesExpanded] = useState(false);
 
   const mainMenuItems = [
-    { id: 'home', label: 'Home', icon: Home, href: '/dashboard' },
-    { id: 'trending', label: 'Trending', icon: TrendingUp, href: 'dashboard/trending' },
-    { id: 'explore', label: 'Explore', icon: Compass, href: '/explore' },
+    { id: "home", label: "Home", icon: Home, href: "/dashboard" },
+    { id: "trending", label: "Trending", icon: TrendingUp, href: "/dashboard" },
+    { id: "explore", label: "Explore", icon: Compass, href: "/dashboard" },
   ];
 
   const topicsItems = [
-    { id: 'sports', label: 'Sports' },
-    { id: 'culture', label: 'Culture' },
-    { id: 'internet', label: 'Internet' },
-    { id: 'history', label: 'History' },
-    { id: 'entertainment', label: 'Entertainment' },
+    { id: "sports", label: "Sports" },
+    { id: "culture", label: "Culture" },
+    { id: "internet", label: "Internet" },
+    { id: "history", label: "History" },
+    { id: "entertainment", label: "Entertainment" },
   ];
 
   const resourcesItems = [
-    { id: 'about', label: 'About', href: '/about'},
-    { id: 'help', label: 'Help', href: '/help'},
-    { id: 'terms', label: 'Terms', href: '/community-rules' },
-    { id: 'privacy', label: 'Privacy' , href: '/privacy-policy' },
+    { id: "about", label: "About", href: "/about" },
+    { id: "help", label: "Help", href: "/help" },
+    { id: "terms", label: "Terms", href: "/community-rules" },
+    { id: "privacy", label: "Privacy", href: "/privacy-policy" },
   ];
 
   const handleMenuClick = (href) => {
@@ -77,7 +77,11 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
             transition-all duration-300 ease-in-out
             h-[calc(100vh-3.5rem)] w-80 lg:w-72
             overflow-y-auto scrollbar-hide
-            ${isMobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+            ${
+              isMobileOpen
+                ? "translate-x-0"
+                : "-translate-x-full lg:translate-x-0"
+            }
             lg:block
             shadow-2xl
             `}
@@ -107,9 +111,10 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
                   className={`
                     w-full flex items-center px-4 py-3 text-lg font-medium rounded-xl
                     transition-all duration-200 ease-in-out group
-                    ${active 
-                      ? 'bg-buttons-gradient shadow-lg transform scale-105' 
-                      : 'text-white hover:bg-buttons-gradient hover:shadow-md hover:transform hover:scale-105'
+                    ${
+                      active
+                        ? "bg-buttons-gradient shadow-lg transform scale-105"
+                        : "text-white hover:bg-buttons-gradient hover:shadow-md hover:transform hover:scale-105"
                     }
                   `}
                 >
@@ -136,7 +141,7 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
                 <ChevronDown className="w-5 h-5" />
               )}
             </button>
-            
+
             {topicsExpanded && (
               <div className="mt-2 space-y-1 pl-4">
                 {topicsItems.map((item) => (
@@ -174,7 +179,7 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
                 <ChevronDown className="w-5 h-5" />
               )}
             </button>
-            
+
             {resourcesExpanded && (
               <div className="mt-2 space-y-1 pl-4">
                 {resourcesItems.map((item) => (

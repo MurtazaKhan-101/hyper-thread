@@ -75,40 +75,24 @@
     stroke: #9ca3af;
   }
 
-  /* Holographic hover effect */
-  .holographic-hover {
-    position: relative;
-    overflow: hidden;
-    transition: all 0.5s ease;
+  .post-card-border {
+    background: #e5e7eb6e;
   }
 
-  .holographic-hover::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: linear-gradient(
-      0deg,
-      transparent,
-      transparent 30%,
-      rgb(157,48,122,0.4)
-    );
-    transform: rotate(-45deg);
-    transition: all 0.5s ease;
-    opacity: 0;
-    pointer-events: none;
+  /* Hover state - animated colorful border */
+  .post-card-border:hover {
+    background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899, #3b82f6) 0 0 /
+      300% 100%;
+    animation: movingBorder 1.5s linear infinite;
   }
 
-  .holographic-hover:hover {
-    transform: scale(1.02);
-    box-shadow: 0 0 20px rgba(26, 148, 208, 0.4);
-  }
-
-  .holographic-hover:hover::before {
-    opacity: 1;
-    transform: rotate(-45deg) translateY(100%);
+  @keyframes movingBorder {
+    0% {
+      background-position: 0 0;
+    }
+    100% {
+      background-position: 300% 0;
+    }
   }
 }
 

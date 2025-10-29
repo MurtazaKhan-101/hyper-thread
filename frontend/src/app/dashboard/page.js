@@ -39,105 +39,262 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-8">
-      {/* Reddit-style Navigation Tabs */}
-      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg mb-6">
-        <div className="flex border-b border-gray-200 dark:border-gray-800">
-          <button
-            onClick={() => handleTabChange("latest")}
-            className={`flex items-center gap-2 px-6 py-3 text-sm font-medium border-b-2 transition-colors ${
-              activeTab === "latest"
-                ? "border-[#0079D3] text-[#0079D3]"
-                : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-            }`}
-          >
-            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-              <path
-                fillRule="evenodd"
-                d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
-                clipRule="evenodd"
-              />
-            </svg>
-            Latest
-          </button>
-
-          <button
-            onClick={() => handleTabChange("trending")}
-            className={`flex items-center gap-2 px-6 py-3 text-sm font-medium border-b-2 transition-colors ${
-              activeTab === "trending"
-                ? "border-[#0079D3] text-[#0079D3]"
-                : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-            }`}
-          >
-            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M2 10a8 8 0 018-8v8h8a8 8 0 11-16 0z" />
-              <path d="M12 2.252A8.014 8.014 0 0117.748 8H12V2.252z" />
-            </svg>
-            Trending
-          </button>
-
-          {activeTab === "search" && (
-            <div className="flex items-center px-6 py-3 text-sm font-medium border-b-2 border-[#0079D3] text-[#0079D3]">
-              <svg
-                className="w-4 h-4 mr-2"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      {/* Reddit-style Grid Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6 max-w-7xl mx-auto px-4 py-8">
+        {/* Left Column - Main Feed (Scrollable) */}
+        <div className="min-h-0">
+          {/* Reddit-style Navigation Tabs */}
+          <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg mb-6top-20">
+            <div className="flex border-b border-gray-200 dark:border-gray-800">
+              <button
+                onClick={() => handleTabChange("latest")}
+                className={`flex items-center gap-2 px-6 py-3 text-sm font-medium border-b-2 transition-colors ${
+                  activeTab === "latest"
+                    ? "border-[#0079D3] text-[#0079D3]"
+                    : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                }`}
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                />
-              </svg>
-              Search: &ldquo;{searchQuery}&rdquo;
+                <svg
+                  className="w-4 h-4"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                Latest
+              </button>
+
+              <button
+                onClick={() => handleTabChange("trending")}
+                className={`flex items-center gap-2 px-6 py-3 text-sm font-medium border-b-2 transition-colors ${
+                  activeTab === "trending"
+                    ? "border-[#0079D3] text-[#0079D3]"
+                    : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                }`}
+              >
+                <svg
+                  className="w-4 h-4"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path d="M2 10a8 8 0 018-8v8h8a8 8 0 11-16 0z" />
+                  <path d="M12 2.252A8.014 8.014 0 0117.748 8H12V2.252z" />
+                </svg>
+                Trending
+              </button>
+
+              {activeTab === "search" && (
+                <div className="flex items-center px-6 py-3 text-sm font-medium border-b-2 border-[#0079D3] text-[#0079D3]">
+                  <svg
+                    className="w-4 h-4 mr-2"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                    />
+                  </svg>
+                  Search: &ldquo;{searchQuery}&rdquo;
+                </div>
+              )}
             </div>
-          )}
+
+            {/* Create Post CTA - Inside the nav */}
+            {activeTab !== "search" && (
+              <div className="p-4">
+                <Link href={ROUTES.CREATE_POST}>
+                  <div className="flex items-center gap-3 p-3 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors cursor-pointer">
+                    {/* User Avatar */}
+                    <div className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                      {user?.profileImage ? (
+                        <Image
+                          src={user.profileImage}
+                          alt={user.firstName}
+                          width={32}
+                          height={32}
+                          className="rounded-full"
+                        />
+                      ) : (
+                        <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                          {user?.firstName?.[0]?.toUpperCase() || "U"}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Placeholder text */}
+                    <span className="flex-1 text-gray-500 dark:text-gray-400 text-left">
+                      Create a post
+                    </span>
+
+                    {/* Lucide Icons */}
+                    <div className="flex gap-3">
+                      <FileText className="w-5 h-5 text-gray-400 stroke-blue-500 transition-all duration-300" />
+                      <LinkIcon className="w-5 h-5 text-gray-400 stroke-blue-500 transition-all duration-300" />
+                      <ImageIcon className="w-5 h-5 text-gray-400 stroke-blue-500 transition-all duration-300" />
+                    </div>
+                  </div>
+                </Link>
+              </div>
+            )}
+          </div>
+
+          {/* Post Feed - Scrollable Content */}
+          <div className="pb-8">
+            <PostFeed
+              feedType={activeTab}
+              searchQuery={activeTab === "search" ? searchQuery : ""}
+            />
+          </div>
         </div>
 
-        {/* Create Post CTA - Inside the nav */}
-        {activeTab !== "search" && (
-         <div className="p-4">
-  <Link href={ROUTES.CREATE_POST}>
-    <div className="flex items-center gap-3 p-3 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors cursor-pointer">
-      {/* User Avatar */}
-      <div className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
-        {user?.profileImage ? (
-          <Image
-            src={user.profileImage}
-            alt={user.firstName}
-            width={32}
-            height={32}
-            className="rounded-full"
-          />
-        ) : (
-          <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
-            {user?.firstName?.[0]?.toUpperCase() || "U"}
-          </span>
-        )}
-      </div>
+        {/* Right Column - Sidebar (Fixed/Non-scrollable) */}
+        <div className="hidden lg:block">
+          <div className="sticky top-20 space-y-6">
+            {/* Recent Activities Section */}
+            <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg overflow-hidden">
+              <div className="bg-gradient-to-r from-blue-500 to-blue-600 px-4 py-3">
+                <h3 className="text-white font-semibold text-sm">
+                  Recent Activities
+                </h3>
+              </div>
+              <div className="p-4 space-y-4">
+                {/* Recent Activity Items */}
+                <div className="flex items-start gap-3">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+                  <div className="text-sm">
+                    <p className="text-gray-600 dark:text-gray-400">
+                      <span className="font-medium text-gray-900 dark:text-gray-100">
+                        u/{user?.username || "User"}
+                      </span>{" "}
+                      created a new post
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                      2 hours ago
+                    </p>
+                  </div>
+                </div>
 
-      {/* Placeholder text */}
-      <span className="flex-1 text-gray-500 dark:text-gray-400 text-left">
-        Create a post
-      </span>
+                <div className="flex items-start gap-3">
+                  <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
+                  <div className="text-sm">
+                    <p className="text-gray-600 dark:text-gray-400">
+                      New trending post in{" "}
+                      <span className="font-medium text-gray-900 dark:text-gray-100">
+                        Technology
+                      </span>
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                      5 hours ago
+                    </p>
+                  </div>
+                </div>
 
-      {/* Lucide Icons */}
-      <div className="flex gap-3">
-        <FileText className="w-5 h-5 text-gray-400  stroke-blue-500 transition-all duration-300" />
-        <LinkIcon className="w-5 h-5 text-gray-400  stroke-blue-500  transition-all duration-300" />
-        <ImageIcon className="w-5 h-5 text-gray-400  stroke-blue-500 transition-all duration-300" />
+                <div className="flex items-start gap-3">
+                  <div className="w-2 h-2 bg-orange-500 rounded-full mt-2 flex-shrink-0"></div>
+                  <div className="text-sm">
+                    <p className="text-gray-600 dark:text-gray-400">
+                      Community milestone:{" "}
+                      <span className="font-medium text-gray-900 dark:text-gray-100">
+                        1000 members
+                      </span>
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                      1 day ago
+                    </p>
+                  </div>
+                </div>
+
+                <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
+                  <Link
+                    href="/activity"
+                    className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 text-xs font-medium"
+                  >
+                    View all activity →
+                  </Link>
+                </div>
+              </div>
+            </div>
+
+            {/* Community Guidelines */}
+            <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg overflow-hidden">
+              <div className="bg-gradient-to-r from-purple-500 to-purple-600 px-4 py-3">
+                <h3 className="text-white font-semibold text-sm">
+                  Community Guidelines
+                </h3>
+              </div>
+              <div className="p-4 space-y-3">
+                <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                  <div className="w-1 h-1 bg-gray-400 rounded-full"></div>
+                  <span>Be respectful and civil</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                  <div className="w-1 h-1 bg-gray-400 rounded-full"></div>
+                  <span>No spam or self-promotion</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                  <div className="w-1 h-1 bg-gray-400 rounded-full"></div>
+                  <span>Keep content relevant</span>
+                </div>
+                <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
+                  <Link
+                    href="/community-rules"
+                    className="text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300 text-xs font-medium"
+                  >
+                    Read full rules →
+                  </Link>
+                </div>
+              </div>
+            </div>
+
+            {/* Trademark/Footer */}
+            <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4">
+              <div className="text-center space-y-2">
+                <div className="flex items-center justify-center gap-2">
+                  <div className="w-6 h-6 bg-gradient-to-r from-blue-500 to-purple-600 rounded-md flex items-center justify-center">
+                    <span className="text-white text-xs font-bold">HT</span>
+                  </div>
+                  <span className="font-semibold text-gray-900 dark:text-gray-100 text-sm">
+                    HyperThread
+                  </span>
+                </div>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  &copy; {new Date().getFullYear()} HyperThread. All rights
+                  reserved.
+                </p>
+                <div className="flex justify-center gap-4 text-xs">
+                  <Link
+                    href="/privacy-policy"
+                    className="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400"
+                  >
+                    Privacy
+                  </Link>
+                  <Link
+                    href="/community-rules"
+                    className="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400"
+                  >
+                    Terms
+                  </Link>
+                  <Link
+                    href="/help"
+                    className="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400"
+                  >
+                    Help
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
-  </Link>
-</div>
-        )}
-      </div>      {/* Post Feed */}
-      <PostFeed
-        feedType={activeTab}
-        searchQuery={activeTab === "search" ? searchQuery : ""}
-      />
     </div>
   );
 }
