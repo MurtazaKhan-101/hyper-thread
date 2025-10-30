@@ -15,28 +15,34 @@ export default function Help() {
   const faqs = [
     {
       question: "How do I create an account?",
-      answer: "To create an account, click on the 'Sign Up' button and fill in your email, password, and basic information. You'll receive a verification email to confirm your account."
+      answer:
+        "To create an account, click on the 'Sign Up' button and fill in your email, password, and basic information. You'll receive a verification email to confirm your account.",
     },
     {
-      question: "I forgot my password — what should I do?",
-      answer: "Click on 'Forgot Password' on the login page. Enter your email address and we'll send you a reset link. Follow the instructions in the email to create a new password."
+      question: "I forgot my password, what should I do?",
+      answer:
+        "Click on 'Forgot Password' on the login page. Enter your email address and we'll send you a reset link. Follow the instructions in the email to create a new password.",
     },
     {
       question: "Can I change my username or profile picture?",
-      answer: "Yes! Go to your profile settings from the dashboard. You can update your username, profile picture, bio, and other personal information anytime."
+      answer:
+        "Yes! Go to your profile settings from the dashboard. You can update your username, profile picture, bio, and other personal information anytime.",
     },
     {
       question: "Why am I not seeing my recent post?",
-      answer: "Posts may take a few moments to appear in the feed. If your post still doesn't show up after refreshing, please check if it meets our community guidelines or contact support."
+      answer:
+        "Posts may take a few moments to appear in the feed. If your post still doesn't show up after refreshing, please check if it meets our community guidelines or contact support.",
     },
     {
       question: "How do I report inappropriate content?",
-      answer: "Click the three dots menu on any post and select 'Report'. Choose the appropriate reason and we'll review the content within 24 hours."
+      answer:
+        "Click the three dots menu on any post and select 'Report'. Choose the appropriate reason and we'll review the content within 24 hours.",
     },
     {
       question: "Can I delete my posts?",
-      answer: "Yes, you can delete your own posts by clicking the three dots menu on your post and selecting 'Delete'. Note that this action cannot be undone."
-    }
+      answer:
+        "Yes, you can delete your own posts by clicking the three dots menu on your post and selecting 'Delete'. Note that this action cannot be undone.",
+    },
   ];
 
   return (
@@ -49,7 +55,9 @@ export default function Help() {
             Help
           </h1>
           <p className="text-base sm:text-lg lg:text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto leading-relaxed">
-            We&apos;re here to make your experience smooth and enjoyable. Explore our FAQs, find troubleshooting steps, or reach out directly if you need extra assistance.
+            We&apos;re here to make your experience smooth and enjoyable.
+            Explore our FAQs, find troubleshooting steps, or reach out directly
+            if you need extra assistance.
           </p>
         </div>
 
@@ -58,10 +66,13 @@ export default function Help() {
           <h2 className="text-2xl sm:text-3xl font-bold text-buttons-gradient mb-6 sm:mb-8">
             Frequently Asked Questions
           </h2>
-          
+
           <div className="space-y-4">
             {faqs.map((faq, index) => (
-              <div key={index} className="bg-buttons-gradient p-[2px] rounded-lg">
+              <div
+                key={index}
+                className="bg-buttons-gradient p-[2px] rounded-lg"
+              >
                 <Card className="overflow-hidden bg-white dark:bg-gray-900 rounded-lg">
                   <button
                     onClick={() => toggleFAQ(index)}
@@ -74,7 +85,7 @@ export default function Help() {
                       {openFAQ === index ? "−" : "+"}
                     </span>
                   </button>
-                  
+
                   {openFAQ === index && (
                     <div className="px-4 sm:px-6 pb-4 sm:pb-5 border-t border-gray-500 dark:border-gray-700">
                       <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 leading-relaxed pt-4">
@@ -90,8 +101,8 @@ export default function Help() {
 
         {/* Contact Support CTA */}
         {/* <div className="grid md:grid-cols-2 gap-6 sm:gap-8 mb-12 sm:mb-16"> */}
-          {/* Contact Support Card */}
-          {/* <div className="bg-ui-cards-gradient rounded-xl sm:rounded-2xl p-6 sm:p-8 text-white">
+        {/* Contact Support Card */}
+        {/* <div className="bg-ui-cards-gradient rounded-xl sm:rounded-2xl p-6 sm:p-8 text-white">
             <h3 className="text-xl sm:text-2xl font-bold mb-4">
               Contact Support
             </h3>
@@ -130,7 +141,7 @@ export default function Help() {
             </div>
           </div> */}
 
-{/*       
+        {/*       
         </div> */}
 
         {/* Need More Help CTA */}
@@ -139,24 +150,24 @@ export default function Help() {
             Need more Help?
           </h2>
           <p className="text-base sm:text-lg mb-6 sm:mb-8 opacity-90 max-w-2xl mx-auto leading-relaxed">
-            Can&apos;t find what you&apos;re looking for? Our friendly support team is just one click away.
+            Can&apos;t find what you&apos;re looking for? Our friendly support
+            team is just one click away.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center max-w-md mx-auto">
-            <Button 
-              variant="secondary" 
+            <Button
+              variant="secondary"
               className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold bg-white text-gray-900 hover:bg-buttons-gradient border-0"
             >
               Chat with support
             </Button>
-            <Button 
-              variant="outline" 
-              className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold border-2 border-white text-white hover:bg-white hover:text-gray-900 transition-all duration-300"
+            <Button
+              variant="outline"
+              className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold border-2 border-white text-white hover:bg-white hover:text-gray-900 dark:hover:text-gray-100 transition-all duration-300"
             >
               Send Feedback
             </Button>
           </div>
         </div>
-
       </main>
     </div>
   );

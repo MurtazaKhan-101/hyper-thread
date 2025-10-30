@@ -24,11 +24,24 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
   ];
 
   const topicsItems = [
-    { id: "sports", label: "Sports" },
-    { id: "culture", label: "Culture" },
-    { id: "internet", label: "Internet" },
-    { id: "history", label: "History" },
-    { id: "entertainment", label: "Entertainment" },
+    { id: "sports", label: "Sports", href: "/dashboard?category=sports" },
+    { id: "culture", label: "Culture", href: "/dashboard?category=culture" },
+    { id: "internet", label: "Internet", href: "/dashboard?category=internet" },
+    { id: "history", label: "History", href: "/dashboard?category=history" },
+    {
+      id: "entertainment",
+      label: "Entertainment",
+      href: "/dashboard?category=entertainment",
+    },
+    {
+      id: "technology",
+      label: "Technology",
+      href: "/dashboard?category=technology",
+    },
+    { id: "science", label: "Science", href: "/dashboard?category=science" },
+    { id: "politics", label: "Politics", href: "/dashboard?category=politics" },
+    { id: "business", label: "Business", href: "/dashboard?category=business" },
+    { id: "health", label: "Health", href: "/dashboard?category=health" },
   ];
 
   const resourcesItems = [
@@ -91,7 +104,7 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
           {isMobileOpen && (
             <button
               onClick={() => setIsMobileOpen(false)}
-              className="lg:hidden absolute top-4 right-4 p-2 rounded-lg text-white hover:bg-buttons-gradient transition-all duration-200"
+              className="lg:hidden absolute top-4 right-1 p-2 rounded-lg text-white hover:bg-buttons-gradient transition-all duration-200"
               aria-label="Close sidebar"
             >
               <X size={24} />
@@ -147,18 +160,12 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
                 {topicsItems.map((item) => (
                   <button
                     key={item.id}
-                    onClick={() => handleMenuClick()}
+                    onClick={() => handleMenuClick(item.href)}
                     className="w-full text-left px-4 py-2 text-white hover:bg-buttons-gradient hover:bg-opacity-80 rounded-lg transition-all duration-200"
                   >
                     {item.label}
                   </button>
                 ))}
-                <button
-                  onClick={() => handleMenuClick()}
-                  className="w-full text-left px-4 py-2 text-sm text-white text-opacity-80 hover:text-opacity-100 transition-all duration-200"
-                >
-                  See more
-                </button>
               </div>
             )}
           </div>

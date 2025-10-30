@@ -85,6 +85,15 @@ export const DiscussionPanel = ({
     onCommentsUpdate(updatedComments);
   };
 
+  // Function to delete a specific comment from the local state
+  const deleteComment = (commentId) => {
+    const updatedComments = localComments.filter(
+      (comment) => comment._id !== commentId
+    );
+    setLocalComments(updatedComments);
+    onCommentsUpdate(updatedComments);
+  };
+
   const handleKeyDown = (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -200,6 +209,7 @@ export const DiscussionPanel = ({
                   onUpdate={(updatedComment) =>
                     updateComment(comment._id, updatedComment)
                   }
+                  onDelete={deleteComment}
                   depth={0}
                   isDiscussionView={true}
                 />

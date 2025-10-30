@@ -6,6 +6,7 @@ import { useAuth } from "../context/AuthContext";
 import { Button, Input, Spinner } from "../components/ui";
 import { postService } from "../lib/posts";
 import { ROUTES } from "../lib/constants";
+import { Newspaper, ChevronDown } from "lucide-react";
 import { FileText, Link as LinkIcon, Image as ImageIcon } from "lucide-react";
 export default function CreatePostPage() {
   const router = useRouter();
@@ -14,7 +15,7 @@ export default function CreatePostPage() {
   const [activeTab, setActiveTab] = useState("text");
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [flair, setFlair] = useState("");
+  const [category, setCategory] = useState("");
   const [tags, setTags] = useState("");
   const [linkUrl, setLinkUrl] = useState("");
   const [linkPreview, setLinkPreview] = useState(null);
@@ -24,6 +25,20 @@ export default function CreatePostPage() {
   const [isGeneratingPreview, setIsGeneratingPreview] = useState(false);
   const [errors, setErrors] = useState({});
   const [mounted, setMounted] = useState(false);
+
+  // Available categories
+  const categories = [
+    { id: "sports", label: "Sports" },
+    { id: "culture", label: "Culture" },
+    { id: "internet", label: "Internet" },
+    { id: "history", label: "History" },
+    { id: "entertainment", label: "Entertainment" },
+    { id: "technology", label: "Technology" },
+    { id: "science", label: "Science" },
+    { id: "politics", label: "Politics" },
+    { id: "business", label: "Business" },
+    { id: "health", label: "Health" },
+  ];
 
   useEffect(() => {
     setMounted(true);
@@ -105,7 +120,7 @@ export default function CreatePostPage() {
         title: title.trim(),
         content: content.trim(),
         postType: activeTab,
-        flair: flair.trim() || null,
+        category: category || null,
         tags: tagArray,
         isMarkdown: false,
       };
@@ -374,16 +389,31 @@ export default function CreatePostPage() {
               </div>
             )}
 
-            {/* Flair and Tags */}
+            {/* Category and Tags */}
             <div className="mb-4">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setFlair(flair ? "" : "Discussion")}
-                className="mb-4"
-              >
-                {flair ? `Flair: ${flair}` : "Add flair"}
-              </Button>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Category
+              </label>
+              <div className="relative">
+                <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                  <Newspaper className="w-5 h-5 text-gray-400 dark:text-gray-500" />
+                </div>
+                <select
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                  className="w-full pl-11 pr-10 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none cursor-pointer transition-all hover:border-gray-400 dark:hover:border-gray-500"
+                >
+                  <option value="">Choose a category (optional)</option>
+                  {categories.map((cat) => (
+                    <option key={cat.id} value={cat.id}>
+                      {cat.label}
+                    </option>
+                  ))}
+                </select>
+                <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                  <ChevronDown className="w-5 h-5 text-gray-400 dark:text-gray-500" />
+                </div>
+              </div>
             </div>
 
             {/* Content/Description */}

@@ -7,8 +7,6 @@ import Image from "next/image";
 export default function AboutUs() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-[#030303]">
-    
-
       {/* Main Content */}
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16">
         {/* Hero Section */}
@@ -17,7 +15,8 @@ export default function AboutUs() {
             About Us
           </h1>
           <p className="text-base sm:text-lg lg:text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto leading-relaxed">
-            Building a connected space where people share ideas, moments, and meaningful conversations.
+            Building a connected space where people share ideas, moments, and
+            meaningful conversations.
           </p>
         </div>
 
@@ -30,25 +29,25 @@ export default function AboutUs() {
                 Our Story
               </h2>
               <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400 leading-relaxed">
-                We started with a simple goal — to make online communities more open, expressive, and human. 
-                This platform allows users to share thoughts, images, and ideas freely, while encouraging 
-                genuine interaction.
+                We started with a simple goal to make online communities more
+                open, expressive, and human. This platform allows users to share
+                thoughts, images, and ideas freely, while encouraging genuine
+                interaction.
               </p>
             </div>
-            
-           {/* Story Illustration */}
-            <div className="order-1 lg:order-2 flex justify-center">
-            <div className="relative w-64 h-48 sm:w-80 sm:h-60">
-                <Image
-                src="/images/communication.svg"
-                alt="Communication Illustration"
-                className="w-full h-full object-contain"
-                height={250}
-                width={250}
-                />
-            </div>
-            </div>
 
+            {/* Story Illustration */}
+            <div className="order-1 lg:order-2 flex justify-center">
+              <div className="relative w-64 h-48 sm:w-80 sm:h-60">
+                <Image
+                  src="/images/communication.svg"
+                  alt="Communication Illustration"
+                  className="w-full h-full object-contain"
+                  height={250}
+                  width={250}
+                />
+              </div>
+            </div>
           </div>
         </div>
 
@@ -60,7 +59,8 @@ export default function AboutUs() {
               Our Mission
             </h3>
             <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400 leading-relaxed">
-              To connect people through authentic stories, diverse topics, and shared experiences.
+              To connect people through authentic stories, diverse topics, and
+              shared experiences.
             </p>
           </Card>
 
@@ -70,7 +70,8 @@ export default function AboutUs() {
               Our Vision
             </h3>
             <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400 leading-relaxed">
-              A world where social media encourages learning, empathy, and creativity — not just scrolling.
+              A world where social media encourages learning, empathy, and
+              creativity, not just scrolling.
             </p>
           </Card>
         </div>
@@ -96,12 +97,13 @@ export default function AboutUs() {
                 Authentic Community
               </h3>
               <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 leading-relaxed">
-                Real conversations with real people, fostering genuine connections and meaningful discussions.
+                Real conversations with real people, fostering genuine
+                connections and meaningful discussions.
               </p>
             </Card>
 
             <Card className="p-6 sm:p-8 text-center hover:shadow-lg transition-shadow duration-300">
-               <div className="mb-4 sm:mb-6">
+              <div className="mb-4 sm:mb-6">
                 <Image
                   src="/images/creativity.svg"
                   alt="Handshake Icon"
@@ -115,12 +117,13 @@ export default function AboutUs() {
                 Creative Expression
               </h3>
               <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 leading-relaxed">
-                Share your thoughts, images, and ideas in a space that celebrates creativity and diversity.
+                Share your thoughts, images, and ideas in a space that
+                celebrates creativity and diversity.
               </p>
             </Card>
 
             <Card className="p-6 sm:p-8 text-center hover:shadow-lg transition-shadow duration-300 sm:col-span-2 lg:col-span-1">
-               <div className="mb-4 sm:mb-6">
+              <div className="mb-4 sm:mb-6">
                 <Image
                   src="/images/user-experience.svg"
                   alt="Handshake Icon"
@@ -134,7 +137,8 @@ export default function AboutUs() {
                 Modern Experience
               </h3>
               <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 leading-relaxed">
-                Built with cutting-edge technology for a fast, responsive, and delightful user experience.
+                Built with cutting-edge technology for a fast, responsive, and
+                delightful user experience.
               </p>
             </Card>
           </div>
@@ -146,22 +150,23 @@ export default function AboutUs() {
             Join our community today and be part of something meaningful.
           </h2>
           <p className="text-base sm:text-lg lg:text-xl mb-6 sm:mb-8 opacity-90 max-w-2xl mx-auto leading-relaxed">
-            Connect with like-minded individuals, share your passions, and discover new perspectives 
-            in a space designed for authentic human connection.
+            Connect with like-minded individuals, share your passions, and
+            discover new perspectives in a space designed for authentic human
+            connection.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <Link href={ROUTES.SIGNUP}>
-              <Button 
-                variant="secondary" 
+              <Button
+                variant="secondary"
                 className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold bg-white text-gray-900 hover:bg-buttons-gradient border-0"
               >
                 Explore Trending
               </Button>
             </Link>
             <Link href={ROUTES.SIGNUP} className="w-full sm:w-auto">
-              <Button 
-                variant="outline" 
-                className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold border-2 border-white text-white hover:bg-white hover:text-gray-900 transition-all duration-300"
+              <Button
+                variant="outline"
+                className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold border-2 border-white text-white hover:bg-white hover:text-gray-900 dark:hover:text-gray-100 transition-all duration-300"
               >
                 Get Started
               </Button>
@@ -169,8 +174,6 @@ export default function AboutUs() {
           </div>
         </div>
       </main>
-
-     
     </div>
   );
 }

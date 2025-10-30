@@ -2,24 +2,31 @@
 
 import { Card } from "../ui";
 import Link from "next/link";
+import Image from "next/image";
 
 export const AuthLayout = ({ children, title, subtitle }) => {
   return (
-    <div 
+    <div
       className="min-h-screen flex items-center justify-center px-4 py-12"
       style={{
-        backgroundImage: 'url(/images/login.svg)',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
-        backgroundColor: '#f9fafb'
+        backgroundImage: "url(/images/login.svg)",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+        backgroundColor: "#f9fafb",
       }}
     >
       <div className="w-full max-w-md">
         {/* Reddit-style logo/branding */}
         <div className="text-center mb-8">
           <Link href="/" className="inline-block">
-            <h1 className="text-3xl font-bold text-white">Hyper Thread</h1>
+            <Image
+              src="/images/NEWS_NET.svg"
+              alt="News Natter Logo"
+              width={150}
+              height={150}
+              className="hidden sm:inline"
+            />
           </Link>
         </div>
 

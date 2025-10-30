@@ -20,7 +20,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <head>
-        <title>Hyper Thread - Connect & Share</title>
+        <title>News Natter - Connect & Share</title>
         <meta name="description" content="A modern community platform" />
       </head>
       <body

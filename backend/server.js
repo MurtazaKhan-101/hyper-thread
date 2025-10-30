@@ -23,10 +23,11 @@ app.use("/auth", require("./routes/authRoutes"));
 app.use("/auth", require("./routes/googleAuthRoutes"));
 app.use("/onboarding", require("./routes/onboardingRoutes"));
 app.use("/posts", require("./routes/postRoutes"));
+app.use("/posts", require("./routes/commentRoutes"));
 
 // Health check route
 app.get("/", (req, res) => {
-  res.json({ message: "Hyper Thread API is running!", status: "healthy" });
+  res.json({ message: "News Natter API is running!", status: "healthy" });
 });
 
 const startServer = async () => {

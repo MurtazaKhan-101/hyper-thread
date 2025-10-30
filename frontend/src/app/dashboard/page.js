@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "../context/AuthContext";
 import { useSearch } from "../context/SearchContext";
 import { Spinner } from "../components/ui";
@@ -12,9 +12,27 @@ import Image from "next/image";
 import { FileText, Link as LinkIcon, Image as ImageIcon } from "lucide-react";
 export default function DashboardPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user, loading, isAuthenticated } = useAuth();
   const { activeTab, searchQuery, handleTabChange } = useSearch();
   const [mounted, setMounted] = useState(false);
+
+  // Get category from URL params
+  const category = searchParams.get("category") || "";
+
+  // Category labels for display
+  const categoryLabels = {
+    sports: "Sports",
+    culture: "Culture",
+    internet: "Internet",
+    history: "History",
+    entertainment: "Entertainment",
+    technology: "Technology",
+    science: "Science",
+    politics: "Politics",
+    business: "Business",
+    health: "Health",
+  };
 
   useEffect(() => {
     setMounted(true);
@@ -147,11 +165,34 @@ export default function DashboardPage() {
             )}
           </div>
 
+          {/* Category Header */}
+          {category && (
+            <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg mb-6 p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                    {categoryLabels[category] || category}
+                  </h2>
+                  <span className="text-sm text-gray-500 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded-full">
+                    Category
+                  </span>
+                </div>
+                <button
+                  onClick={() => router.push("/dashboard")}
+                  className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
+                >
+                  View All Posts
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* Post Feed - Scrollable Content */}
           <div className="pb-8">
             <PostFeed
               feedType={activeTab}
               searchQuery={activeTab === "search" ? searchQuery : ""}
+              category={category}
             />
           </div>
         </div>
@@ -160,14 +201,13 @@ export default function DashboardPage() {
         <div className="hidden lg:block">
           <div className="sticky top-20 space-y-6">
             {/* Recent Activities Section */}
-            <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg overflow-hidden">
+            {/* <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg overflow-hidden">
               <div className="bg-gradient-to-r from-blue-500 to-blue-600 px-4 py-3">
                 <h3 className="text-white font-semibold text-sm">
                   Recent Activities
                 </h3>
               </div>
               <div className="p-4 space-y-4">
-                {/* Recent Activity Items */}
                 <div className="flex items-start gap-3">
                   <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
                   <div className="text-sm">
@@ -222,7 +262,7 @@ export default function DashboardPage() {
                   </Link>
                 </div>
               </div>
-            </div>
+            </div> */}
 
             {/* Community Guidelines */}
             <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg overflow-hidden">
@@ -259,15 +299,16 @@ export default function DashboardPage() {
             <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4">
               <div className="text-center space-y-2">
                 <div className="flex items-center justify-center gap-2">
-                  <div className="w-6 h-6 bg-gradient-to-r from-blue-500 to-purple-600 rounded-md flex items-center justify-center">
-                    <span className="text-white text-xs font-bold">HT</span>
-                  </div>
-                  <span className="font-semibold text-gray-900 dark:text-gray-100 text-sm">
-                    HyperThread
-                  </span>
+                  <Image
+                    src="/images/NEWS_NET.svg"
+                    alt="News Natter Logo"
+                    width={80}
+                    height={80}
+                    className="hidden sm:inline"
+                  />
                 </div>
                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                  &copy; {new Date().getFullYear()} HyperThread. All rights
+                  &copy; {new Date().getFullYear()} News Natter. All rights
                   reserved.
                 </p>
                 <div className="flex justify-center gap-4 text-xs">

@@ -4,8 +4,13 @@ import { useState, useEffect } from "react";
 import { postService } from "../../lib/posts";
 import { PostCard } from "./PostCard";
 import { Spinner, Button } from "../ui";
+import { Newspaper } from "lucide-react";
 
-export const PostFeed = ({ feedType = "latest", searchQuery = "" }) => {
+export const PostFeed = ({
+  feedType = "latest",
+  searchQuery = "",
+  category = "",
+}) => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -23,6 +28,11 @@ export const PostFeed = ({ feedType = "latest", searchQuery = "" }) => {
 
       let response;
       const params = { page, limit: 10 };
+
+      // Add category filter if specified
+      if (category) {
+        params.category = category;
+      }
 
       switch (feedType) {
         case "trending":
@@ -58,7 +68,7 @@ export const PostFeed = ({ feedType = "latest", searchQuery = "" }) => {
 
   useEffect(() => {
     fetchPosts(1, false);
-  }, [feedType, searchQuery]);
+  }, [feedType, searchQuery, category]);
 
   const handleLoadMore = () => {
     if (pagination.hasNext && !loadingMore) {
@@ -93,7 +103,9 @@ export const PostFeed = ({ feedType = "latest", searchQuery = "" }) => {
   if (posts.length === 0) {
     return (
       <div className="text-center py-8">
-        <div className="text-6xl mb-4">📝</div>
+        <div className="text-6xl mb-4">
+          <Newspaper className="mx-auto text-gray-300 dark:text-gray-600 w-12 h-12" />
+        </div>
         <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
           {searchQuery ? "No posts found" : "No posts yet"}
         </h3>

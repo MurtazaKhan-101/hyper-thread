@@ -1,14 +1,16 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { postService, formatPostTime, formatNumber } from "../../lib/posts";
 import { Button } from "../ui";
+import { Pencil, Trash2, MoreHorizontal } from "lucide-react";
 
 export const CommentThread = ({
   comment,
   postId,
   onUpdate,
+  onDelete,
   depth = 0,
   isDiscussionView = false,
 }) => {
@@ -23,12 +25,39 @@ export const CommentThread = ({
   );
   const [likeCount, setLikeCount] = useState(comment.likes || 0);
 
+  // Edit state
+  const [isEditing, setIsEditing] = useState(false);
+  const [editText, setEditText] = useState(comment.comment);
+  const [isSubmittingEdit, setIsSubmittingEdit] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [showOptions, setShowOptions] = useState(false);
+  const optionsRef = useRef(null);
+
+  // Check if current user is the author of this comment
+  const isAuthor = user?.id === comment.user?._id;
+
+  // Close options menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (optionsRef.current && !optionsRef.current.contains(event.target)) {
+        setShowOptions(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   // Update local state when comment prop changes
   useEffect(() => {
     setLocalComment(comment);
-    setIsLiked(comment.likedBy?.includes(user?._id) || false);
+    setIsLiked(comment.likedBy?.includes(user?.id) || false);
     setLikeCount(comment.likes || 0);
-  }, [comment, user?._id]);
+    setEditText(comment.comment);
+  }, [comment, user?.id]);
 
   const handleCommentLike = async () => {
     if (!isAuthenticated) return;
@@ -43,8 +72,8 @@ export const CommentThread = ({
         ...prev,
         likes: response.likes,
         likedBy: response.liked
-          ? [...(prev.likedBy || []), user._id]
-          : (prev.likedBy || []).filter((id) => id !== user._id),
+          ? [...(prev.likedBy || []), user.id]
+          : (prev.likedBy || []).filter((id) => id !== user.id),
       }));
     } catch (error) {
       console.error("Failed to toggle comment like:", error);
@@ -92,6 +121,67 @@ export const CommentThread = ({
           reply._id === replyId ? updatedReply : reply
         ) || [],
     }));
+  };
+
+  // Handle reply deletion
+  const handleReplyDelete = (replyId) => {
+    setLocalComment((prev) => ({
+      ...prev,
+      replies: prev.replies?.filter((reply) => reply._id !== replyId) || [],
+    }));
+  };
+
+  const handleEdit = async () => {
+    if (!editText.trim() || editText === comment.comment) {
+      setIsEditing(false);
+      return;
+    }
+
+    setIsSubmittingEdit(true);
+    try {
+      const response = await postService.editComment(
+        postId,
+        comment._id,
+        editText.trim()
+      );
+
+      // Preserve the existing replies and other populated data
+      const updatedComment = {
+        ...localComment,
+        comment: response.comment.comment,
+        updatedAt: response.comment.updatedAt,
+      };
+      setLocalComment(updatedComment);
+      setIsEditing(false);
+
+      if (onUpdate) {
+        onUpdate(updatedComment);
+      }
+    } catch (error) {
+      console.error("Failed to edit comment:", error);
+      setEditText(comment.comment); // Reset to original text
+    }
+    setIsSubmittingEdit(false);
+  };
+
+  const handleDelete = async () => {
+    setIsDeleting(true);
+    try {
+      await postService.deleteComment(postId, comment._id);
+
+      if (onDelete) {
+        onDelete(comment._id);
+      }
+    } catch (error) {
+      console.error("Failed to delete comment:", error);
+    }
+    setIsDeleting(false);
+    setShowDeleteConfirm(false);
+  };
+
+  const handleCancelEdit = () => {
+    setEditText(comment.comment);
+    setIsEditing(false);
   };
 
   const maxDepth = isDiscussionView ? 6 : 6; // Limit depth for discussion view to match backend capability
@@ -152,21 +242,121 @@ export const CommentThread = ({
 
               <div className="flex-1 min-w-0">
                 {/* Message Header */}
-                <div className="flex items-baseline gap-2 mb-1">
-                  <span className="font-medium text-gray-100 text-sm">
-                    {localComment.user?.firstName ||
-                      localComment.user?.username ||
-                      "Unknown"}
-                  </span>
-                  <span className="text-xs text-gray-300">
-                    {formatPostTime(localComment.createdAt)}
-                  </span>
+                <div className="flex items-center justify-between mb-1">
+                  <div className="flex items-baseline gap-2">
+                    <span className="font-medium text-gray-100 text-sm">
+                      {localComment.user?.firstName ||
+                        localComment.user?.username ||
+                        "Unknown"}
+                    </span>
+                    <span className="text-xs text-gray-300">
+                      {formatPostTime(localComment.createdAt)}
+                      {localComment.updatedAt && (
+                        <span className="ml-1 text-gray-300">(edited)</span>
+                      )}
+                    </span>
+                  </div>
+
+                  {/* Options menu for comment author */}
+                  {isAuthor && isAuthenticated && (
+                    <div className="relative" ref={optionsRef}>
+                      <button
+                        onClick={() => setShowOptions(!showOptions)}
+                        className="p-1 text-gray-300 hover:text-gray-200 transition-colors opacity-0 group-hover:opacity-100"
+                      >
+                        <MoreHorizontal className="w-3 h-3" />
+                      </button>
+
+                      {showOptions && (
+                        <div className="absolute right-0 top-6 bg-gray-800 border border-gray-700 rounded-lg shadow-lg z-10 min-w-[120px]">
+                          <button
+                            onClick={() => {
+                              setIsEditing(true);
+                              setShowOptions(false);
+                            }}
+                            className="flex items-center gap-2 w-full px-3 py-2 text-sm text-gray-200 hover:bg-gray-700 rounded-t-lg"
+                          >
+                            <Pencil className="w-3 h-3" />
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => {
+                              setShowDeleteConfirm(true);
+                              setShowOptions(false);
+                            }}
+                            className="flex items-center gap-2 w-full px-3 py-2 text-sm text-red-400 hover:bg-gray-700 rounded-b-lg"
+                          >
+                            <Trash2 className="w-3 h-3" />
+                            Delete
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
 
-                {/* Message Content */}
-                <div className="text-sm text-gray-200 whitespace-pre-wrap break-words overflow-wrap-anywhere word-break-break-word">
-                  {localComment.comment}
-                </div>
+                {/* Message Content - Editable or Display */}
+                {isEditing ? (
+                  <div className="mb-2">
+                    <textarea
+                      value={editText}
+                      onChange={(e) => setEditText(e.target.value)}
+                      className="w-full p-2 text-sm border border-gray-700 rounded resize-none bg-gray-700 text-gray-100"
+                      rows={2}
+                      maxLength={1000}
+                      placeholder="Edit your message..."
+                    />
+                    <div className="flex justify-end gap-2 mt-2">
+                      <button
+                        onClick={handleCancelEdit}
+                        className="px-2 py-1 text-xs text-gray-400 hover:text-gray-200"
+                      >
+                        Cancel
+                      </button>
+                      <Button
+                        onClick={handleEdit}
+                        disabled={!editText.trim() || isSubmittingEdit}
+                        className="px-2 py-1 text-xs"
+                      >
+                        {isSubmittingEdit ? "Saving..." : "Save"}
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-sm text-gray-200 whitespace-pre-wrap break-words overflow-wrap-anywhere word-break-break-word">
+                    {localComment.comment}
+                  </div>
+                )}
+
+                {/* Delete Confirmation Modal */}
+                {showDeleteConfirm && (
+                  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-gray-800 border border-gray-700 rounded-lg p-6 max-w-sm mx-4">
+                      <h3 className="text-lg font-medium text-gray-100 mb-2">
+                        Delete Message
+                      </h3>
+                      <p className="text-gray-400 mb-4">
+                        Are you sure you want to delete this message? This
+                        action cannot be undone.
+                      </p>
+                      <div className="flex gap-3 justify-end">
+                        <button
+                          onClick={() => setShowDeleteConfirm(false)}
+                          className="px-4 py-2 text-sm text-gray-400 hover:text-gray-200"
+                        >
+                          Cancel
+                        </button>
+                        <Button
+                          onClick={handleDelete}
+                          disabled={isDeleting}
+                          className="px-4 py-2 text-sm bg-red-600 hover:bg-red-700"
+                        >
+                          {isDeleting ? "Deleting..." : "Delete"}
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 {/* Message Actions */}
                 <div className="flex items-center gap-3 mt-2">
@@ -274,6 +464,7 @@ export const CommentThread = ({
                           onUpdate(updatedComment);
                         }
                       }}
+                      onDelete={handleReplyDelete}
                       depth={depth + 1}
                       isDiscussionView={true}
                     />
@@ -313,32 +504,132 @@ export const CommentThread = ({
 
         <div className="flex-1">
           {/* Comment Header */}
-          <div className="flex items-center gap-2 mb-2">
-            <span className="text-sm font-medium text-gray-100">
-              u/{localComment.user?.username || "unknown"}
-            </span>
-            {localComment.user?.isVerified && (
-              <svg
-                className="w-4 h-4 text-blue-500"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                  clipRule="evenodd"
-                />
-              </svg>
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium text-gray-100">
+                u/{localComment.user?.username || "unknown"}
+              </span>
+              {localComment.user?.isVerified && (
+                <svg
+                  className="w-4 h-4 text-blue-500"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              )}
+              <span className="text-xs text-gray-300">
+                {formatPostTime(localComment.createdAt)}
+                {localComment.updatedAt && (
+                  <span className="ml-1 text-gray-300">(edited)</span>
+                )}
+              </span>
+            </div>
+
+            {/* Options menu for comment author */}
+            {isAuthor && isAuthenticated && (
+              <div className="relative" ref={optionsRef}>
+                <button
+                  onClick={() => setShowOptions(!showOptions)}
+                  className="p-1 text-gray-300 hover:text-gray-200 transition-colors"
+                >
+                  <MoreHorizontal className="w-4 h-4" />
+                </button>
+
+                {showOptions && (
+                  <div className="absolute right-0 top-6 bg-gray-800 border border-gray-700 rounded-lg shadow-lg z-10 min-w-[120px]">
+                    <button
+                      onClick={() => {
+                        setIsEditing(true);
+                        setShowOptions(false);
+                      }}
+                      className="flex items-center gap-2 w-full px-3 py-2 text-sm text-gray-200 hover:bg-gray-700 rounded-t-lg"
+                    >
+                      <Pencil className="w-3 h-3" />
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => {
+                        setShowDeleteConfirm(true);
+                        setShowOptions(false);
+                      }}
+                      className="flex items-center gap-2 w-full px-3 py-2 text-sm text-red-400 hover:bg-gray-700 rounded-b-lg"
+                    >
+                      <Trash2 className="w-3 h-3" />
+                      Delete
+                    </button>
+                  </div>
+                )}
+              </div>
             )}
-            <span className="text-xs text-gray-400">
-              {formatPostTime(localComment.createdAt)}
-            </span>
           </div>
 
-          {/* Comment Content */}
-          <p className="text-sm text-gray-800 dark:text-gray-200 mb-3 whitespace-pre-wrap break-words overflow-wrap-anywhere word-break-break-word">
-            {localComment.comment}
-          </p>
+          {/* Comment Content - Editable or Display */}
+          {isEditing ? (
+            <div className="mb-3">
+              <textarea
+                value={editText}
+                onChange={(e) => setEditText(e.target.value)}
+                className="w-full p-2 text-sm border border-gray-700 rounded resize-none bg-gray-800 text-gray-100"
+                rows={3}
+                maxLength={1000}
+                placeholder="Edit your comment..."
+              />
+              <div className="flex justify-end gap-2 mt-2">
+                <button
+                  onClick={handleCancelEdit}
+                  className="px-3 py-1 text-xs text-gray-400 hover:text-gray-200"
+                >
+                  Cancel
+                </button>
+                <Button
+                  onClick={handleEdit}
+                  disabled={!editText.trim() || isSubmittingEdit}
+                  className="px-3 py-1 text-xs"
+                >
+                  {isSubmittingEdit ? "Saving..." : "Save"}
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <p className="text-sm text-gray-800 dark:text-gray-200 mb-3 whitespace-pre-wrap break-words overflow-wrap-anywhere word-break-break-word">
+              {localComment.comment}
+            </p>
+          )}
+
+          {/* Delete Confirmation Modal */}
+          {showDeleteConfirm && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+              <div className="bg-gray-800 border border-gray-700 rounded-lg p-6 max-w-sm mx-4">
+                <h3 className="text-lg font-medium text-gray-100 mb-2">
+                  Delete Comment
+                </h3>
+                <p className="text-gray-400 mb-4">
+                  Are you sure you want to delete this comment? This action
+                  cannot be undone.
+                </p>
+                <div className="flex gap-3 justify-end">
+                  <button
+                    onClick={() => setShowDeleteConfirm(false)}
+                    className="px-4 py-2 text-sm text-gray-400 hover:text-gray-200"
+                  >
+                    Cancel
+                  </button>
+                  <Button
+                    onClick={handleDelete}
+                    disabled={isDeleting}
+                    className="px-4 py-2 text-sm bg-red-600 hover:bg-red-700"
+                  >
+                    {isDeleting ? "Deleting..." : "Delete"}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Comment Actions */}
           <div className="flex items-center gap-4">
@@ -446,6 +737,7 @@ export const CommentThread = ({
                     onUpdate(updatedComment);
                   }
                 }}
+                onDelete={handleReplyDelete}
                 depth={depth + 1}
               />
             ))}

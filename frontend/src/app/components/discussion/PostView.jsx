@@ -3,9 +3,9 @@
 import { useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { postService, formatPostTime, formatNumber } from "../../lib/posts";
-import { Button } from "../ui";
 import { ImageSlider } from "../posts/ImageSlider";
 import Link from "next/link";
+import { Newspaper } from "lucide-react";
 
 export const PostView = ({ post, onUpdate, isDiscussionView = false }) => {
   const { user, isAuthenticated } = useAuth();
@@ -181,6 +181,16 @@ export const PostView = ({ post, onUpdate, isDiscussionView = false }) => {
           <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
             {post.title}
           </h1>
+        )}
+
+        {/* Post Category */}
+        {post.category && (
+          <div className="mb-4">
+            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 capitalize">
+              <Newspaper className="w-4 h-4 mr-1" />
+              {post.category}
+            </span>
+          </div>
         )}
 
         {/* Post Tags */}

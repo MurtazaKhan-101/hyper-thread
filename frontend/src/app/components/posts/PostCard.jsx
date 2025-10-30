@@ -181,6 +181,14 @@ export const PostCard = ({ post, onUpdate }) => {
               <span className="text-xs text-gray-500">
                 {formatPostTime(post.createdAt)}
               </span>
+              {post.category && (
+                <>
+                  <span className="text-xs text-gray-500">•</span>
+                  <span className="text-xs bg-blue-100 dark:bg-blue-900 px-2 py-1 rounded-full text-blue-600 dark:text-blue-300 capitalize">
+                    {post.category}
+                  </span>
+                </>
+              )}
               {post.flair && (
                 <>
                   <span className="text-xs text-gray-500">•</span>

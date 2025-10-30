@@ -15,7 +15,7 @@ export const Button = ({
     primary:
       "bg-buttons-gradient text-white transition-all duration-300 ease-in-out hover:bg-buttons-gradient-hover",
     secondary:
-      "bg-transparent border border-[#0079D3] text-[#0079D3] hover:bg-[#0079D3] hover:text-white",
+      "bg-transparent border border-[#0079D3] text-[#0079D3] hover:bg-[#0079D3] hover:text-gray-900",
     outline:
       "bg-transparent border border-gray-300 text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800",
     outline_secondary:

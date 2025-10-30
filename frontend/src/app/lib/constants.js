@@ -41,6 +41,8 @@ export const API_ENDPOINTS = {
   ADD_REPLY: "/posts",
   LIKE_COMMENT: "/posts",
   LIKE_REPLY: "/posts",
+  EDIT_COMMENT: "/posts",
+  DELETE_COMMENT: "/posts",
   DELETE_POST: "/posts",
 };
 

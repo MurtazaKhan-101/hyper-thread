@@ -1,43 +1,5 @@
 const mongoose = require("mongoose");
 
-// Recursive comment schema for infinite nesting
-const commentSchema = new mongoose.Schema({
-  user: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-    required: true,
-  },
-  comment: {
-    type: String,
-    required: true,
-    trim: true,
-    maxlength: 1000,
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
-  likes: {
-    type: Number,
-    default: 0,
-  },
-  likedBy: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-    },
-  ],
-  replies: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Comment",
-    },
-  ],
-});
-
-// Create Comment model
-const Comment = mongoose.model("Comment", commentSchema);
-
 const postSchema = new mongoose.Schema(
   {
     postType: {
@@ -67,6 +29,23 @@ const postSchema = new mongoose.Schema(
 
     flair: {
       type: String,
+      default: null,
+    },
+
+    category: {
+      type: String,
+      enum: [
+        "sports",
+        "culture",
+        "internet",
+        "history",
+        "entertainment",
+        "technology",
+        "science",
+        "politics",
+        "business",
+        "health",
+      ],
       default: null,
     },
 
@@ -204,4 +183,4 @@ postSchema.pre("save", function (next) {
 
 const Post = mongoose.model("Post", postSchema);
 
-module.exports = { Post, Comment };
+module.exports = { Post };

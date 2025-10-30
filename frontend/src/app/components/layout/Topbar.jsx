@@ -45,7 +45,14 @@ const Topbar = ({ setIsMobileOpen }) => {
 
             <Link href={ROUTES.DASHBOARD}>
               <h1 className="text-lg sm:text-xl lg:text-2xl font-bold bg-clip-text text-bg-buttons-gradient cursor-pointer hover:opacity-80 transition-opacity">
-                <span className="hidden sm:inline">Hyper Thread</span>
+                {/* <span className="hidden sm:inline">News Natter</span> */}
+                <Image
+                  src="/images/NEWS_NET.svg"
+                  alt="News Natter Logo"
+                  width={150}
+                  height={150}
+                  className="hidden sm:inline"
+                />
               </h1>
             </Link>
           </div>
@@ -70,7 +77,7 @@ const Topbar = ({ setIsMobileOpen }) => {
                   </svg>
                   <input
                     type="text"
-                    placeholder="Search Hyper Thread"
+                    placeholder="Search News Natter"
                     value={localSearchQuery}
                     onChange={(e) => setLocalSearchQuery(e.target.value)}
                     className="w-full pl-10 sm:pl-12 pr-3 sm:pr-4 py-2 sm:py-3 text-sm sm:text-base bg-transparent border-none rounded-full text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none transition-all duration-200"

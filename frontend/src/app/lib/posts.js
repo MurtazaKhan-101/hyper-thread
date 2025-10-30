@@ -168,6 +168,29 @@ export const postService = {
     }
   },
 
+  // Edit comment
+  async editComment(postId, commentId, comment) {
+    try {
+      return await apiClient.put(
+        `${API_ENDPOINTS.EDIT_COMMENT}/${postId}/comment/${commentId}`,
+        { comment }
+      );
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  // Delete comment
+  async deleteComment(postId, commentId) {
+    try {
+      return await apiClient.delete(
+        `${API_ENDPOINTS.DELETE_COMMENT}/${postId}/comment/${commentId}`
+      );
+    } catch (error) {
+      throw error;
+    }
+  },
+
   // Delete post
   async deletePost(postId) {
     try {
