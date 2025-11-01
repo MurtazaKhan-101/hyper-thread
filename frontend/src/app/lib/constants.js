@@ -49,8 +49,8 @@ export const API_ENDPOINTS = {
 // Local Storage Keys
 export const STORAGE_KEYS = {
   TOKEN: "auth_token",
-  USER: "user_data",
   REFRESH_TOKEN: "refresh_token",
+  USER: "user_data",
 };
 
 // Routes

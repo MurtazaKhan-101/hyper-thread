@@ -1,7 +1,27 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const crypto = require("crypto");
 const User = require("../models/User");
 const { sendOTP } = require("../config/email");
+
+// Helper function to generate access and refresh tokens
+const generateTokens = (user) => {
+  const accessToken = jwt.sign(
+    { id: user._id, email: user.email },
+    process.env.JWT_SECRET,
+    { expiresIn: process.env.JWT_EXPIRY || "24h" }
+  );
+
+  const refreshToken = crypto.randomBytes(64).toString("hex");
+  const refreshTokenExpiry = new Date(
+    Date.now() +
+      (process.env.JWT_REFRESH_EXPIRY === "7d"
+        ? 7 * 24 * 60 * 60 * 1000
+        : 7 * 24 * 60 * 60 * 1000)
+  );
+
+  return { accessToken, refreshToken, refreshTokenExpiry };
+};
 
 class AuthController {
   // User Registration
@@ -144,12 +164,14 @@ class AuthController {
         });
       }
 
-      // Generate JWT token
-      const token = jwt.sign(
-        { id: user._id, email: user.email },
-        process.env.JWT_SECRET,
-        { expiresIn: "24h" }
-      );
+      // Generate JWT tokens
+      const { accessToken, refreshToken, refreshTokenExpiry } =
+        generateTokens(user);
+
+      // Save refresh token to user
+      user.refreshToken = refreshToken;
+      user.refreshTokenExpiry = refreshTokenExpiry;
+      await user.save();
 
       res.status(200).json({
         success: true,
@@ -164,7 +186,8 @@ class AuthController {
           onboardingCompleted: user.onboardingCompleted,
           onboardingStep: user.onboardingStep,
         },
-        token: token,
+        token: accessToken,
+        refreshToken: refreshToken,
       });
     } catch (error) {
       console.error("Error logging in user:", error);
@@ -217,12 +240,14 @@ class AuthController {
       user.otpExpiry = null;
       await user.save();
 
-      // Generate JWT token
-      const token = jwt.sign(
-        { id: user._id, email: user.email },
-        process.env.JWT_SECRET,
-        { expiresIn: "24h" }
-      );
+      // Generate JWT tokens
+      const { accessToken, refreshToken, refreshTokenExpiry } =
+        generateTokens(user);
+
+      // Save refresh token to user
+      user.refreshToken = refreshToken;
+      user.refreshTokenExpiry = refreshTokenExpiry;
+      await user.save();
 
       res.status(200).json({
         success: true,
@@ -237,7 +262,8 @@ class AuthController {
           onboardingCompleted: user.onboardingCompleted,
           onboardingStep: user.onboardingStep,
         },
-        token: token,
+        token: accessToken,
+        refreshToken: refreshToken,
       });
     } catch (error) {
       console.error("Error verifying OTP:", error);
@@ -303,18 +329,45 @@ class AuthController {
 
   async refreshToken(req, res) {
     try {
-      const token = jwt.sign(
-        { id: req.user._id, email: req.user.email },
-        process.env.JWT_SECRET,
-        { expiresIn: "24h" }
-      );
+      const { refreshToken } = req.body;
+
+      if (!refreshToken) {
+        return res.status(400).json({
+          success: false,
+          message: "Refresh token is required",
+        });
+      }
+
+      // Find user with this refresh token
+      const user = await User.findOne({
+        refreshToken: refreshToken,
+        refreshTokenExpiry: { $gt: new Date() },
+      });
+
+      if (!user) {
+        return res.status(401).json({
+          success: false,
+          message: "Invalid or expired refresh token",
+        });
+      }
+
+      // Generate new tokens
+      const {
+        accessToken,
+        refreshToken: newRefreshToken,
+        refreshTokenExpiry,
+      } = generateTokens(user);
+
+      // Update user with new refresh token
+      user.refreshToken = newRefreshToken;
+      user.refreshTokenExpiry = refreshTokenExpiry;
+      await user.save();
+
       res.json({
         success: true,
         message: "Token refreshed successfully",
-        token: token,
-        data: {
-          token: token,
-        },
+        token: accessToken,
+        refreshToken: newRefreshToken,
       });
     } catch (error) {
       console.error("Token refresh error:", error);

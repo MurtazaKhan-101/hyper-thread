@@ -56,6 +56,8 @@ const userSchema = new mongoose.Schema(
     onboardingStep: { type: Number, default: 0 }, // 0: not started, 1: username, 2: interests, 3: completed
     googleId: { type: String, default: null },
     googleRefreshToken: { type: String, default: null },
+    refreshToken: { type: String, default: null },
+    refreshTokenExpiry: { type: Date, default: null },
     otp: { type: String, default: null },
     otpExpiry: { type: Date, default: null },
     resetPasswordOTP: { type: String, default: null },
@@ -108,6 +110,8 @@ userSchema.methods.toSafeObject = function () {
   delete user.resetPasswordOTP;
   delete user.resetPasswordOTPExpires;
   delete user.googleRefreshToken;
+  delete user.refreshToken;
+  delete user.refreshTokenExpiry;
   delete user.twoFactorSecret;
   delete user.activeSessions;
   return user;

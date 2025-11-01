@@ -20,12 +20,38 @@ export const AuthProvider = ({ children }) => {
       if (token && user) {
         setUser(user);
         setIsAuthenticated(true);
+
+        // Check if token is expiring soon and refresh if needed
+        if (authService.isTokenExpiringSoon(token)) {
+          authService.refreshAccessToken().catch((error) => {
+            console.error("Failed to refresh token on init:", error);
+            logout();
+          });
+        }
       }
       setLoading(false);
     };
 
     initAuth();
   }, []);
+
+  // Set up token refresh interval
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    // Check token every 4 minutes (240 seconds)
+    const interval = setInterval(() => {
+      const { token } = authService.getAuthData();
+      if (token && authService.isTokenExpiringSoon(token)) {
+        authService.refreshAccessToken().catch((error) => {
+          console.error("Failed to refresh token:", error);
+          logout();
+        });
+      }
+    }, 4 * 60 * 1000); // 4 minutes
+
+    return () => clearInterval(interval);
+  }, [isAuthenticated]);
 
   // Login function
   const login = async (email, password) => {

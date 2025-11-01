@@ -1,5 +1,25 @@
 const jwt = require("jsonwebtoken");
+const crypto = require("crypto");
 const User = require("../models/User");
+
+// Helper function to generate access and refresh tokens (same as in authController)
+const generateTokens = (user) => {
+  const accessToken = jwt.sign(
+    { id: user._id, email: user.email },
+    process.env.JWT_SECRET,
+    { expiresIn: process.env.JWT_EXPIRY || "24h" }
+  );
+
+  const refreshToken = crypto.randomBytes(64).toString("hex");
+  const refreshTokenExpiry = new Date(
+    Date.now() +
+      (process.env.JWT_REFRESH_EXPIRY === "7d"
+        ? 7 * 24 * 60 * 60 * 1000
+        : 7 * 24 * 60 * 60 * 1000)
+  );
+
+  return { accessToken, refreshToken, refreshTokenExpiry };
+};
 
 class GoogleAuthController {
   initiate(req, res) {
@@ -135,12 +155,14 @@ class GoogleAuthController {
         }
       }
 
-      // Generate JWT token
-      const token = jwt.sign(
-        { id: existingUser._id, email: existingUser.email },
-        process.env.JWT_SECRET,
-        { expiresIn: "24h" }
-      );
+      // Generate JWT tokens
+      const { accessToken, refreshToken, refreshTokenExpiry } =
+        generateTokens(existingUser);
+
+      // Save refresh token to user
+      existingUser.refreshToken = refreshToken;
+      existingUser.refreshTokenExpiry = refreshTokenExpiry;
+      await existingUser.save();
 
       const userData = {
         id: existingUser._id,
@@ -154,10 +176,11 @@ class GoogleAuthController {
       };
 
       const encodedUserData = encodeURIComponent(JSON.stringify(userData));
-      const encodedToken = encodeURIComponent(token);
+      const encodedToken = encodeURIComponent(accessToken);
+      const encodedRefreshToken = encodeURIComponent(refreshToken);
 
       res.redirect(
-        `${process.env.CLIENT_URL}/auth/oauth-success?user=${encodedUserData}&token=${encodedToken}`
+        `${process.env.CLIENT_URL}/auth/oauth-success?user=${encodedUserData}&token=${encodedToken}&refreshToken=${encodedRefreshToken}`
       );
     } catch (error) {
       console.error("❌ OAuth callback error:", error);

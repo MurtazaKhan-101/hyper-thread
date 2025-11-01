@@ -27,9 +27,12 @@ export default function OAuthSuccessPage() {
         if (userParam && tokenParam) {
           const user = JSON.parse(decodeURIComponent(userParam));
           const token = decodeURIComponent(tokenParam);
+          const refreshToken = searchParams.get("refreshToken")
+            ? decodeURIComponent(searchParams.get("refreshToken"))
+            : null;
 
-          // Save auth data
-          saveAuthData(token, user);
+          // Save auth data with refresh token
+          saveAuthData(token, user, refreshToken);
 
           setStatus("success");
 

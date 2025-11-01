@@ -2,17 +2,13 @@ import apiClient from "./api";
 import { API_ENDPOINTS, STORAGE_KEYS } from "./constants";
 
 // Save auth data to localStorage
-export const saveAuthData = (token, user) => {
+export const saveAuthData = (token, user, refreshToken = null) => {
   if (typeof window !== "undefined") {
     localStorage.setItem(STORAGE_KEYS.TOKEN, token);
     localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(user));
-  }
-};
-
-// Save user data to localStorage
-export const saveUserData = (user) => {
-  if (typeof window !== "undefined") {
-    localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(user));
+    if (refreshToken) {
+      localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, refreshToken);
+    }
   }
 };
 
@@ -20,11 +16,80 @@ export const saveUserData = (user) => {
 export const getAuthData = () => {
   if (typeof window !== "undefined") {
     const token = localStorage.getItem(STORAGE_KEYS.TOKEN);
+    const refreshToken = localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN);
     const userStr = localStorage.getItem(STORAGE_KEYS.USER);
     const user = userStr ? JSON.parse(userStr) : null;
-    return { token, user };
+    return { token, refreshToken, user };
   }
-  return { token: null, user: null };
+  return { token: null, refreshToken: null, user: null };
+};
+
+// Get refresh token from localStorage
+export const getRefreshToken = () => {
+  if (typeof window !== "undefined") {
+    return localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN);
+  }
+  return null;
+};
+
+// Check if token is about to expire (within 5 minutes)
+export const isTokenExpiringSoon = (token) => {
+  if (!token) return true;
+
+  try {
+    // Decode JWT token without verification
+    const base64Url = token.split(".")[1];
+    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split("")
+        .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+        .join("")
+    );
+
+    const payload = JSON.parse(jsonPayload);
+    const currentTime = Math.floor(Date.now() / 1000);
+    const expiryTime = payload.exp;
+
+    // Check if token expires within 5 minutes (300 seconds)
+    return expiryTime - currentTime < 300;
+  } catch (error) {
+    console.error("Error decoding token:", error);
+    return true;
+  }
+};
+
+// Refresh access token using refresh token
+export const refreshAccessToken = async () => {
+  try {
+    const refreshToken = getRefreshToken();
+    if (!refreshToken) {
+      throw new Error("No refresh token available");
+    }
+
+    const response = await apiClient.post(
+      API_ENDPOINTS.REFRESH_TOKEN,
+      { refreshToken },
+      { includeAuth: false }
+    );
+
+    if (response.success) {
+      const { token, refreshToken: newRefreshToken } = response;
+      const { user } = getAuthData();
+
+      // Save new tokens
+      saveAuthData(token, user, newRefreshToken);
+
+      return { token, refreshToken: newRefreshToken };
+    } else {
+      throw new Error("Failed to refresh token");
+    }
+  } catch (error) {
+    console.error("Token refresh failed:", error);
+    // Clear auth data on refresh failure
+    clearAuthData();
+    throw error;
+  }
 };
 
 // Clear auth data from localStorage
@@ -33,6 +98,13 @@ export const clearAuthData = () => {
     localStorage.removeItem(STORAGE_KEYS.TOKEN);
     localStorage.removeItem(STORAGE_KEYS.USER);
     localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
+  }
+};
+
+// Save user data to localStorage
+export const saveUserData = (user) => {
+  if (typeof window !== "undefined") {
+    localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(user));
   }
 };
 
@@ -61,7 +133,7 @@ export const login = async (email, password) => {
   );
 
   if (response.success && response.token) {
-    saveAuthData(response.token, response.user);
+    saveAuthData(response.token, response.user, response.refreshToken);
   }
 
   return response;
@@ -76,7 +148,7 @@ export const verifyOTP = async (email, otp) => {
   );
 
   if (response.success && response.token) {
-    saveAuthData(response.token, response.user);
+    saveAuthData(response.token, response.user, response.refreshToken);
   }
 
   return response;
