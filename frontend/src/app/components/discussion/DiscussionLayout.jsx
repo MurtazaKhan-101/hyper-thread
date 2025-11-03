@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { PostView } from "./PostView";
 import { DiscussionPanel } from "./DiscussionPanel";
+import { ChevronLeft } from "lucide-react";
 
 export const DiscussionLayout = ({ post, onPostUpdate }) => {
   const router = useRouter();
@@ -25,6 +26,16 @@ export const DiscussionLayout = ({ post, onPostUpdate }) => {
 
   return (
     <div className="bg-gray-50 dark:bg-[#030303] w-full overflow-x-hidden mt-5">
+      {/* Back button */}
+      <div className="p-4 md:p-6 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-[#1a1a1a]">
+        <button
+          onClick={() => router.back()}
+          className="text-blue-600 hover:text-blue-800 font-medium"
+        >
+          <ChevronLeft className="inline-block mr-1" />
+          Back to Posts
+        </button>
+      </div>
       {/* Main content - Split layout for desktop, stacked for mobile */}
       <div className="w-full mx-auto">
         {/* Desktop layout */}
