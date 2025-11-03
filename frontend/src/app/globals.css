@@ -184,3 +184,18 @@ body {
   background-size: 400% 400%;
   animation: moving-border 1.5s ease-in-out infinite;
 }
+
+/* Text overflow utilities */
+.text-wrap-anywhere {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  hyphens: auto;
+}
+
+.container-no-overflow {
+  max-width: 100%;
+  min-width: 0;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: break-word;
+}

@@ -13,6 +13,7 @@ export const PostCard = ({ post, onUpdate }) => {
     post.likedBy?.includes(user?._id) || false
   );
   const [likeCount, setLikeCount] = useState(post.likes || 0);
+  const [showFullContent, setShowFullContent] = useState(false);
 
   // Local comment state management
   const [comments, setComments] = useState(post.comments || []);
@@ -54,26 +55,56 @@ export const PostCard = ({ post, onUpdate }) => {
     }
   };
 
+  const renderContentWithReadMore = (content, className = "") => {
+    if (!content) return null;
+
+    const MAX_LENGTH = 300; // Characters to show before "Read More"
+    const shouldTruncate = content.length > MAX_LENGTH;
+    const displayContent =
+      shouldTruncate && !showFullContent
+        ? content.substring(0, MAX_LENGTH) + "..."
+        : content;
+
+    return (
+      <div
+        className={`break-words break-all overflow-wrap-anywhere hyphens-auto ${className}`}
+      >
+        <span className="whitespace-pre-wrap">{displayContent}</span>
+        {shouldTruncate && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowFullContent(!showFullContent);
+            }}
+            className="ml-2 text-blue-600 dark:text-blue-400 hover:underline font-medium flex-shrink-0"
+          >
+            {showFullContent ? "Show Less" : "Read More"}
+          </button>
+        )}
+      </div>
+    );
+  };
+
   const renderPostContent = () => {
     switch (post.postType) {
       case "text":
         return (
-          post.content && (
-            <div className="mt-3 text-gray-800 dark:text-gray-200 whitespace-pre-wrap">
-              {post.content}
-            </div>
+          post.content &&
+          renderContentWithReadMore(
+            post.content,
+            "mt-3 text-gray-800 dark:text-gray-200"
           )
         );
 
       case "link":
         return (
-          <div className="mt-3">
+          <div className="mt-3 min-w-0 overflow-hidden">
             {post.linkThumbnail && (
-              <div className="mb-3 flex justify-center">
+              <div className="mb-3 flex justify-center overflow-hidden">
                 <img
                   src={post.linkThumbnail}
                   alt="Link preview"
-                  className="max-w-md h-48 object-cover rounded-lg"
+                  className="max-w-full w-full max-h-48 object-cover rounded-lg"
                 />
               </div>
             )}
@@ -81,19 +112,19 @@ export const PostCard = ({ post, onUpdate }) => {
               href={post.linkUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="block p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+              className="block p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors min-w-0"
             >
               <div className="flex items-start gap-3">
-                <div className="flex-1">
-                  <h4 className="font-medium text-gray-900 dark:text-gray-100">
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-medium text-gray-900 dark:text-gray-100 break-words">
                     {post.linkTitle || "Link"}
                   </h4>
                   {post.linkDescription && (
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1 line-clamp-2">
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1 line-clamp-2 break-words">
                       {post.linkDescription}
                     </p>
                   )}
-                  <p className="text-xs text-gray-500 dark:text-gray-500 mt-2">
+                  <p className="text-xs text-gray-500 dark:text-gray-500 mt-2 break-all">
                     {new URL(post.linkUrl).hostname}
                   </p>
                 </div>
@@ -112,25 +143,27 @@ export const PostCard = ({ post, onUpdate }) => {
                 </svg>
               </div>
             </a>
-            {post.content && (
-              <div className="mt-3 text-gray-800 dark:text-gray-200">
-                {post.content}
-              </div>
-            )}
+            {post.content &&
+              renderContentWithReadMore(
+                post.content,
+                "mt-3 text-gray-800 dark:text-gray-200"
+              )}
           </div>
         );
 
       case "media":
         return (
-          <div className="mt-3">
+          <div className="mt-3 min-w-0 overflow-hidden">
             {post.media && post.media.length > 0 && (
-              <ImageSlider media={post.media} />
-            )}
-            {post.content && (
-              <div className="mt-3 text-gray-800 dark:text-gray-200">
-                {post.content}
+              <div className="max-w-full overflow-hidden">
+                <ImageSlider media={post.media} />
               </div>
             )}
+            {post.content &&
+              renderContentWithReadMore(
+                post.content,
+                "mt-3 text-gray-800 dark:text-gray-200"
+              )}
           </div>
         );
 
@@ -140,13 +173,13 @@ export const PostCard = ({ post, onUpdate }) => {
   };
 
   return (
-    <div className="post-card-border relative p-0.5 rounded-lg transition-all duration-300">
-      <div className="bg-white dark:bg-gray-900 rounded-lg">
-        <div onClick={handlePostClick} className="cursor-pointer block">
+    <div className="post-card-border relative p-0.5 rounded-lg transition-all duration-300 max-w-full min-w-0 container-no-overflow">
+      <div className="bg-white dark:bg-gray-900 rounded-lg overflow-hidden min-w-0">
+        <div onClick={handlePostClick} className="cursor-pointer block min-w-0">
           {/* Post Header */}
-          <div className="p-4">
-            <div className="flex items-center gap-2 mb-3">
-              <div className="flex items-center gap-2">
+          <div className="p-4 min-w-0">
+            <div className="flex items-center gap-2 mb-3 min-w-0">
+              <div className="flex items-center gap-2 flex-shrink-0">
                 {post.author?.profileImage ? (
                   <img
                     src={post.author.profileImage}
@@ -160,7 +193,7 @@ export const PostCard = ({ post, onUpdate }) => {
                     </span>
                   </div>
                 )}
-                <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                <span className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate min-w-0">
                   u/{post.author?.username || "unknown"}
                 </span>
                 {post.author?.isVerified && (
@@ -200,7 +233,7 @@ export const PostCard = ({ post, onUpdate }) => {
             </div>
 
             {/* Post Title */}
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2 break-words">
               {post.title}
             </h3>
 
@@ -219,7 +252,7 @@ export const PostCard = ({ post, onUpdate }) => {
             )}
 
             {/* Post Content */}
-            {renderPostContent()}
+            <div className="min-w-0 overflow-hidden">{renderPostContent()}</div>
           </div>
         </div>
 

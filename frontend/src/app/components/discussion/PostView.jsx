@@ -13,6 +13,7 @@ export const PostView = ({ post, onUpdate, isDiscussionView = false }) => {
     post.likedBy?.includes(user?._id) || false
   );
   const [likeCount, setLikeCount] = useState(post.likes || 0);
+  const [showFullContent, setShowFullContent] = useState(false);
 
   const handleLike = async () => {
     if (!isAuthenticated) return;
@@ -26,26 +27,56 @@ export const PostView = ({ post, onUpdate, isDiscussionView = false }) => {
     }
   };
 
+  const renderContentWithReadMore = (content, className = "") => {
+    if (!content) return null;
+
+    const MAX_LENGTH = 500; // Characters to show before "Read More" (longer for detailed view)
+    const shouldTruncate = content.length > MAX_LENGTH;
+    const displayContent =
+      shouldTruncate && !showFullContent
+        ? content.substring(0, MAX_LENGTH) + "..."
+        : content;
+
+    return (
+      <div
+        className={`break-words break-all overflow-wrap-anywhere hyphens-auto ${className}`}
+      >
+        <span className="whitespace-pre-wrap">{displayContent}</span>
+        {shouldTruncate && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowFullContent(!showFullContent);
+            }}
+            className="ml-2 text-blue-600 dark:text-blue-400 hover:underline font-medium flex-shrink-0"
+          >
+            {showFullContent ? "Show Less" : "Read More"}
+          </button>
+        )}
+      </div>
+    );
+  };
+
   const renderPostContent = () => {
     switch (post.postType) {
       case "text":
         return (
-          post.content && (
-            <div className="mt-4 text-gray-800 dark:text-gray-200 whitespace-pre-wrap text-lg leading-relaxed">
-              {post.content}
-            </div>
+          post.content &&
+          renderContentWithReadMore(
+            post.content,
+            "mt-4 text-gray-800 dark:text-gray-200 text-lg leading-relaxed"
           )
         );
 
       case "link":
         return (
-          <div className="mt-4">
+          <div className="mt-4 min-w-0 overflow-hidden">
             {post.linkThumbnail && (
-              <div className="mb-4">
+              <div className="mb-4 overflow-hidden">
                 <img
                   src={post.linkThumbnail}
                   alt="Link preview"
-                  className="w-full max-w-lg h-48 object-cover rounded-lg"
+                  className="w-full max-w-full h-48 object-cover rounded-lg"
                 />
               </div>
             )}
@@ -53,19 +84,19 @@ export const PostView = ({ post, onUpdate, isDiscussionView = false }) => {
               href={post.linkUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="block p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+              className="block p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors min-w-0"
             >
               <div className="flex items-start gap-3">
-                <div className="flex-1">
-                  <h4 className="font-medium text-gray-900 dark:text-gray-100 text-lg">
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-medium text-gray-900 dark:text-gray-100 text-lg break-words">
                     {post.linkTitle || "Link"}
                   </h4>
                   {post.linkDescription && (
-                    <p className="text-gray-600 dark:text-gray-400 mt-2 leading-relaxed">
+                    <p className="text-gray-600 dark:text-gray-400 mt-2 leading-relaxed break-words">
                       {post.linkDescription}
                     </p>
                   )}
-                  <p className="text-sm text-gray-500 dark:text-gray-500 mt-3">
+                  <p className="text-sm text-gray-500 dark:text-gray-500 mt-3 break-all">
                     {new URL(post.linkUrl).hostname}
                   </p>
                 </div>
@@ -84,24 +115,26 @@ export const PostView = ({ post, onUpdate, isDiscussionView = false }) => {
                 </svg>
               </div>
             </a>
-            {post.content && (
-              <div className="mt-4 text-gray-800 dark:text-gray-200 whitespace-pre-wrap text-lg leading-relaxed">
-                {post.content}
-              </div>
-            )}
+            {post.content &&
+              renderContentWithReadMore(
+                post.content,
+                "mt-4 text-gray-800 dark:text-gray-200 text-lg leading-relaxed"
+              )}
           </div>
         );
 
       case "media":
         return (
-          <div className="mt-4">
-            {post.content && (
-              <div className="mb-4 text-gray-800 dark:text-gray-200 whitespace-pre-wrap text-lg leading-relaxed">
-                {post.content}
-              </div>
-            )}
+          <div className="mt-4 min-w-0 overflow-hidden">
+            {post.content &&
+              renderContentWithReadMore(
+                post.content,
+                "mb-4 text-gray-800 dark:text-gray-200 text-lg leading-relaxed"
+              )}
             {post.media && post.media.length > 0 && (
-              <ImageSlider media={post.media} />
+              <div className="max-w-full overflow-hidden">
+                <ImageSlider media={post.media} />
+              </div>
             )}
           </div>
         );
@@ -128,10 +161,10 @@ export const PostView = ({ post, onUpdate, isDiscussionView = false }) => {
   };
 
   return (
-    <div className="bg-white dark:bg-[#1a1a1a] rounded-lg border border-gray-200 dark:border-gray-800 overflow-hidden">
-      <div className="p-6">
+    <div className="bg-white dark:bg-[#1a1a1a] rounded-lg border border-gray-200 dark:border-gray-800 overflow-hidden max-w-full min-w-0 container-no-overflow">
+      <div className="p-6 min-w-0">
         {/* Post Header */}
-        <div className="flex items-start gap-3 mb-4">
+        <div className="flex items-start gap-3 mb-4 min-w-0">
           <div className="flex-shrink-0">
             {post.author?.profileImage ? (
               <img
@@ -147,11 +180,11 @@ export const PostView = ({ post, onUpdate, isDiscussionView = false }) => {
               </div>
             )}
           </div>
-          <div className="flex-1">
-            <div className="flex items-center gap-2 mb-1">
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-1 flex-wrap">
               <Link
                 href={`/profile/${post.author?.username}`}
-                className="font-medium text-gray-900 dark:text-gray-100 hover:text-blue-600 dark:hover:text-blue-400"
+                className="font-medium text-gray-900 dark:text-gray-100 hover:text-blue-600 dark:hover:text-blue-400 truncate"
               >
                 u/{post.author?.username || "unknown"}
               </Link>
@@ -178,7 +211,7 @@ export const PostView = ({ post, onUpdate, isDiscussionView = false }) => {
 
         {/* Post Title */}
         {post.title && (
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2 break-words">
             {post.title}
           </h1>
         )}
@@ -208,10 +241,10 @@ export const PostView = ({ post, onUpdate, isDiscussionView = false }) => {
         )}
 
         {/* Post Content */}
-        {renderPostContent()}
+        <div className="min-w-0 overflow-hidden">{renderPostContent()}</div>
 
         {/* Post Actions */}
-        <div className="flex items-center gap-3 md:gap-6 mt-6 pt-4 border-t border-gray-100 dark:border-gray-800 flex-wrap">
+        <div className="flex items-center gap-3 md:gap-6 mt-6 pt-4 border-t border-gray-100 dark:border-gray-800 flex-wrap min-w-0">
           <button
             onClick={handleLike}
             disabled={!isAuthenticated}
