@@ -20,25 +20,15 @@ export const postService = {
         formData.append("media", file);
       });
 
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3003"}${
-          API_ENDPOINTS.UPLOAD_MEDIA
-        }`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${apiClient.getToken()}`,
-          },
-          body: formData,
-        }
-      );
+      // Use apiClient for automatic token refresh handling
+      const response = await apiClient.request(API_ENDPOINTS.UPLOAD_MEDIA, {
+        method: "POST",
+        body: formData,
+        // No need to set headers manually - apiClient will handle auth headers
+        // and won't set Content-Type for FormData
+      });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw errorData;
-      }
-
-      return await response.json();
+      return response;
     } catch (error) {
       throw error;
     }

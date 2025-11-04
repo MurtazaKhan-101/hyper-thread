@@ -13,45 +13,45 @@ export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const router = useRouter();
 
-  // Initialize auth state from localStorage
+  // Initialize auth state
   useEffect(() => {
-    const initAuth = () => {
-      const { token, user } = authService.getAuthData();
-      if (token && user) {
-        setUser(user);
-        setIsAuthenticated(true);
+    const initAuth = async () => {
+      try {
+        // Try to initialize auth with existing session
+        const result = await authService.initializeAuth();
 
-        // Check if token is expiring soon and refresh if needed
-        if (authService.isTokenExpiringSoon(token)) {
-          authService.refreshAccessToken().catch((error) => {
-            console.error("Failed to refresh token on init:", error);
-            logout();
-          });
+        if (result.authenticated && result.user) {
+          setUser(result.user);
+          setIsAuthenticated(true);
+        } else {
+          setUser(null);
+          setIsAuthenticated(false);
         }
+      } catch (error) {
+        console.error("Failed to initialize auth:", error);
+        setUser(null);
+        setIsAuthenticated(false);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
 
     initAuth();
   }, []);
 
-  // Set up token refresh interval
+  // Listen for logout events from API client
   useEffect(() => {
-    if (!isAuthenticated) return;
+    const handleLogout = () => {
+      setUser(null);
+      setIsAuthenticated(false);
+      router.push(ROUTES.LOGIN);
+    };
 
-    // Check token every 4 minutes (240 seconds)
-    const interval = setInterval(() => {
-      const { token } = authService.getAuthData();
-      if (token && authService.isTokenExpiringSoon(token)) {
-        authService.refreshAccessToken().catch((error) => {
-          console.error("Failed to refresh token:", error);
-          logout();
-        });
-      }
-    }, 4 * 60 * 1000); // 4 minutes
-
-    return () => clearInterval(interval);
-  }, [isAuthenticated]);
+    if (typeof window !== "undefined") {
+      window.addEventListener("auth:logout", handleLogout);
+      return () => window.removeEventListener("auth:logout", handleLogout);
+    }
+  }, [router]);
 
   // Login function
   const login = async (email, password) => {
@@ -103,11 +103,7 @@ export const AuthProvider = ({ children }) => {
       if (response.success) {
         setUser(response.user);
         setIsAuthenticated(true);
-        return {
-          success: true,
-          message: response.message,
-          user: response.user,
-        };
+        return { success: true, user: response.user };
       }
 
       return { success: false, message: response.message };
@@ -123,7 +119,10 @@ export const AuthProvider = ({ children }) => {
   const resendOTP = async (email) => {
     try {
       const response = await authService.resendOTP(email);
-      return { success: response.success, message: response.message };
+      return {
+        success: response.success,
+        message: response.message,
+      };
     } catch (error) {
       return {
         success: false,
@@ -136,7 +135,10 @@ export const AuthProvider = ({ children }) => {
   const forgotPassword = async (email) => {
     try {
       const response = await authService.forgotPassword(email);
-      return { success: response.success, message: response.message };
+      return {
+        success: response.success,
+        message: response.message,
+      };
     } catch (error) {
       return {
         success: false,
@@ -149,11 +151,14 @@ export const AuthProvider = ({ children }) => {
   const verifyResetOTP = async (email, otp) => {
     try {
       const response = await authService.verifyResetOTP(email, otp);
-      return { success: response.success, message: response.message };
+      return {
+        success: response.success,
+        message: response.message,
+      };
     } catch (error) {
       return {
         success: false,
-        message: error.message || "Invalid or expired OTP",
+        message: error.message || "OTP verification failed",
       };
     }
   };
@@ -162,53 +167,49 @@ export const AuthProvider = ({ children }) => {
   const resetPassword = async (email, otp, newPassword) => {
     try {
       const response = await authService.resetPassword(email, otp, newPassword);
-      return { success: response.success, message: response.message };
+      return {
+        success: response.success,
+        message: response.message,
+      };
     } catch (error) {
       return {
         success: false,
-        message: error.message || "Failed to reset password",
+        message: error.message || "Password reset failed",
       };
     }
   };
 
   // Logout function
-  const logout = () => {
-    authService.logout();
-    setUser(null);
-    setIsAuthenticated(false);
-    router.push(ROUTES.HOME);
-  };
-
-  // Refresh token
-  const refresh = async () => {
+  const logout = async () => {
     try {
-      const response = await authService.refreshToken();
-      return { success: response.success };
+      await authService.logout();
+      setUser(null);
+      setIsAuthenticated(false);
+      router.push(ROUTES.LOGIN);
     } catch (error) {
-      return { success: false };
+      console.error("Logout error:", error);
+      // Even if logout request fails, clear local state
+      setUser(null);
+      setIsAuthenticated(false);
+      router.push(ROUTES.LOGIN);
     }
   };
 
-  // Get current user from API
-  const fetchCurrentUser = async () => {
-    try {
-      const response = await authService.getCurrentUser();
-      if (response.success && response.user) {
-        setUser(response.user);
-        setIsAuthenticated(true);
-        return { success: true, user: response.user };
-      }
-      return { success: false };
-    } catch (error) {
-      logout();
-      return { success: false };
+  // Handle OAuth success
+  const handleOAuthSuccess = (user, token) => {
+    const result = authService.handleOAuthSuccess(user, token);
+    if (result.success) {
+      setUser(result.user);
+      setIsAuthenticated(true);
+      return { success: true, user: result.user };
     }
+    return { success: false, message: "OAuth authentication failed" };
   };
 
   // Update user data
-  const updateUser = (updatedUser) => {
-    setUser(updatedUser);
-    authService.saveUserData(updatedUser);
+  const updateUser = (userData) => {
+    setUser(userData);
+    authService.saveUserData(userData);
   };
 
   const value = {
@@ -223,15 +224,13 @@ export const AuthProvider = ({ children }) => {
     verifyResetOTP,
     resetPassword,
     logout,
-    refresh,
-    fetchCurrentUser,
+    handleOAuthSuccess,
     updateUser,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
-// Custom hook to use auth context
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {

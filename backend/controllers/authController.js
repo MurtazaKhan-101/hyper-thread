@@ -6,19 +6,16 @@ const { sendOTP } = require("../config/email");
 
 // Helper function to generate access and refresh tokens
 const generateTokens = (user) => {
+  // Short-lived access token (15 minutes)
   const accessToken = jwt.sign(
     { id: user._id, email: user.email },
     process.env.JWT_SECRET,
-    { expiresIn: process.env.JWT_EXPIRY || "24h" }
+    { expiresIn: "15m" }
   );
 
+  // Long-lived refresh token (7 days)
   const refreshToken = crypto.randomBytes(64).toString("hex");
-  const refreshTokenExpiry = new Date(
-    Date.now() +
-      (process.env.JWT_REFRESH_EXPIRY === "7d"
-        ? 7 * 24 * 60 * 60 * 1000
-        : 7 * 24 * 60 * 60 * 1000)
-  );
+  const refreshTokenExpiry = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
 
   return { accessToken, refreshToken, refreshTokenExpiry };
 };
@@ -173,6 +170,15 @@ class AuthController {
       user.refreshTokenExpiry = refreshTokenExpiry;
       await user.save();
 
+      // Set refresh token as HTTP-only cookie
+      res.cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production", // Use HTTPS in production
+        sameSite: "strict",
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        path: "/",
+      });
+
       res.status(200).json({
         success: true,
         message: "Login successful",
@@ -186,8 +192,7 @@ class AuthController {
           onboardingCompleted: user.onboardingCompleted,
           onboardingStep: user.onboardingStep,
         },
-        token: accessToken,
-        refreshToken: refreshToken,
+        token: accessToken, // Only send access token, not refresh token
       });
     } catch (error) {
       console.error("Error logging in user:", error);
@@ -249,6 +254,15 @@ class AuthController {
       user.refreshTokenExpiry = refreshTokenExpiry;
       await user.save();
 
+      // Set refresh token as HTTP-only cookie
+      res.cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        path: "/",
+      });
+
       res.status(200).json({
         success: true,
         message: "Email verified successfully",
@@ -262,8 +276,7 @@ class AuthController {
           onboardingCompleted: user.onboardingCompleted,
           onboardingStep: user.onboardingStep,
         },
-        token: accessToken,
-        refreshToken: refreshToken,
+        token: accessToken, // Only send access token
       });
     } catch (error) {
       console.error("Error verifying OTP:", error);
@@ -329,51 +342,71 @@ class AuthController {
 
   async refreshToken(req, res) {
     try {
-      const { refreshToken } = req.body;
+      // Refresh token is now verified by middleware from HTTP-only cookie
+      const user = req.user;
+      const oldRefreshToken = req.refreshToken;
 
-      if (!refreshToken) {
-        return res.status(400).json({
-          success: false,
-          message: "Refresh token is required",
-        });
-      }
-
-      // Find user with this refresh token
-      const user = await User.findOne({
-        refreshToken: refreshToken,
-        refreshTokenExpiry: { $gt: new Date() },
-      });
-
-      if (!user) {
-        return res.status(401).json({
-          success: false,
-          message: "Invalid or expired refresh token",
-        });
-      }
-
-      // Generate new tokens
+      // Generate new tokens (token rotation)
       const {
         accessToken,
         refreshToken: newRefreshToken,
         refreshTokenExpiry,
       } = generateTokens(user);
 
-      // Update user with new refresh token
+      // Update user with new refresh token (rotate the refresh token)
       user.refreshToken = newRefreshToken;
       user.refreshTokenExpiry = refreshTokenExpiry;
       await user.save();
 
+      // Set new refresh token as HTTP-only cookie
+      res.cookie("refreshToken", newRefreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        path: "/",
+      });
+
       res.json({
         success: true,
         message: "Token refreshed successfully",
-        token: accessToken,
-        refreshToken: newRefreshToken,
+        token: accessToken, // Only send access token
       });
     } catch (error) {
       console.error("Token refresh error:", error);
       res.status(500).json({
         success: false,
         message: "Server error during token refresh",
+      });
+    }
+  }
+
+  async logout(req, res) {
+    try {
+      const user = req.user;
+
+      // Clear refresh token from database
+      user.refreshToken = null;
+      user.refreshTokenExpiry = null;
+      await user.save();
+
+      // Clear the refresh token cookie
+      res.clearCookie("refreshToken", {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        path: "/",
+      });
+
+      res.json({
+        success: true,
+        message: "Logged out successfully",
+      });
+    } catch (error) {
+      console.error("Logout error:", error);
+      res.status(500).json({
+        success: false,
+        message: "Server error during logout",
       });
     }
   }
@@ -571,5 +604,6 @@ module.exports = {
   verifyResetOTP: authController.verifyResetOTP.bind(authController),
   resetPassword: authController.resetPassword.bind(authController),
   refreshToken: authController.refreshToken.bind(authController),
+  logout: authController.logout.bind(authController),
   getMe: authController.getMe.bind(authController),
 };

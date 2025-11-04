@@ -1,29 +1,46 @@
 "use client";
 
-import { useState } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useState, useEffect } from "react";
 
 export const ImageSlider = ({ media = [] }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   if (!media || media.length === 0) return null;
 
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyPress = (e) => {
+      if (media.length > 1) {
+        if (e.key === "ArrowLeft") {
+          e.preventDefault();
+          setCurrentIndex((prev) => (prev === 0 ? media.length - 1 : prev - 1));
+        } else if (e.key === "ArrowRight") {
+          e.preventDefault();
+          setCurrentIndex((prev) => (prev === media.length - 1 ? 0 : prev + 1));
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyPress);
+    return () => window.removeEventListener("keydown", handleKeyPress);
+  }, [media.length]);
+
   // If only one image, just display it normally
   if (media.length === 1) {
     const item = media[0];
     return (
-      <div className="relative flex justify-center">
+      <div className="relative bg-gray-100 dark:bg-gray-900 rounded-lg overflow-hidden">
         {item.type === "image" ? (
           <img
             src={item.url}
             alt="Media"
-            className="max-h-96 object-cover rounded-lg"
+            className="w-full max-h-96 object-contain bg-gray-50 dark:bg-gray-800"
           />
         ) : (
           <video
             src={item.url}
             controls
-            className="max-h-96 object-cover rounded-lg"
+            className="w-full max-h-96 object-contain bg-gray-50 dark:bg-gray-800"
           />
         )}
       </div>
@@ -55,20 +72,20 @@ export const ImageSlider = ({ media = [] }) => {
   const currentItem = media[currentIndex];
 
   return (
-    <div className="relative bg-black rounded-lg overflow-hidden group">
+    <div className="relative bg-gray-100 dark:bg-gray-900 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 group">
       {/* Main Image/Video Display */}
       <div className="relative">
         {currentItem.type === "image" ? (
           <img
             src={currentItem.url}
             alt={`Media ${currentIndex + 1} of ${media.length}`}
-            className="w-full max-h-96 object-contain bg-black"
+            className="w-full max-h-96 object-contain bg-gray-50 dark:bg-gray-800"
           />
         ) : (
           <video
             src={currentItem.url}
             controls
-            className="w-full max-h-96 object-contain bg-black"
+            className="w-full max-h-96 object-contain bg-gray-50 dark:bg-gray-800"
           />
         )}
 
@@ -77,58 +94,67 @@ export const ImageSlider = ({ media = [] }) => {
           <>
             <button
               onClick={goToPrevious}
-              className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10"
+              className="absolute left-3 top-1/2 -translate-y-1/2 bg-black bg-opacity-60 hover:bg-opacity-80 text-white rounded-full p-2 transition-all shadow-lg opacity-0 group-hover:opacity-100"
               aria-label="Previous image"
+              title="Previous (←)"
             >
-              <ChevronLeft className="w-5 h-5" />
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15 19l-7-7 7-7"
+                />
+              </svg>
             </button>
             <button
               onClick={goToNext}
-              className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10"
+              className="absolute right-3 top-1/2 -translate-y-1/2 bg-black bg-opacity-60 hover:bg-opacity-80 text-white rounded-full p-2 transition-all shadow-lg opacity-0 group-hover:opacity-100"
               aria-label="Next image"
+              title="Next (→)"
             >
-              <ChevronRight className="w-5 h-5" />
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 5l7 7-7 7"
+                />
+              </svg>
             </button>
           </>
         )}
 
         {/* Image Counter */}
-        <div className="absolute top-3 right-3 bg-black/60 text-white text-sm px-2 py-1 rounded-full">
+        <div className="absolute bottom-3 right-3 bg-black bg-opacity-70 text-white px-3 py-1 rounded-full text-sm">
           {currentIndex + 1} / {media.length}
         </div>
       </div>
 
-      {/* Dots Indicator */}
-      {media.length > 1 && media.length <= 10 && (
-        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2">
-          {media.map((_, index) => (
-            <button
-              key={index}
-              onClick={(e) => goToSlide(index, e)}
-              className={`w-2 h-2 rounded-full transition-all duration-200 ${
-                index === currentIndex
-                  ? "bg-white"
-                  : "bg-white/50 hover:bg-white/70"
-              }`}
-              aria-label={`Go to image ${index + 1}`}
-            />
-          ))}
-        </div>
-      )}
-
-      {/* Thumbnail Strip for many images */}
-      {media.length > 10 && (
-        <div className="absolute bottom-0 left-0 right-0 bg-black/80 p-2">
-          <div className="flex gap-1 overflow-x-auto scrollbar-hide">
+      {/* Thumbnail Navigation for multiple images */}
+      {/* {media.length > 1 && (
+        <div className="mt-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+          <div className="flex gap-2 overflow-x-auto pb-1">
             {media.map((item, index) => (
               <button
                 key={index}
                 onClick={(e) => goToSlide(index, e)}
-                className={`flex-shrink-0 w-12 h-8 rounded overflow-hidden border-2 transition-all duration-200 ${
+                className={`relative flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-all hover:scale-105 ${
                   index === currentIndex
-                    ? "border-white"
-                    : "border-transparent hover:border-white/50"
+                    ? "border-blue-500 ring-2 ring-blue-500 ring-opacity-50 shadow-lg"
+                    : "border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500"
                 }`}
+                aria-label={`Go to image ${index + 1}`}
               >
                 {item.type === "image" ? (
                   <img
@@ -137,21 +163,25 @@ export const ImageSlider = ({ media = [] }) => {
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <div className="w-full h-full bg-gray-600 flex items-center justify-center">
+                  <div className="w-full h-full bg-gray-800 flex items-center justify-center">
                     <svg
-                      className="w-4 h-4 text-white"
+                      className="w-6 h-6 text-white"
                       fill="currentColor"
-                      viewBox="0 0 20 20"
+                      viewBox="0 0 24 24"
                     >
-                      <path d="M2 6a2 2 0 012-2h6l2 2h6a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z" />
+                      <path d="M8 5v14l11-7z" />
                     </svg>
                   </div>
+                )}
+
+                {index === currentIndex && (
+                  <div className="absolute bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-blue-500 rounded-full"></div>
                 )}
               </button>
             ))}
           </div>
         </div>
-      )}
+      )} */}
     </div>
   );
 };

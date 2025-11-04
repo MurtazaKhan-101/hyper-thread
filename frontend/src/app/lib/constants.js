@@ -13,6 +13,7 @@ export const API_ENDPOINTS = {
   VERIFY_RESET_OTP: "/auth/verify-reset-otp",
   RESET_PASSWORD: "/auth/reset-password",
   REFRESH_TOKEN: "/auth/refresh-token",
+  LOGOUT: "/auth/logout",
   GET_ME: "/auth/me",
 
   // Google OAuth endpoints
@@ -48,9 +49,7 @@ export const API_ENDPOINTS = {
 
 // Local Storage Keys
 export const STORAGE_KEYS = {
-  TOKEN: "auth_token",
-  REFRESH_TOKEN: "refresh_token",
-  USER: "user_data",
+  USER: "user_data", // Only store user data, not tokens
 };
 
 // Routes

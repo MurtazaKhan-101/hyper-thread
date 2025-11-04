@@ -4,19 +4,16 @@ const User = require("../models/User");
 
 // Helper function to generate access and refresh tokens (same as in authController)
 const generateTokens = (user) => {
+  // Short-lived access token (15 minutes)
   const accessToken = jwt.sign(
     { id: user._id, email: user.email },
     process.env.JWT_SECRET,
-    { expiresIn: process.env.JWT_EXPIRY || "24h" }
+    { expiresIn: "15m" }
   );
 
+  // Long-lived refresh token (7 days)
   const refreshToken = crypto.randomBytes(64).toString("hex");
-  const refreshTokenExpiry = new Date(
-    Date.now() +
-      (process.env.JWT_REFRESH_EXPIRY === "7d"
-        ? 7 * 24 * 60 * 60 * 1000
-        : 7 * 24 * 60 * 60 * 1000)
-  );
+  const refreshTokenExpiry = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
 
   return { accessToken, refreshToken, refreshTokenExpiry };
 };
@@ -175,12 +172,20 @@ class GoogleAuthController {
         onboardingStep: existingUser.onboardingStep,
       };
 
+      // Set refresh token as HTTP-only cookie
+      res.cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        path: "/",
+      });
+
       const encodedUserData = encodeURIComponent(JSON.stringify(userData));
       const encodedToken = encodeURIComponent(accessToken);
-      const encodedRefreshToken = encodeURIComponent(refreshToken);
 
       res.redirect(
-        `${process.env.CLIENT_URL}/auth/oauth-success?user=${encodedUserData}&token=${encodedToken}&refreshToken=${encodedRefreshToken}`
+        `${process.env.CLIENT_URL}/auth/oauth-success?user=${encodedUserData}&token=${encodedToken}`
       );
     } catch (error) {
       console.error("❌ OAuth callback error:", error);
