@@ -4,10 +4,7 @@ import { useState } from "react";
 import { Newspaper, ChevronDown } from "lucide-react";
 
 const CATEGORIES = [
-  { id: "sports", label: "Sports" },
   { id: "culture", label: "Culture" },
-  { id: "internet", label: "Internet" },
-  { id: "history", label: "History" },
   { id: "entertainment", label: "Entertainment" },
   { id: "technology", label: "Technology" },
   { id: "science", label: "Science" },

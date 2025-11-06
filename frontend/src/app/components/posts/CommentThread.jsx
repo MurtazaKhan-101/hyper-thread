@@ -35,7 +35,7 @@ export const CommentThread = ({
   const optionsRef = useRef(null);
 
   // Check if current user is the author of this comment
-  const isAuthor = user?.id === comment.user?._id;
+  const isAuthor = user?._id === comment.user?._id;
 
   // Close options menu when clicking outside
   useEffect(() => {
@@ -54,10 +54,10 @@ export const CommentThread = ({
   // Update local state when comment prop changes
   useEffect(() => {
     setLocalComment(comment);
-    setIsLiked(comment.likedBy?.includes(user?.id) || false);
+    setIsLiked(comment.likedBy?.includes(user?._id) || false);
     setLikeCount(comment.likes || 0);
     setEditText(comment.comment);
-  }, [comment, user?.id]);
+  }, [comment, user?._id]);
 
   const handleCommentLike = async () => {
     if (!isAuthenticated) return;
@@ -330,7 +330,7 @@ export const CommentThread = ({
 
                 {/* Delete Confirmation Modal */}
                 {showDeleteConfirm && (
-                  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                  <div className="fixed inset-0 backdrop-blur-sm bg-transparent flex items-center justify-center z-50">
                     <div className="bg-gray-800 border border-gray-700 rounded-lg p-6 max-w-sm mx-4">
                       <h3 className="text-lg font-medium text-gray-100 mb-2">
                         Delete Message
@@ -507,7 +507,7 @@ export const CommentThread = ({
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium text-gray-100">
-                u/{localComment.user?.username || "unknown"}
+                {localComment.user?.username || "unknown"}
               </span>
               {localComment.user?.isVerified && (
                 <svg

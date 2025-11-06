@@ -24,10 +24,8 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
   ];
 
   const topicsItems = [
-    { id: "sports", label: "Sports", href: "/dashboard?category=sports" },
     { id: "culture", label: "Culture", href: "/dashboard?category=culture" },
-    { id: "internet", label: "Internet", href: "/dashboard?category=internet" },
-    { id: "history", label: "History", href: "/dashboard?category=history" },
+
     {
       id: "entertainment",
       label: "Entertainment",

@@ -45,6 +45,17 @@ export const API_ENDPOINTS = {
   EDIT_COMMENT: "/posts",
   DELETE_COMMENT: "/posts",
   DELETE_POST: "/posts",
+
+  // Chat endpoints
+  GET_CHAT_ROOM: "/chat",
+  JOIN_CHAT_ROOM: "/chat",
+  LEAVE_CHAT_ROOM: "/chat",
+  GET_CHAT_HISTORY: "/chat",
+  GET_CHAT_PARTICIPANTS: "/chat",
+  UPDATE_LAST_SEEN: "/chat",
+  ADD_MESSAGE_REACTION: "/chat",
+  UPLOAD_CHAT_IMAGE: "/chat",
+  GET_ACTIVE_CHAT_ROOMS: "/chat",
 };
 
 // Local Storage Keys
@@ -65,6 +76,7 @@ export const ROUTES = {
   ONBOARDING: "/onboarding",
   DASHBOARD: "/dashboard",
   CREATE_POST: "/create-post",
+  CHAT: "/chat",
   HELP: "/help",
   ABOUT: "/about",
   RULES: "/rules",

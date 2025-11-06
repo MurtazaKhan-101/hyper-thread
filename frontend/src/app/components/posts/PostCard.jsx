@@ -5,6 +5,7 @@ import { useAuth } from "../../context/AuthContext";
 import { postService, formatPostTime, formatNumber } from "../../lib/posts";
 import { useRouter } from "next/navigation";
 import { ImageSlider } from "./ImageSlider";
+import { MessageCircle } from "lucide-react";
 
 export const PostCard = ({ post, onUpdate }) => {
   const { user, isAuthenticated } = useAuth();
@@ -194,7 +195,7 @@ export const PostCard = ({ post, onUpdate }) => {
                   </div>
                 )}
                 <span className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate min-w-0">
-                  u/{post.author?.username || "unknown"}
+                  {post.author?.username || "unknown"}
                 </span>
                 {post.author?.isVerified && (
                   <svg
@@ -266,7 +267,7 @@ export const PostCard = ({ post, onUpdate }) => {
                 handleLike();
               }}
               disabled={!isAuthenticated}
-              className={`flex items-center gap-2 px-3 py-1 rounded-full text-sm transition-colors ${
+              className={`flex items-center gap-2 px-2 py-1 rounded-full text-sm transition-colors ${
                 isLiked
                   ? "bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400"
                   : "hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400"
@@ -294,7 +295,7 @@ export const PostCard = ({ post, onUpdate }) => {
                 e.stopPropagation();
                 router.push(`/discussion/${post._id}`);
               }}
-              className="flex items-center gap-2 px-3 py-1 rounded-full text-sm hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400 transition-colors"
+              className="flex items-center gap-2 px-2 py-1 rounded-full text-sm hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400 transition-colors"
             >
               <svg
                 className="w-4 h-4"
@@ -312,7 +313,20 @@ export const PostCard = ({ post, onUpdate }) => {
               {formatNumber(getTotalCommentCount(comments))}
             </button>
 
-            <button className="flex items-center gap-2 px-3 py-1 rounded-full text-sm hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400 transition-colors">
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                router.push(`/chat/${post._id}`);
+              }}
+              className="flex items-center gap-2 px-2 py-1 rounded-full text-sm hover:bg-blue-100 dark:hover:bg-blue-900 text-blue-600 dark:text-blue-400 transition-colors"
+              title="Join chat room"
+            >
+              <MessageCircle className="w-4 h-4" />
+              Chat
+            </button>
+
+            <button className="flex items-center gap-2 px-2 py-1 rounded-full text-sm hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400 transition-colors">
               <svg
                 className="w-4 h-4"
                 fill="none"

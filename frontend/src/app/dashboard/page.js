@@ -213,7 +213,7 @@ export default function DashboardPage() {
                   <div className="text-sm">
                     <p className="text-gray-600 dark:text-gray-400">
                       <span className="font-medium text-gray-900 dark:text-gray-100">
-                        u/{user?.username || "User"}
+                        {user?.username || "User"}
                       </span>{" "}
                       created a new post
                     </p>

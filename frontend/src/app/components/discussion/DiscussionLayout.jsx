@@ -29,7 +29,7 @@ export const DiscussionLayout = ({ post, onPostUpdate }) => {
       {/* Back button */}
       <div className="p-4 md:p-6 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-[#1a1a1a]">
         <button
-          onClick={() => router.back()}
+          onClick={() => router.push("/dashboard")}
           className="text-blue-600 hover:text-blue-800 font-medium"
         >
           <ChevronLeft className="inline-block mr-1" />

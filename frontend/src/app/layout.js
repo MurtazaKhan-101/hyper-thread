@@ -4,6 +4,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "./context/AuthContext";
 import { SearchProvider } from "./context/SearchContext";
+import { ChatProvider } from "./context/ChatContext";
 import LayoutWrapper from "./components/layout/LayoutWrapper";
 
 const geistSans = Geist({
@@ -28,7 +29,9 @@ export default function RootLayout({ children }) {
       >
         <AuthProvider>
           <SearchProvider>
-            <LayoutWrapper>{children}</LayoutWrapper>
+            <ChatProvider>
+              <LayoutWrapper>{children}</LayoutWrapper>
+            </ChatProvider>
           </SearchProvider>
         </AuthProvider>
       </body>

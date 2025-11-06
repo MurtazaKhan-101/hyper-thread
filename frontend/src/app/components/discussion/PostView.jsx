@@ -5,10 +5,12 @@ import { useAuth } from "../../context/AuthContext";
 import { postService, formatPostTime, formatNumber } from "../../lib/posts";
 import { ImageSlider } from "../posts/ImageSlider";
 import Link from "next/link";
-import { Newspaper } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Newspaper, MessageCircle } from "lucide-react";
 
 export const PostView = ({ post, onUpdate, isDiscussionView = false }) => {
   const { user, isAuthenticated } = useAuth();
+  const router = useRouter();
   const [isLiked, setIsLiked] = useState(
     post.likedBy?.includes(user?._id) || false
   );
@@ -186,7 +188,7 @@ export const PostView = ({ post, onUpdate, isDiscussionView = false }) => {
                 href={`/profile/${post.author?.username}`}
                 className="font-medium text-gray-900 dark:text-gray-100 hover:text-blue-600 dark:hover:text-blue-400 truncate"
               >
-                u/{post.author?.username || "unknown"}
+                {post.author?.username || "unknown"}
               </Link>
               {post.author?.isVerified && (
                 <svg
@@ -297,6 +299,16 @@ export const PostView = ({ post, onUpdate, isDiscussionView = false }) => {
               {formatNumber(getTotalCommentCount(post.comments))}
             </span>
           </div>
+
+          <button
+            onClick={() => router.push(`/chat/${post._id}`)}
+            className="flex items-center gap-1 md:gap-2 px-3 md:px-4 py-2 rounded-full text-xs md:text-sm hover:bg-blue-100 dark:hover:bg-blue-900 text-blue-600 dark:text-blue-400 transition-colors"
+            title="Join chat room"
+          >
+            <MessageCircle className="w-4 h-4 md:w-5 md:h-5" />
+            <span className="hidden sm:inline">Chat Room</span>
+            <span className="sm:hidden">Chat</span>
+          </button>
 
           <button className="flex items-center gap-1 md:gap-2 px-3 md:px-4 py-2 rounded-full text-xs md:text-sm hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400 transition-colors">
             <svg

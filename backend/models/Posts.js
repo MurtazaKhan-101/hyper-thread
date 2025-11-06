@@ -35,10 +35,7 @@ const postSchema = new mongoose.Schema(
     category: {
       type: String,
       enum: [
-        "sports",
         "culture",
-        "internet",
-        "history",
         "entertainment",
         "technology",
         "science",
