@@ -238,7 +238,7 @@ export const ChatProvider = ({ children }) => {
       unsubscribeConnection();
       unsubscribeMessages();
       unsubscribeUserEvents();
-      unsubscribeTyping();
+      // unsubscribeTyping();
       unsubscribeReactions();
       unsubscribeMessageEdits();
       unsubscribeMessageDeletes();
