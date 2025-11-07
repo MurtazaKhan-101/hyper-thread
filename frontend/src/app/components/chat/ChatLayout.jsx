@@ -10,7 +10,7 @@ export const ChatLayout = ({ post, onPostUpdate, currentUser }) => {
   const router = useRouter();
 
   return (
-    <div className="bg-gray-50 dark:bg-[#030303] w-full overflow-x-hidden mt-5">
+    <div className="bg-gray-50 dark:bg-[#030303] w-full overflow-x-hidden mt-5 scrollbar-hide">
       {/* Back button */}
       <div className="p-4 md:p-6 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-[#1a1a1a]">
         <button

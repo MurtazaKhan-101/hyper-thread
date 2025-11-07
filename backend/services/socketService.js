@@ -10,7 +10,48 @@ class SocketService {
     this.roomParticipants = new Map(); // roomId -> Set of userIds
     this.recentRoomJoins = new Map(); // Track recent room joins to prevent spam
 
+    // Start periodic cleanup
+    this.startPeriodicCleanup();
     this.initializeSocketHandlers();
+  }
+
+  // Periodic cleanup of stale data
+  startPeriodicCleanup() {
+    setInterval(() => {
+      this.cleanupStaleData();
+    }, 5 * 60 * 1000); // Run every 5 minutes
+  }
+
+  async cleanupStaleData() {
+    console.log("🧹 Running periodic cleanup...");
+
+    // Clean up old room join tracking (older than 5 minutes)
+    const now = Date.now();
+    for (const [key, timestamp] of this.recentRoomJoins.entries()) {
+      if (now - timestamp > 300000) {
+        this.recentRoomJoins.delete(key);
+      }
+    }
+
+    // Clean up disconnected users from room tracking
+    for (const [roomId, participants] of this.roomParticipants.entries()) {
+      const activeParticipants = new Set();
+      for (const userId of participants) {
+        if (this.connectedUsers.has(userId)) {
+          activeParticipants.add(userId);
+        }
+      }
+
+      if (activeParticipants.size === 0) {
+        this.roomParticipants.delete(roomId);
+      } else if (activeParticipants.size !== participants.size) {
+        this.roomParticipants.set(roomId, activeParticipants);
+      }
+    }
+
+    console.log(
+      `🧹 Cleanup complete. Active rooms: ${this.roomParticipants.size}, Connected users: ${this.connectedUsers.size}`
+    );
   }
 
   // Middleware to authenticate socket connections
@@ -78,20 +119,12 @@ class SocketService {
         // Rate limiting: prevent rapid join attempts
         const now = Date.now();
         const lastJoin = this.recentRoomJoins.get(joinKey);
-        if (lastJoin && now - lastJoin < 2000) {
-          // 2 second cooldown
+        if (lastJoin && now - lastJoin < 3000) {
+          // 3 second cooldown to match frontend
           console.log(`⚠️ Rate limiting room join for ${socket.user.username}`);
           return;
         }
         this.recentRoomJoins.set(joinKey, now);
-
-        // Clean up old entries (older than 5 minutes)
-        for (const [key, timestamp] of this.recentRoomJoins.entries()) {
-          if (now - timestamp > 300000) {
-            // 5 minutes
-            this.recentRoomJoins.delete(key);
-          }
-        }
 
         // Use atomic operation to find or create chat room
         let chatRoom = await ChatRoom.findOneAndUpdate(
@@ -101,6 +134,7 @@ class SocketService {
               post: postId,
               participants: [],
               messages: [],
+              participantCount: 0,
             },
           },
           {
@@ -117,7 +151,7 @@ class SocketService {
 
         if (!existingParticipant) {
           // Add new participant
-          await ChatRoom.findByIdAndUpdate(
+          chatRoom = await ChatRoom.findByIdAndUpdate(
             chatRoom._id,
             {
               $push: {
@@ -133,17 +167,20 @@ class SocketService {
             { new: true }
           );
         } else {
-          // Update existing participant
-          await ChatRoom.findOneAndUpdate(
-            { _id: chatRoom._id, "participants.user": userId },
-            {
-              $set: {
-                "participants.$.isActive": true,
-                "participants.$.lastSeen": new Date(),
+          // Update existing participant only if they're not already active
+          if (!existingParticipant.isActive) {
+            chatRoom = await ChatRoom.findOneAndUpdate(
+              { _id: chatRoom._id, "participants.user": userId },
+              {
+                $set: {
+                  "participants.$.isActive": true,
+                  "participants.$.lastSeen": new Date(),
+                },
+                $inc: { participantCount: 1 },
               },
-            },
-            { new: true }
-          );
+              { new: true }
+            );
+          }
         }
 
         // Join socket room
@@ -208,7 +245,11 @@ class SocketService {
 
         // Use atomic operation to update participant status
         const chatRoom = await ChatRoom.findOneAndUpdate(
-          { post: postId, "participants.user": userId },
+          {
+            post: postId,
+            "participants.user": userId,
+            "participants.isActive": true, // Only update if user is currently active
+          },
           {
             $set: {
               "participants.$.isActive": false,
@@ -220,11 +261,18 @@ class SocketService {
         );
 
         if (chatRoom) {
+          // Ensure participant count doesn't go below 0
+          if (chatRoom.participantCount < 0) {
+            await ChatRoom.findByIdAndUpdate(chatRoom._id, {
+              $set: { participantCount: 0 },
+            });
+          }
+
           // Notify room about user leaving (without system message)
           socket.to(roomId).emit("userLeft", {
             userId,
             username: socket.user.username,
-            participantCount: chatRoom.participantCount,
+            participantCount: Math.max(0, chatRoom.participantCount),
             timestamp: new Date(),
           });
         }
@@ -478,16 +526,25 @@ class SocketService {
           const postId = roomId.replace("post_", "");
 
           try {
-            const chatRoom = await ChatRoom.findByPost(postId);
-            if (chatRoom) {
-              chatRoom.removeParticipant(userId);
-              await chatRoom.save();
+            // Use atomic operation to update participant status on disconnect
+            const chatRoom = await ChatRoom.findOneAndUpdate(
+              { post: postId, "participants.user": userId },
+              {
+                $set: {
+                  "participants.$.isActive": false,
+                  "participants.$.lastSeen": new Date(),
+                },
+                $inc: { participantCount: -1 },
+              },
+              { new: true }
+            );
 
+            if (chatRoom) {
               // Notify room about user disconnecting
               socket.to(roomId).emit("userLeft", {
                 userId,
                 username: socket.user?.username,
-                participantCount: chatRoom.participantCount,
+                participantCount: Math.max(0, chatRoom.participantCount),
                 timestamp: new Date(),
               });
             }

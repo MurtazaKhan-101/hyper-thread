@@ -6,20 +6,21 @@ import { MessageBubble } from "./MessageBubble";
 import { ChatInput } from "./ChatInput";
 // import { TypingIndicator } from "./TypingIndicator";
 import { Spinner } from "../ui";
-import { Users, Wifi, WifiOff } from "lucide-react";
+import { Users, Wifi, WifiOff, ChevronUp } from "lucide-react";
+import { useMemo } from "react";
 
 export const ChatRoom = ({ post, currentUser }) => {
   const {
     isConnected,
     messages,
     participants,
-    typingUsers,
+    // typingUsers,
     isLoading,
     error,
     joinRoom,
     leaveRoom,
     sendMessage,
-    sendTyping,
+    // sendTyping,
     addReaction,
     sendImage,
     sendReply,
@@ -35,12 +36,16 @@ export const ChatRoom = ({ post, currentUser }) => {
   const [showParticipants, setShowParticipants] = useState(false);
   const [hasScrolledUp, setHasScrolledUp] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [hasMoreMessages, setHasMoreMessages] = useState(true);
   const [replyingTo, setReplyingTo] = useState(null);
   const hasJoinedRef = useRef(false); // Track if we've already attempted to join
+  const joinInProgressRef = useRef(false); // Track if join is currently in progress
 
   // Reset join tracking when post changes
   useEffect(() => {
     hasJoinedRef.current = false;
+    joinInProgressRef.current = false;
+    setHasMoreMessages(true); // Reset has more messages when switching rooms
   }, [post?._id]);
 
   // Join room on mount
@@ -49,11 +54,16 @@ export const ChatRoom = ({ post, currentUser }) => {
       post?._id &&
       isConnected &&
       !isInRoom(post._id) &&
-      !hasJoinedRef.current
+      !hasJoinedRef.current &&
+      !joinInProgressRef.current
     ) {
       console.log("🚪 ChatRoom: Joining room for the first time:", post._id);
       hasJoinedRef.current = true;
-      joinRoom(post._id);
+      joinInProgressRef.current = true;
+
+      joinRoom(post._id).finally(() => {
+        joinInProgressRef.current = false;
+      });
     }
 
     return () => {
@@ -61,6 +71,7 @@ export const ChatRoom = ({ post, currentUser }) => {
         console.log("🚪 ChatRoom: Leaving room on cleanup:", post._id);
         leaveRoom();
         hasJoinedRef.current = false;
+        joinInProgressRef.current = false;
       }
     };
   }, [post?._id, isConnected, isInRoom]); // Now isInRoom is properly memoized
@@ -72,7 +83,7 @@ export const ChatRoom = ({ post, currentUser }) => {
     }
   }, [messages, hasScrolledUp]);
 
-  // Handle scroll for loading more messages
+  // Handle scroll for detecting bottom position only
   useEffect(() => {
     const container = messagesContainerRef.current;
     if (!container) return;
@@ -80,19 +91,12 @@ export const ChatRoom = ({ post, currentUser }) => {
     const handleScroll = () => {
       const { scrollTop, scrollHeight, clientHeight } = container;
       const isAtBottom = scrollHeight - scrollTop - clientHeight < 50;
-      const isAtTop = scrollTop < 50;
-
       setHasScrolledUp(!isAtBottom);
-
-      // Load more messages when scrolling to top
-      if (isAtTop && !isLoadingMore && messages.length > 0) {
-        loadMoreHistoryMessages();
-      }
     };
 
     container.addEventListener("scroll", handleScroll);
     return () => container.removeEventListener("scroll", handleScroll);
-  }, [messages.length, isLoadingMore]);
+  }, [messages.length]);
 
   const scrollToBottom = (smooth = true) => {
     messagesEndRef.current?.scrollIntoView({
@@ -101,7 +105,7 @@ export const ChatRoom = ({ post, currentUser }) => {
   };
 
   const loadMoreHistoryMessages = async () => {
-    if (isLoadingMore || messages.length === 0) return;
+    if (isLoadingMore || messages.length === 0 || !hasMoreMessages) return;
 
     setIsLoadingMore(true);
     try {
@@ -110,6 +114,8 @@ export const ChatRoom = ({ post, currentUser }) => {
         post._id,
         oldestMessage?.timestamp
       );
+
+      setHasMoreMessages(hasMore);
 
       if (!hasMore) {
         console.log("No more messages to load");
@@ -136,9 +142,9 @@ export const ChatRoom = ({ post, currentUser }) => {
     setHasScrolledUp(false); // Auto-scroll to bottom after sending
   };
 
-  const handleTyping = (isTyping) => {
-    sendTyping(isTyping);
-  };
+  //   const handleTyping = (isTyping) => {
+  //     sendTyping(isTyping);
+  //   };
 
   const handleReaction = (messageId, emoji) => {
     addReaction(messageId, emoji);
@@ -159,6 +165,17 @@ export const ChatRoom = ({ post, currentUser }) => {
   const handleCancelReply = () => {
     setReplyingTo(null);
   };
+
+  // Get unique active participants
+  const activeParticipants = useMemo(() => {
+    const uniqueParticipants = new Map();
+    participants
+      .filter((p) => p.isActive !== false) // Include if isActive is true or undefined
+      .forEach((p) => {
+        uniqueParticipants.set(p.user._id, p);
+      });
+    return Array.from(uniqueParticipants.values());
+  }, [participants]);
 
   if (isLoading) {
     return (
@@ -217,7 +234,7 @@ export const ChatRoom = ({ post, currentUser }) => {
           className="flex items-center space-x-2 px-3 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
         >
           <Users size={16} />
-          <span>{participants.length}</span>
+          <span>{activeParticipants.length}</span>
         </button>
       </div>
 
@@ -225,10 +242,10 @@ export const ChatRoom = ({ post, currentUser }) => {
       {showParticipants && (
         <div className="p-4 border-b border-gray-200border-gray-800">
           <h4 className="font-medium text-white mb-2">
-            Participants ({participants.length})
+            Participants ({activeParticipants.length})
           </h4>
           <div className="flex flex-wrap gap-2">
-            {participants.map((participant) => (
+            {activeParticipants.map((participant) => (
               <div
                 key={participant.user._id}
                 className="flex items-center space-x-2 bg-white dark:bg-gray-800 px-2 py-1 rounded-full text-sm"
@@ -256,8 +273,40 @@ export const ChatRoom = ({ post, currentUser }) => {
         className="flex-1 overflow-y-auto p-4 space-y-1 scrollbar-hide"
         style={{ scrollbarGutter: "stable" }}
       >
-        {/* Loading More Indicator */}
-        {isLoadingMore && (
+        {/* Load Older Messages Button */}
+        {messages.length > 0 && hasMoreMessages && (
+          <div className="flex justify-center py-3 border-b border-gray-200 dark:border-gray-700 mb-2">
+            <button
+              onClick={loadMoreHistoryMessages}
+              disabled={isLoadingMore}
+              className="px-4 py-2 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 text-sm font-medium"
+            >
+              {isLoadingMore ? (
+                <>
+                  <Spinner size="sm" />
+                  Loading...
+                </>
+              ) : (
+                <>
+                  <ChevronUp size={16} />
+                  Load Older Messages
+                </>
+              )}
+            </button>
+          </div>
+        )}
+
+        {/* No More Messages Indicator */}
+        {messages.length > 0 && !hasMoreMessages && (
+          <div className="flex justify-center py-2 mb-2">
+            <span className="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-full">
+              Beginning of conversation
+            </span>
+          </div>
+        )}
+
+        {/* Loading More Indicator (for backwards compatibility) */}
+        {isLoadingMore && !hasMoreMessages && (
           <div className="flex justify-center py-2">
             <Spinner size="sm" />
           </div>
@@ -340,7 +389,7 @@ export const ChatRoom = ({ post, currentUser }) => {
       <ChatInput
         onSendMessage={handleSendMessage}
         onSendImage={handleSendImage}
-        onTyping={handleTyping}
+        // onTyping={handleTyping}
         disabled={!isConnected}
         replyingTo={replyingTo}
       />

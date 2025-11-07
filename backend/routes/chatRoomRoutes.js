@@ -11,11 +11,12 @@ router.use(authenticate);
 // Get or create chat room for a specific post
 router.get("/:postId", chatRoomController.getChatRoom);
 
+// Note: Join/Leave operations are now handled via Socket.IO only to prevent duplicate requests
 // Join a chat room
-router.post("/:postId/join", chatRoomController.joinChatRoom);
+// router.post("/:postId/join", chatRoomController.joinChatRoom);
 
 // Leave a chat room
-router.post("/:postId/leave", chatRoomController.leaveChatRoom);
+// router.post("/:postId/leave", chatRoomController.leaveChatRoom);
 
 // Get chat history with pagination
 router.get("/:postId/messages", chatRoomController.getChatHistory);

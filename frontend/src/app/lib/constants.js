@@ -48,8 +48,8 @@ export const API_ENDPOINTS = {
 
   // Chat endpoints
   GET_CHAT_ROOM: "/chat",
-  JOIN_CHAT_ROOM: "/chat",
-  LEAVE_CHAT_ROOM: "/chat",
+  // JOIN_CHAT_ROOM: "/chat", // Handled via Socket.IO only
+  // LEAVE_CHAT_ROOM: "/chat", // Handled via Socket.IO only
   GET_CHAT_HISTORY: "/chat",
   GET_CHAT_PARTICIPANTS: "/chat",
   UPDATE_LAST_SEEN: "/chat",

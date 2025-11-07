@@ -69,6 +69,7 @@ export const DiscussionPanel = ({
       // Reset textarea height
       if (textareaRef.current) {
         textareaRef.current.style.height = "auto";
+        textareaRef.current.style.height = "44px"; // Reset to min height
       }
     } catch (error) {
       console.error("Failed to add comment:", error);
@@ -101,10 +102,29 @@ export const DiscussionPanel = ({
     }
   };
 
+  const handleInputChange = (e) => {
+    const value = e.target.value;
+
+    // Prevent typing beyond 1000 characters
+    if (value.length > 1000) {
+      return;
+    }
+
+    setNewComment(value);
+    adjustTextareaHeight(e);
+  };
+
   const adjustTextareaHeight = (e) => {
     const textarea = e.target;
     textarea.style.height = "auto";
     textarea.style.height = Math.min(textarea.scrollHeight, 120) + "px";
+  };
+
+  const resetTextareaHeight = () => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = "auto";
+      textareaRef.current.style.height = "44px"; // Reset to min height
+    }
   };
 
   return (
@@ -137,17 +157,42 @@ export const DiscussionPanel = ({
               <textarea
                 ref={textareaRef}
                 value={newComment}
-                onChange={(e) => {
-                  setNewComment(e.target.value);
-                  adjustTextareaHeight(e);
-                }}
+                onChange={handleInputChange}
                 onKeyDown={handleKeyDown}
                 placeholder="Write a comment..."
+                maxLength={1000}
                 className="w-full px-4 py-3 bg-[#1a1a1a] border border-gray-700 rounded-lg resize-none text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 overflow-hidden"
                 rows={1}
                 style={{ minHeight: "44px", maxHeight: "120px" }}
               />
+
+              {/* Character count indicator */}
+              {newComment.length > 0 && (
+                <div className="absolute bottom-5 right-2 text-xs text-gray-500">
+                  {newComment.length}/1000
+                </div>
+              )}
             </div>
+
+            {/* Character Limit Warning */}
+            {newComment.length > 900 && (
+              <div className="mt-2 text-right">
+                <span
+                  className={`text-xs font-medium ${
+                    newComment.length >= 1000
+                      ? "text-red-500"
+                      : newComment.length > 950
+                      ? "text-orange-500"
+                      : "text-yellow-500"
+                  }`}
+                >
+                  {newComment.length >= 1000
+                    ? "Character limit reached"
+                    : `${1000 - newComment.length} characters remaining`}
+                </span>
+              </div>
+            )}
+
             <div className="flex justify-end items-center">
               <Button
                 type="submit"
@@ -225,19 +270,26 @@ export const DiscussionPanel = ({
         <div className="px-6 py-4 border border-gray-800 bg-[#0f0f0f]">
           <form onSubmit={handleComment} className="space-y-3">
             <div className="flex gap-3">
-              <textarea
-                ref={textareaRef}
-                value={newComment}
-                onChange={(e) => {
-                  setNewComment(e.target.value);
-                  adjustTextareaHeight(e);
-                }}
-                onKeyDown={handleKeyDown}
-                placeholder="Type your message..."
-                className="flex-1 scrollbar-hide p-3 border border-gray-700 rounded-lg resize-none bg-gray-800 text-gray-100 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                rows={1}
-                style={{ minHeight: "44px", maxHeight: "120px" }}
-              />
+              <div className="flex-1 relative">
+                <textarea
+                  ref={textareaRef}
+                  value={newComment}
+                  onChange={handleInputChange}
+                  onKeyDown={handleKeyDown}
+                  placeholder="Type your message..."
+                  maxLength={1000}
+                  className="w-full scrollbar-hide p-3 border border-gray-700 rounded-lg resize-none bg-gray-800 text-gray-100 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  rows={1}
+                  style={{ minHeight: "44px", maxHeight: "120px" }}
+                />
+
+                {/* Character count indicator */}
+                {newComment.length > 0 && (
+                  <div className="absolute bottom-5 right-2 text-xs text-gray-500">
+                    {newComment.length}/1000
+                  </div>
+                )}
+              </div>
               <Button
                 type="submit"
                 disabled={!newComment.trim() || isSubmittingComment}
@@ -250,6 +302,25 @@ export const DiscussionPanel = ({
                 )}
               </Button>
             </div>
+
+            {/* Character Limit Warning for Desktop */}
+            {newComment.length > 900 && (
+              <div className="text-right">
+                <span
+                  className={`text-xs font-medium ${
+                    newComment.length >= 1000
+                      ? "text-red-500"
+                      : newComment.length > 950
+                      ? "text-orange-500"
+                      : "text-yellow-500"
+                  }`}
+                >
+                  {newComment.length >= 1000
+                    ? "Character limit reached"
+                    : `${1000 - newComment.length} characters remaining`}
+                </span>
+              </div>
+            )}
           </form>
         </div>
       )}

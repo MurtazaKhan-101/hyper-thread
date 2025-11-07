@@ -23,6 +23,25 @@ export const ChatProvider = ({ children }) => {
   const [error, setError] = useState(null);
   const [lastJoinAttempt, setLastJoinAttempt] = useState(0);
   const [chatRoom, setChatRoom] = useState(null);
+  const [participantUpdateTimeout, setParticipantUpdateTimeout] =
+    useState(null);
+
+  // Debounced participant updates to prevent rapid UI changes
+  const updateParticipantsDebounced = useCallback(
+    (updaterFunction) => {
+      if (participantUpdateTimeout) {
+        clearTimeout(participantUpdateTimeout);
+      }
+
+      const timeout = setTimeout(() => {
+        setParticipants(updaterFunction);
+        setParticipantUpdateTimeout(null);
+      }, 200); // 200ms debounce
+
+      setParticipantUpdateTimeout(timeout);
+    },
+    [participantUpdateTimeout]
+  );
 
   // Helper: dedupe messages by _id (preserve first occurrence order)
   const dedupeMessages = (msgs = []) => {
@@ -76,6 +95,10 @@ export const ChatProvider = ({ children }) => {
 
     return () => {
       disconnectFromChat();
+      // Clean up any pending participant updates
+      if (participantUpdateTimeout) {
+        clearTimeout(participantUpdateTimeout);
+      }
     };
   }, [isAuthenticated, user]);
 
@@ -135,22 +158,33 @@ export const ChatProvider = ({ children }) => {
       switch (event.type) {
         case "joinedRoom":
           setCurrentRoom(event.data.roomId);
+          // Set participants from the complete list provided by server
           setParticipants(event.data.participants || []);
           break;
         case "userJoined":
-          setParticipants((prev) => {
+          updateParticipantsDebounced((prev) => {
+            // Check if user is already in the list to prevent duplicates
             const exists = prev.some((p) => p.user._id === event.data.user._id);
             if (!exists) {
               return [
                 ...prev,
-                { user: event.data.user, joinedAt: event.data.timestamp },
+                {
+                  user: event.data.user,
+                  joinedAt: event.data.timestamp,
+                  isActive: true,
+                },
               ];
             }
-            return prev;
+            // If exists, just update their active status
+            return prev.map((p) =>
+              p.user._id === event.data.user._id
+                ? { ...p, isActive: true, lastSeen: event.data.timestamp }
+                : p
+            );
           });
           break;
         case "userLeft":
-          setParticipants((prev) =>
+          updateParticipantsDebounced((prev) =>
             prev.filter((p) => p.user._id !== event.data.userId)
           );
           //   setTypingUsers((prev) => {
@@ -269,8 +303,8 @@ export const ChatProvider = ({ children }) => {
     async (postId) => {
       // Rate limiting: prevent rapid join attempts
       const now = Date.now();
-      if (now - lastJoinAttempt < 2000) {
-        // 2 second cooldown
+      if (now - lastJoinAttempt < 3000) {
+        // 3 second cooldown
         console.log("⚠️ Rate limiting: Too soon to join room again");
         return;
       }
@@ -281,20 +315,23 @@ export const ChatProvider = ({ children }) => {
         return;
       }
 
+      // Check if already in the room
+      if (currentRoom === `post_${postId}`) {
+        console.log("Already in room:", postId);
+        return;
+      }
+
       try {
         setIsLoading(true);
         setError(null);
 
-        // Get chat room data first
+        // Get chat room data first (single API call)
         const roomResponse = await chatService.getChatRoom(postId);
         setChatRoom(roomResponse.data.chatRoom);
         setMessages(dedupeMessages(roomResponse.data.chatRoom.messages || []));
         setParticipants(roomResponse.data.chatRoom.participants || []);
 
-        // Join via API
-        await chatService.joinChatRoomAPI(postId);
-
-        // Join via socket
+        // Join via socket only (no duplicate API call)
         await chatService.joinRoom(postId);
       } catch (error) {
         console.error(
@@ -306,7 +343,7 @@ export const ChatProvider = ({ children }) => {
         setIsLoading(false);
       }
     },
-    [isConnected, lastJoinAttempt]
+    [isConnected, lastJoinAttempt, currentRoom]
   );
 
   // Leave current room
@@ -314,8 +351,7 @@ export const ChatProvider = ({ children }) => {
     if (!currentRoom) return;
 
     try {
-      const postId = currentRoom.replace("post_", "");
-      await chatService.leaveChatRoomAPI(postId);
+      // Leave via socket only (no duplicate API call)
       await chatService.leaveRoom();
     } catch (error) {
       console.error(
@@ -337,7 +373,7 @@ export const ChatProvider = ({ children }) => {
       try {
         chatService.sendMessage(content);
         // Stop typing indicator when sending message
-        chatService.stopTyping();
+        // chatService.stopTyping();
       } catch (error) {
         console.error("Error sending message:", error);
         setError("Failed to send message");
@@ -347,22 +383,22 @@ export const ChatProvider = ({ children }) => {
   );
 
   // Send typing indicator
-  const sendTyping = useCallback(
-    (isTyping) => {
-      if (!isConnected || !currentRoom) return;
+  // const sendTyping = useCallback(
+  //   (isTyping) => {
+  //     if (!isConnected || !currentRoom) return;
 
-      try {
-        if (isTyping) {
-          chatService.startTyping();
-        } else {
-          chatService.stopTyping();
-        }
-      } catch (error) {
-        console.error("Error sending typing indicator:", error);
-      }
-    },
-    [isConnected, currentRoom]
-  );
+  //     try {
+  //       if (isTyping) {
+  //         chatService.startTyping();
+  //       } else {
+  //         chatService.stopTyping();
+  //       }
+  //     } catch (error) {
+  //       console.error("Error sending typing indicator:", error);
+  //     }
+  //   },
+  //   [isConnected, currentRoom]
+  // );
 
   // Add reaction to message
   const addReaction = useCallback(
@@ -405,6 +441,7 @@ export const ChatProvider = ({ children }) => {
   // Load more messages (pagination)
   const loadMoreMessages = useCallback(async (postId, before = null) => {
     try {
+      // Use only the getChatHistory API call, not getChatRoom again
       const response = await chatService.getChatHistory(postId, 1, 50, before);
       const olderMessages = response.data.messages;
       setMessages((prev) => dedupeMessages([...olderMessages, ...prev]));
@@ -432,7 +469,7 @@ export const ChatProvider = ({ children }) => {
       try {
         chatService.sendReply(content, replyToMessageId);
         // Stop typing indicator when sending message
-        chatService.stopTyping();
+        // chatService.stopTyping();
       } catch (error) {
         console.error("Error sending reply:", error);
         setError("Failed to send reply");
@@ -505,7 +542,7 @@ export const ChatProvider = ({ children }) => {
     joinRoom,
     leaveRoom,
     sendMessage,
-    sendTyping,
+    // sendTyping,
     addReaction,
     sendImage,
     sendReply,

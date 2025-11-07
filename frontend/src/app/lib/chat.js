@@ -10,7 +10,7 @@ class ChatService {
     this.connectionCallbacks = [];
     this.messageCallbacks = [];
     this.userEventCallbacks = [];
-    this.typingCallbacks = [];
+    // this.typingCallbacks = [];
     this.reactionCallbacks = [];
     this.messageEditCallbacks = [];
     this.messageDeleteCallbacks = [];
@@ -128,9 +128,9 @@ class ChatService {
     });
 
     // Typing events
-    this.socket.on("userTyping", (data) => {
-      this.typingCallbacks.forEach((callback) => callback(data));
-    });
+    // this.socket.on("userTyping", (data) => {
+    //   this.typingCallbacks.forEach((callback) => callback(data));
+    // });
 
     // Reaction events
     this.socket.on("reactionUpdate", (data) => {
@@ -161,13 +161,27 @@ class ChatService {
       return Promise.reject(new Error("Not connected"));
     }
 
-    return new Promise((resolve) => {
+    // Prevent duplicate joins to the same room
+    if (this.currentRoom === postId) {
+      console.log("Already in room:", postId);
+      return Promise.resolve({ roomId: `post_${postId}` });
+    }
+
+    return new Promise((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        reject(new Error("Join room timeout"));
+      }, 10000); // 10 second timeout
+
       this.currentRoom = postId;
       this.socket.emit("joinRoom", { postId });
 
       // Listen for join confirmation
       const handleJoinConfirm = (data) => {
-        if (data.type === "joinedRoom") {
+        if (
+          data.type === "joinedRoom" &&
+          data.data.roomId === `post_${postId}`
+        ) {
+          clearTimeout(timeout);
           this.socket.off("userEvent", handleJoinConfirm);
           resolve(data.data);
         }
@@ -183,12 +197,17 @@ class ChatService {
       return Promise.resolve();
     }
 
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        resolve(); // Don't reject on timeout for leave operations
+      }, 5000); // 5 second timeout
+
       const postId = this.currentRoom;
       this.socket.emit("leaveRoom", { postId });
 
       const handleLeaveConfirm = (data) => {
         if (data.type === "leftRoom") {
+          clearTimeout(timeout);
           this.socket.off("userEvent", handleLeaveConfirm);
           this.currentRoom = null;
           resolve();
@@ -229,18 +248,18 @@ class ChatService {
   }
 
   // Start typing indicator
-  startTyping() {
-    if (!this.isConnected || !this.currentRoom || !this.socket) return;
+  //   startTyping() {
+  //     if (!this.isConnected || !this.currentRoom || !this.socket) return;
 
-    this.socket.emit("typingStart", { postId: this.currentRoom });
-  }
+  //     this.socket.emit("typingStart", { postId: this.currentRoom });
+  //   }
 
   // Stop typing indicator
-  stopTyping() {
-    if (!this.isConnected || !this.currentRoom || !this.socket) return;
+  //   stopTyping() {
+  //     if (!this.isConnected || !this.currentRoom || !this.socket) return;
 
-    this.socket.emit("typingStop", { postId: this.currentRoom });
-  }
+  //     this.socket.emit("typingStop", { postId: this.currentRoom });
+  //   }
 
   // Add reaction to message
   addReaction(messageId, emoji) {
@@ -323,14 +342,14 @@ class ChatService {
     };
   }
 
-  onTyping(callback) {
-    this.typingCallbacks.push(callback);
-    return () => {
-      this.typingCallbacks = this.typingCallbacks.filter(
-        (cb) => cb !== callback
-      );
-    };
-  }
+  //   onTyping(callback) {
+  //     this.typingCallbacks.push(callback);
+  //     return () => {
+  //       this.typingCallbacks = this.typingCallbacks.filter(
+  //         (cb) => cb !== callback
+  //       );
+  //     };
+  //   }
 
   onReaction(callback) {
     this.reactionCallbacks.push(callback);
@@ -375,36 +394,6 @@ class ChatService {
       return response;
     } catch (error) {
       console.error("Error getting chat room:", error);
-      throw error;
-    }
-  }
-
-  async joinChatRoomAPI(postId) {
-    try {
-      const response = await apiClient.post(
-        `${API_ENDPOINTS.JOIN_CHAT_ROOM}/${postId}/join`
-      );
-      return response;
-    } catch (error) {
-      console.error(
-        "Error joining chat room:",
-        error?.response?.data || error?.message || error
-      );
-      throw error;
-    }
-  }
-
-  async leaveChatRoomAPI(postId) {
-    try {
-      const response = await apiClient.post(
-        `${API_ENDPOINTS.LEAVE_CHAT_ROOM}/${postId}/leave`
-      );
-      return response;
-    } catch (error) {
-      console.error(
-        "Error leaving chat room:",
-        error?.response?.data || error?.message || error
-      );
       throw error;
     }
   }
@@ -506,7 +495,7 @@ class ChatService {
     this.connectionCallbacks = [];
     this.messageCallbacks = [];
     this.userEventCallbacks = [];
-    this.typingCallbacks = [];
+    // this.typingCallbacks = [];
     this.reactionCallbacks = [];
     this.messageEditCallbacks = [];
     this.messageDeleteCallbacks = [];

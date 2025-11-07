@@ -162,7 +162,7 @@ export const MessageBubble = ({
           <div
             className={`relative px-3 py-2 rounded-2xl break-words ${
               isOwnMessage
-                ? "bg-blue-500 text-white rounded-br-md"
+                ? "bg-blue-800 text-white rounded-br-md"
                 : "bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-bl-md border border-gray-200 dark:border-gray-700"
             }`}
           >

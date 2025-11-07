@@ -6,16 +6,16 @@ import { Send, Image as ImageIcon, Smile, X } from "lucide-react";
 export const ChatInput = ({
   onSendMessage,
   onSendImage,
-  onTyping,
+  //   onTyping,
   disabled,
 }) => {
   const [message, setMessage] = useState("");
-  const [isTyping, setIsTyping] = useState(false);
+  //   const [isTyping, setIsTyping] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const inputRef = useRef(null);
   const fileInputRef = useRef(null);
-  const typingTimeoutRef = useRef(null);
+  //   const typingTimeoutRef = useRef(null);
 
   useEffect(() => {
     // Focus input on mount
@@ -24,24 +24,30 @@ export const ChatInput = ({
 
   const handleInputChange = (e) => {
     const value = e.target.value;
+
+    // Prevent typing beyond 1000 characters
+    if (value.length > 1000) {
+      return;
+    }
+
     setMessage(value);
 
     // Handle typing indicator
-    if (value.trim() && !isTyping) {
-      setIsTyping(true);
-      onTyping?.(true);
-    }
+    // if (value.trim() && !isTyping) {
+    //   setIsTyping(true);
+    //   onTyping?.(true);
+    // }
 
     // Clear existing timeout
-    if (typingTimeoutRef.current) {
-      clearTimeout(typingTimeoutRef.current);
-    }
+    // if (typingTimeoutRef.current) {
+    //   clearTimeout(typingTimeoutRef.current);
+    // }
 
     // Set new timeout to stop typing indicator
-    typingTimeoutRef.current = setTimeout(() => {
-      setIsTyping(false);
-      onTyping?.(false);
-    }, 1000);
+    // typingTimeoutRef.current = setTimeout(() => {
+    //   setIsTyping(false);
+    //   onTyping?.(false);
+    // }, 1000);
   };
 
   const handleKeyPress = (e) => {
@@ -64,12 +70,19 @@ export const ChatInput = ({
     }
 
     setMessage("");
-    setIsTyping(false);
-    onTyping?.(false);
 
-    if (typingTimeoutRef.current) {
-      clearTimeout(typingTimeoutRef.current);
+    // Reset textarea height after sending
+    if (inputRef.current) {
+      inputRef.current.style.height = "auto";
+      inputRef.current.style.height = "40px"; // Reset to min height
     }
+
+    // setIsTyping(false);
+    // onTyping?.(false);
+
+    // if (typingTimeoutRef.current) {
+    //   clearTimeout(typingTimeoutRef.current);
+    // }
   };
 
   const handleImageSelect = (e) => {
@@ -168,7 +181,8 @@ export const ChatInput = ({
               selectedImage ? "Add a caption..." : "Type a message..."
             }
             disabled={disabled}
-            className="w-full px-4 py-2 mt-1.5 bg-gray-800 border border-gray-700 text-gray-100 placeholder-gray-400 rounded-full resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 min-h-[40px] max-h-32"
+            maxLength={1000}
+            className="w-full px-4 py-2 mt-1.5 bg-gray-800 border border-gray-700 text-gray-100 placeholder-gray-400 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 min-h-[40px] max-h-32 scrollbar-hide"
             rows={1}
             style={{
               height: "auto",
@@ -180,6 +194,13 @@ export const ChatInput = ({
                 Math.min(e.target.scrollHeight, 128) + "px";
             }}
           />
+
+          {/* Character count indicator */}
+          {message.length > 0 && (
+            <div className="absolute bottom-5 right-2 text-xs text-gray-500">
+              {message.length}/1000
+            </div>
+          )}
         </div>
 
         {/* Send Button */}
@@ -193,15 +214,21 @@ export const ChatInput = ({
         </button>
       </div>
 
-      {/* Character Limit Indicator */}
-      {message.length > 800 && (
+      {/* Character Limit Warning */}
+      {message.length > 900 && (
         <div className="mt-2 text-right">
           <span
-            className={`text-xs ${
-              message.length > 1000 ? "text-red-500" : "text-yellow-500"
+            className={`text-xs font-medium ${
+              message.length >= 1000
+                ? "text-red-500"
+                : message.length > 950
+                ? "text-orange-500"
+                : "text-yellow-500"
             }`}
           >
-            {message.length}/1000
+            {message.length >= 1000
+              ? "Character limit reached"
+              : `${1000 - message.length} characters remaining`}
           </span>
         </div>
       )}

@@ -78,7 +78,7 @@ class ChatRoomController {
           chatRoom: {
             _id: chatRoom._id,
             post: chatRoom.post,
-            participants: chatRoom.participants,
+            participants: chatRoom.participants.filter((p) => p.isActive), // Only return active participants
             messages: finalMessages.slice(-50), // Last 50 messages with populated replyTo
             settings: chatRoom.settings,
             stats: chatRoom.stats,
@@ -310,12 +310,12 @@ class ChatRoomController {
               imageUrl: referencedMessage.imageUrl,
               user: referencedMessage.user,
             };
-            console.log(
-              "Populated replyTo in pagination for message:",
-              message._id,
-              "with user:",
-              referencedMessage.user
-            );
+            // console.log(
+            //   "Populated replyTo in pagination for message:",
+            //   message._id,
+            //   "with user:",
+            //   referencedMessage.user
+            // );
           }
         }
       });
