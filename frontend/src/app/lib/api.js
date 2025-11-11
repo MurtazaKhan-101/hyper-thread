@@ -114,10 +114,10 @@ class ApiClient {
       console.error("Token refresh failed:", error);
       this.processQueue(error, null);
 
-      // Clear access token and redirect to login
+      // Clear access token
       this.clearAccessToken();
 
-      // Dispatch event for auth context to handle logout
+      // Dispatch event for auth context to handle logout only if we have a valid user session
       if (typeof window !== "undefined") {
         window.dispatchEvent(new CustomEvent("auth:logout"));
       }
@@ -149,7 +149,7 @@ class ApiClient {
 
   // Generic request handler with auto token refresh
   async request(endpoint, options = {}) {
-    // Check if we need to refresh token before making the request
+    // Only check and refresh token for authenticated requests
     if (options.includeAuth !== false) {
       const token = this.getAccessToken();
       if (token && this.isTokenExpiringSoon(token)) {
@@ -179,7 +179,7 @@ class ApiClient {
       const response = await fetch(url, config);
       const data = await response.json();
 
-      // Handle 401 Unauthorized (token expired)
+      // Handle 401 Unauthorized (token expired) - but only for authenticated requests
       if (response.status === 401 && options.includeAuth !== false) {
         // Check if it's specifically a token expiration
         if (data.expired) {
@@ -219,6 +219,7 @@ class ApiClient {
         }
       }
 
+      // For non-authenticated requests or other errors, just throw the error
       if (!response.ok) {
         throw {
           status: response.status,

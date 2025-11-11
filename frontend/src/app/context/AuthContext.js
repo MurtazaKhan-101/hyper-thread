@@ -42,16 +42,19 @@ export const AuthProvider = ({ children }) => {
   // Listen for logout events from API client
   useEffect(() => {
     const handleLogout = () => {
-      setUser(null);
-      setIsAuthenticated(false);
-      router.push(ROUTES.LOGIN);
+      // Only handle logout if user is actually authenticated
+      if (isAuthenticated) {
+        setUser(null);
+        setIsAuthenticated(false);
+        router.push(ROUTES.LOGIN);
+      }
     };
 
     if (typeof window !== "undefined") {
       window.addEventListener("auth:logout", handleLogout);
       return () => window.removeEventListener("auth:logout", handleLogout);
     }
-  }, [router]);
+  }, [router, isAuthenticated]);
 
   // Login function
   const login = async (email, password) => {
