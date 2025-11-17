@@ -29,6 +29,8 @@ export const ChatRoom = ({ post, currentUser }) => {
     loadMoreMessages,
     clearError,
     isInRoom,
+    hasLoadedInitialMessages,
+    totalMessageCount,
   } = useChat();
 
   const messagesEndRef = useRef(null);
@@ -40,13 +42,25 @@ export const ChatRoom = ({ post, currentUser }) => {
   const [replyingTo, setReplyingTo] = useState(null);
   const hasJoinedRef = useRef(false); // Track if we've already attempted to join
   const joinInProgressRef = useRef(false); // Track if join is currently in progress
+  const initialScrollDoneRef = useRef(false); // Track if initial scroll to bottom is done
+  const prevMessageCountRef = useRef(0); // Track previous message count
+  const isLoadingOlderRef = useRef(false); // Track if we're currently loading older messages
 
   // Reset join tracking when post changes
   useEffect(() => {
     hasJoinedRef.current = false;
     joinInProgressRef.current = false;
+    initialScrollDoneRef.current = false;
+    prevMessageCountRef.current = 0;
     setHasMoreMessages(true); // Reset has more messages when switching rooms
   }, [post?._id]);
+
+  // Check if we loaded all messages initially (less than 50 messages means we're at the start)
+  useEffect(() => {
+    if (hasLoadedInitialMessages && totalMessageCount < 50) {
+      setHasMoreMessages(false);
+    }
+  }, [hasLoadedInitialMessages, totalMessageCount]);
 
   // Join room on mount
   useEffect(() => {
@@ -78,10 +92,35 @@ export const ChatRoom = ({ post, currentUser }) => {
 
   // Scroll to bottom when new messages arrive (only if user hasn't scrolled up)
   useEffect(() => {
-    if (!hasScrolledUp && messages.length > 0) {
-      scrollToBottom();
+    // Initial scroll to bottom instantly when messages first load
+    if (
+      hasLoadedInitialMessages &&
+      !initialScrollDoneRef.current &&
+      messages.length > 0
+    ) {
+      scrollToBottom(false); // Instant scroll
+      initialScrollDoneRef.current = true;
+      prevMessageCountRef.current = messages.length;
+      return;
     }
-  }, [messages, hasScrolledUp]);
+
+    // Skip auto-scroll if we're loading older messages
+    if (isLoadingOlderRef.current) {
+      prevMessageCountRef.current = messages.length;
+      return;
+    }
+
+    // For subsequent messages, only scroll if user is at bottom and message count increased
+    if (
+      initialScrollDoneRef.current &&
+      messages.length > prevMessageCountRef.current
+    ) {
+      if (!hasScrolledUp) {
+        scrollToBottom();
+      }
+      prevMessageCountRef.current = messages.length;
+    }
+  }, [messages, hasScrolledUp, hasLoadedInitialMessages]);
 
   // Handle scroll for detecting bottom position only
   useEffect(() => {
@@ -108,6 +147,8 @@ export const ChatRoom = ({ post, currentUser }) => {
     if (isLoadingMore || messages.length === 0 || !hasMoreMessages) return;
 
     setIsLoadingMore(true);
+    isLoadingOlderRef.current = true; // Set flag to prevent auto-scroll
+
     try {
       const oldestMessage = messages[0];
       const hasMore = await loadMoreMessages(
@@ -124,10 +165,34 @@ export const ChatRoom = ({ post, currentUser }) => {
       console.error("Error loading more messages:", error);
     } finally {
       setIsLoadingMore(false);
+      // Clear the flag after a brief delay to ensure messages are rendered
+      setTimeout(() => {
+        isLoadingOlderRef.current = false;
+      }, 100);
     }
   };
 
   const handleSendMessage = (content) => {
+    if (!isConnected) {
+      // Try to reconnect and send
+      if (post?._id) {
+        joinRoom(post._id)
+          .then(() => {
+            if (replyingTo) {
+              sendReply(content, replyingTo._id);
+              setReplyingTo(null);
+            } else {
+              sendMessage(content);
+            }
+          })
+          .catch(() => {
+            // Show error if reconnection fails
+            alert("Unable to send message. Please check your connection.");
+          });
+      }
+      return;
+    }
+
     if (replyingTo) {
       sendReply(content, replyingTo._id);
       setReplyingTo(null);
@@ -138,6 +203,19 @@ export const ChatRoom = ({ post, currentUser }) => {
   };
 
   const handleSendImage = async (file, caption) => {
+    if (!isConnected) {
+      // Try to reconnect and send
+      if (post?._id) {
+        try {
+          await joinRoom(post._id);
+          await sendImage(file, caption);
+        } catch {
+          alert("Unable to send image. Please check your connection.");
+        }
+      }
+      return;
+    }
+
     await sendImage(file, caption);
     setHasScrolledUp(false); // Auto-scroll to bottom after sending
   };
@@ -190,7 +268,8 @@ export const ChatRoom = ({ post, currentUser }) => {
     );
   }
 
-  if (error) {
+  // Only show error if we don't have cached messages
+  if (error && messages.length === 0) {
     return (
       <div className="flex items-center justify-center h-96">
         <div className="text-center">
@@ -208,6 +287,14 @@ export const ChatRoom = ({ post, currentUser }) => {
 
   return (
     <div className="flex flex-col h-full bg-chat-gradient">
+      {/* Disconnection Banner */}
+      {!isConnected && messages.length > 0 && (
+        <div className="bg-yellow-500 dark:bg-yellow-600 text-white px-4 py-2 text-center text-sm font-medium">
+          <WifiOff size={14} className="inline mr-2" />
+          Disconnected - Trying to reconnect...
+        </div>
+      )}
+
       {/* Chat Header */}
       <div className="flex items-center justify-between p-4 border-b border-gray-800 dark:border-gray-700">
         <div className="flex items-center space-x-3">
@@ -313,7 +400,7 @@ export const ChatRoom = ({ post, currentUser }) => {
         )}
 
         {/* Messages */}
-        {messages.length === 0 ? (
+        {messages.length === 0 && !isLoading ? (
           <div className="flex items-center justify-center h-full">
             <div className="text-center text-gray-500 dark:text-gray-400">
               <p className="text-lg mb-2">💬</p>
@@ -390,7 +477,7 @@ export const ChatRoom = ({ post, currentUser }) => {
         onSendMessage={handleSendMessage}
         onSendImage={handleSendImage}
         // onTyping={handleTyping}
-        disabled={!isConnected}
+        disabled={false} // Allow sending even when disconnected (will auto-reconnect)
         replyingTo={replyingTo}
       />
     </div>

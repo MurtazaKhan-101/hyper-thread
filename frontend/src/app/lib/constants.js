@@ -44,6 +44,7 @@ export const API_ENDPOINTS = {
   LIKE_REPLY: "/posts",
   EDIT_COMMENT: "/posts",
   DELETE_COMMENT: "/posts",
+  UPDATE_POST: "/posts",
   DELETE_POST: "/posts",
 
   // Chat endpoints

@@ -25,6 +25,9 @@ export const ChatProvider = ({ children }) => {
   const [chatRoom, setChatRoom] = useState(null);
   const [participantUpdateTimeout, setParticipantUpdateTimeout] =
     useState(null);
+  const [hasLoadedInitialMessages, setHasLoadedInitialMessages] =
+    useState(false);
+  const [totalMessageCount, setTotalMessageCount] = useState(0);
 
   // Debounced participant updates to prevent rapid UI changes
   const updateParticipantsDebounced = useCallback(
@@ -130,12 +133,8 @@ export const ChatProvider = ({ children }) => {
     const unsubscribeConnection = chatService.onConnection((connected) => {
       console.log("🔗 Connection status changed:", connected);
       setIsConnected(connected);
-      if (!connected) {
-        setCurrentRoom(null);
-        setMessages([]);
-        setParticipants([]);
-        // setTypingUsers(new Set());
-      }
+      // Don't clear messages and participants on disconnect - keep them cached
+      // Only clear the room if explicitly leaving
     });
 
     // New messages
@@ -328,8 +327,16 @@ export const ChatProvider = ({ children }) => {
         // Get chat room data first (single API call)
         const roomResponse = await chatService.getChatRoom(postId);
         setChatRoom(roomResponse.data.chatRoom);
-        setMessages(dedupeMessages(roomResponse.data.chatRoom.messages || []));
+        const initialMessages = dedupeMessages(
+          roomResponse.data.chatRoom.messages || []
+        );
+        setMessages(initialMessages);
         setParticipants(roomResponse.data.chatRoom.participants || []);
+        setHasLoadedInitialMessages(true);
+
+        // Backend returns last 50 messages by default
+        // If we got fewer than 50, there are no more messages to load
+        setTotalMessageCount(initialMessages.length);
 
         // Join via socket only (no duplicate API call)
         await chatService.joinRoom(postId);
@@ -444,7 +451,11 @@ export const ChatProvider = ({ children }) => {
       // Use only the getChatHistory API call, not getChatRoom again
       const response = await chatService.getChatHistory(postId, 1, 50, before);
       const olderMessages = response.data.messages;
-      setMessages((prev) => dedupeMessages([...olderMessages, ...prev]));
+
+      if (olderMessages.length > 0) {
+        setMessages((prev) => dedupeMessages([...olderMessages, ...prev]));
+      }
+
       return response.data.pagination.hasMore;
     } catch (error) {
       console.error("Error loading more messages:", error);
@@ -537,6 +548,8 @@ export const ChatProvider = ({ children }) => {
     isLoading,
     error,
     chatRoom,
+    hasLoadedInitialMessages,
+    totalMessageCount,
 
     // Actions
     joinRoom,

@@ -35,7 +35,10 @@ const postSchema = new mongoose.Schema(
     category: {
       type: String,
       enum: [
+        "sports",
         "culture",
+        "internet",
+        "history",
         "entertainment",
         "technology",
         "science",
@@ -117,6 +120,16 @@ const postSchema = new mongoose.Schema(
       type: String,
       enum: ["published", "edited", "deleted"],
       default: "published",
+    },
+
+    isEdited: {
+      type: Boolean,
+      default: false,
+    },
+
+    lastEditedAt: {
+      type: Date,
+      default: null,
     },
 
     // Engagement

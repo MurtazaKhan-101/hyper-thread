@@ -189,6 +189,18 @@ export const postService = {
       throw error;
     }
   },
+
+  // Update post
+  async updatePost(postId, postData) {
+    try {
+      return await apiClient.put(
+        `${API_ENDPOINTS.UPDATE_POST}/${postId}`,
+        postData
+      );
+    } catch (error) {
+      throw error;
+    }
+  },
 };
 
 // Helper functions

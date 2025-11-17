@@ -33,6 +33,7 @@ router.get("/:postId", postController.getPostById);
 router.post("/:postId/like", authenticate, postController.toggleLike);
 
 // Post management routes
+router.put("/:postId", authenticate, validatePost, postController.updatePost);
 router.delete("/:postId", authenticate, postController.deletePost);
 
 module.exports = router;

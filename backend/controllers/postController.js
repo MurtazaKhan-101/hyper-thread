@@ -674,6 +674,165 @@ class PostController {
     }
   }
 
+  // Update post (author only)
+  async updatePost(req, res) {
+    try {
+      const { postId } = req.params;
+      const userId = req.user._id;
+      const {
+        title,
+        content,
+        flair,
+        category,
+        tags,
+        linkUrl,
+        linkTitle,
+        linkDescription,
+        linkThumbnail,
+        mediaFiles,
+        isMarkdown,
+      } = req.body;
+
+      const post = await Post.findById(postId);
+
+      if (!post) {
+        return res.status(404).json({
+          success: false,
+          message: "Post not found",
+        });
+      }
+
+      // Check if user is the author
+      if (!post.author.equals(userId)) {
+        return res.status(403).json({
+          success: false,
+          message: "You can only edit your own posts",
+        });
+      }
+
+      // Validate title
+      if (title !== undefined) {
+        if (!title || !title.trim()) {
+          return res.status(400).json({
+            success: false,
+            message: "Title is required",
+          });
+        }
+        if (title.length > 300) {
+          return res.status(400).json({
+            success: false,
+            message: "Title must be 300 characters or less",
+          });
+        }
+        post.title = title.trim();
+      }
+
+      // Update content
+      if (content !== undefined) {
+        post.content = content.trim();
+      }
+
+      // Update flair
+      if (flair !== undefined) {
+        post.flair = flair?.trim() || null;
+      }
+
+      // Update category
+      if (category !== undefined) {
+        post.category = category?.trim() || null;
+      }
+
+      // Update tags
+      if (tags !== undefined) {
+        post.tags = Array.isArray(tags)
+          ? tags.filter((tag) => tag.trim()).slice(0, 5)
+          : [];
+      }
+
+      // Update markdown setting
+      if (isMarkdown !== undefined) {
+        post.isMarkdown = Boolean(isMarkdown);
+        post.contentFormat = isMarkdown ? "markdown" : "plain";
+      }
+
+      // Update link-specific fields
+      if (post.postType === "link") {
+        if (linkUrl !== undefined) {
+          if (!linkUrl || !/^https?:\/\/.+/.test(linkUrl)) {
+            return res.status(400).json({
+              success: false,
+              message: "Valid URL is required for link posts",
+            });
+          }
+          post.linkUrl = linkUrl.trim();
+
+          // Generate new preview if URL changed
+          if (post.linkUrl !== linkUrl.trim()) {
+            try {
+              const preview = await linkPreviewService.generateLinkPreview(
+                linkUrl.trim()
+              );
+              if (preview.success) {
+                post.linkTitle = preview.data.title;
+                post.linkDescription = preview.data.description;
+                post.linkThumbnail = preview.data.thumbnail;
+              }
+            } catch (error) {
+              console.error("Error generating link preview:", error);
+            }
+          }
+        }
+
+        if (linkTitle !== undefined) {
+          post.linkTitle = linkTitle?.trim() || null;
+        }
+
+        if (linkDescription !== undefined) {
+          post.linkDescription = linkDescription?.trim() || null;
+        }
+
+        if (linkThumbnail !== undefined) {
+          post.linkThumbnail = linkThumbnail?.trim() || null;
+        }
+      }
+
+      // Update media files
+      if (post.postType === "media" && mediaFiles !== undefined) {
+        if (!Array.isArray(mediaFiles) || mediaFiles.length === 0) {
+          return res.status(400).json({
+            success: false,
+            message: "At least one media file is required for media posts",
+          });
+        }
+        post.media = mediaFiles;
+      }
+
+      // Mark as edited
+      post.isEdited = true;
+      post.lastEditedAt = new Date();
+
+      await post.save();
+
+      // Populate author info
+      await post.populate(
+        "author",
+        "firstName lastName username profileImage isVerified"
+      );
+
+      res.status(200).json({
+        success: true,
+        message: "Post updated successfully",
+        post: post,
+      });
+    } catch (error) {
+      console.error("Error updating post:", error);
+      res.status(500).json({
+        success: false,
+        message: "Server error updating post",
+      });
+    }
+  }
+
   // Delete post (author only)
   async deletePost(req, res) {
     try {
@@ -735,5 +894,6 @@ module.exports = {
   searchPosts: postController.searchPosts.bind(postController),
   toggleLike: postController.toggleLike.bind(postController),
   generateLinkPreview: postController.generateLinkPreview.bind(postController),
+  updatePost: postController.updatePost.bind(postController),
   deletePost: postController.deletePost.bind(postController),
 };

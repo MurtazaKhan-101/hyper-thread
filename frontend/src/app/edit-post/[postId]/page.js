@@ -1,21 +1,23 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { useAuth } from "../context/AuthContext";
-import { Button, Input, Spinner } from "../components/ui";
+import { useRouter, useParams } from "next/navigation";
+import { useAuth } from "../../context/AuthContext";
+import { Button, Input, Spinner } from "../../components/ui";
 import {
   MediaPreview,
   MediaUpload,
   LinkPreview,
   CategorySelector,
-} from "../components/posts";
-import { postService } from "../lib/posts";
-import { ROUTES } from "../lib/constants";
+} from "../../components/posts";
+import { postService } from "../../lib/posts";
+import { ROUTES } from "../../lib/constants";
 import { FileText, Link as LinkIcon, Image as ImageIcon } from "lucide-react";
 
-export default function CreatePostPage() {
+export default function EditPostPage() {
   const router = useRouter();
+  const params = useParams();
+  const postId = params.postId;
   const { user, loading, isAuthenticated } = useAuth();
 
   const [activeTab, setActiveTab] = useState("text");
@@ -30,13 +32,13 @@ export default function CreatePostPage() {
   const [isUploading, setIsUploading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isGeneratingPreview, setIsGeneratingPreview] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [errors, setErrors] = useState({});
   const [mounted, setMounted] = useState(false);
+  const [originalPost, setOriginalPost] = useState(null);
 
   useEffect(() => {
     setMounted(true);
-
-    // Cleanup function to revoke object URLs when component unmounts
     return () => {
       uploadedMedia.forEach((media) => {
         if (media.preview) {
@@ -45,6 +47,68 @@ export default function CreatePostPage() {
       });
     };
   }, []);
+
+  useEffect(() => {
+    if (mounted && !loading && !isAuthenticated) {
+      router.push(ROUTES.LOGIN);
+    }
+  }, [mounted, loading, isAuthenticated, router]);
+
+  // Load existing post data
+  useEffect(() => {
+    const loadPost = async () => {
+      if (!postId) return;
+
+      try {
+        setIsLoading(true);
+        const response = await postService.getPostById(postId);
+
+        if (response.success) {
+          const post = response.post;
+
+          // Check if user is the author
+          if (post.author._id !== user?._id) {
+            alert("You can only edit your own posts");
+            router.push(ROUTES.DASHBOARD);
+            return;
+          }
+
+          setOriginalPost(post);
+          setTitle(post.title || "");
+          setContent(post.content || "");
+          setCategory(post.category || "");
+          setTags(post.tags ? post.tags.join(", ") : "");
+          setActiveTab(post.postType || "text");
+
+          if (post.postType === "link") {
+            setLinkUrl(post.linkUrl || "");
+            if (post.linkTitle || post.linkDescription || post.linkThumbnail) {
+              setLinkPreview({
+                url: post.linkUrl,
+                title: post.linkTitle,
+                description: post.linkDescription,
+                thumbnail: post.linkThumbnail,
+              });
+            }
+          }
+
+          if (post.postType === "media" && post.media) {
+            setUploadedMedia(post.media);
+          }
+        }
+      } catch (error) {
+        console.error("Error loading post:", error);
+        alert("Failed to load post");
+        router.push(ROUTES.DASHBOARD);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (user && postId) {
+      loadPost();
+    }
+  }, [postId, user, router]);
 
   // Keyboard navigation for media preview
   useEffect(() => {
@@ -68,16 +132,14 @@ export default function CreatePostPage() {
     return () => window.removeEventListener("keydown", handleKeyPress);
   }, [uploadedMedia.length, activeTab]);
 
-  useEffect(() => {
-    if (mounted && !loading && !isAuthenticated) {
-      router.push(ROUTES.LOGIN);
-    }
-  }, [mounted, loading, isAuthenticated, router]);
-
   // Generate link preview with debounce
   useEffect(() => {
     if (activeTab !== "link" || !linkUrl.trim()) {
-      setLinkPreview(null);
+      return;
+    }
+
+    // Don't regenerate if URL hasn't changed
+    if (linkUrl === originalPost?.linkUrl && linkPreview) {
       return;
     }
 
@@ -88,7 +150,6 @@ export default function CreatePostPage() {
         setLinkPreview(response.preview);
       } catch (error) {
         console.error("Failed to generate preview:", error);
-        setLinkPreview(null);
       } finally {
         setIsGeneratingPreview(false);
       }
@@ -99,106 +160,59 @@ export default function CreatePostPage() {
   }, [linkUrl, activeTab]);
 
   const handleMediaUpload = async (files) => {
-    if (!files || files.length === 0) return;
+    if (files.length === 0) return;
+
+    // Check if trying to upload video when images exist or vice versa
+    const hasVideo = uploadedMedia.some((media) => media.type === "video");
+    const hasImages = uploadedMedia.some((media) => media.type === "image");
+    const uploadingVideo = files.some((file) => file.type.startsWith("video/"));
+
+    if (hasVideo || (hasImages && uploadingVideo)) {
+      setErrors({
+        media:
+          "You can upload either one video or multiple images, but not both",
+      });
+      return;
+    }
 
     try {
       setIsUploading(true);
+      setErrors({});
 
-      // Check file types and restrictions
-      const images = files.filter((file) => file.type.startsWith("image/"));
-      const videos = files.filter((file) => file.type.startsWith("video/"));
+      // Create preview entries
+      const newMediaPreviews = files.map((file) => ({
+        file,
+        preview: URL.createObjectURL(file),
+        type: file.type.startsWith("video/") ? "video" : "image",
+        uploading: true,
+      }));
 
-      // Check if adding videos when images already exist or vice versa
-      const currentImages = uploadedMedia.filter(
-        (media) => media.type === "image"
-      );
-      const currentVideos = uploadedMedia.filter(
-        (media) => media.type === "video"
-      );
+      setUploadedMedia((prev) => [...prev, ...newMediaPreviews]);
 
-      if (videos.length > 0 && currentImages.length > 0) {
-        setErrors({
-          media:
-            "Cannot mix images and videos. Please remove existing images first.",
-        });
-        setIsUploading(false);
-        return;
-      }
-
-      if (images.length > 0 && currentVideos.length > 0) {
-        setErrors({
-          media:
-            "Cannot mix images and videos. Please remove existing video first.",
-        });
-        setIsUploading(false);
-        return;
-      }
-
-      // Restrict to one video only
-      if (videos.length > 1) {
-        setErrors({ media: "Only one video is allowed per post." });
-        setIsUploading(false);
-        return;
-      }
-
-      if (videos.length > 0 && currentVideos.length > 0) {
-        setErrors({
-          media:
-            "Only one video is allowed per post. Please remove the existing video first.",
-        });
-        setIsUploading(false);
-        return;
-      }
-
-      // Create previews immediately
-      const newPreviews = [];
-      for (const file of files) {
-        const preview = {
-          file,
-          type: file.type.startsWith("image/") ? "image" : "video",
-          name: file.name,
-          size: file.size,
-          preview: URL.createObjectURL(file),
-          uploading: true,
-        };
-        newPreviews.push(preview);
-      }
-
-      // Add previews to state immediately
-      setUploadedMedia((prev) => [...prev, ...newPreviews]);
-
-      // Set current preview to the first new item if this is the first upload
-      if (uploadedMedia.length === 0) {
-        setCurrentPreviewIndex(0);
-      }
-
-      // Upload files to server
+      // Upload files
       const response = await postService.uploadMedia(files);
 
-      // Update the previews with server URLs
-      setUploadedMedia((prev) => {
-        const updated = [...prev];
-        newPreviews.forEach((preview, index) => {
-          const serverFile = response.files[index];
-          const previewIndex = updated.findIndex(
-            (item) => item.preview === preview.preview
-          );
-          if (previewIndex !== -1) {
-            updated[previewIndex] = {
-              ...serverFile,
-              uploading: false,
-            };
-          }
-        });
-        return updated;
-      });
-
-      // Clear any previous errors
-      setErrors((prev) => ({ ...prev, media: null }));
+      if (response.success) {
+        setUploadedMedia((prev) =>
+          prev.map((media) => {
+            if (media.uploading) {
+              const uploadedFile = response.files.find(
+                (f) => f.originalName === media.file?.name
+              );
+              if (uploadedFile) {
+                return {
+                  ...uploadedFile,
+                  uploading: false,
+                };
+              }
+            }
+            return media;
+          })
+        );
+      }
     } catch (error) {
       console.error("Upload error:", error);
       setErrors({ media: "Failed to upload media files" });
-      // Remove failed uploads from preview
       setUploadedMedia((prev) => prev.filter((media) => !media.uploading));
     } finally {
       setIsUploading(false);
@@ -208,13 +222,11 @@ export default function CreatePostPage() {
   const removeMedia = (index) => {
     setUploadedMedia((prev) => {
       const updated = [...prev];
-      // Clean up preview URL if it exists
       if (updated[index].preview) {
         URL.revokeObjectURL(updated[index].preview);
       }
       updated.splice(index, 1);
 
-      // Adjust currentPreviewIndex if necessary
       if (index <= currentPreviewIndex && currentPreviewIndex > 0) {
         setCurrentPreviewIndex(currentPreviewIndex - 1);
       } else if (updated.length === 0) {
@@ -267,7 +279,6 @@ export default function CreatePostPage() {
       let postData = {
         title: title.trim(),
         content: content.trim(),
-        postType: activeTab,
         category: category || null,
         tags: tagArray,
         isMarkdown: false,
@@ -281,25 +292,23 @@ export default function CreatePostPage() {
           linkDescription: linkPreview?.description || null,
           linkThumbnail: linkPreview?.thumbnail || null,
         };
-
-        const response = await postService.createPost(postData);
-        router.push(ROUTES.DASHBOARD);
       } else if (activeTab === "media") {
         postData.mediaFiles = uploadedMedia.filter((media) => !media.uploading);
-        const response = await postService.createMediaPost(postData);
-        router.push(ROUTES.DASHBOARD);
-      } else {
-        const response = await postService.createPost(postData);
-        router.push(ROUTES.DASHBOARD);
+      }
+
+      const response = await postService.updatePost(postId, postData);
+
+      if (response.success) {
+        router.push("/profile");
       }
     } catch (error) {
-      setErrors({ submit: error.message || "Failed to create post" });
+      setErrors({ submit: error.message || "Failed to update post" });
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  if (!mounted) {
+  if (!mounted || isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <Spinner size="lg" />
@@ -323,47 +332,42 @@ export default function CreatePostPage() {
     <div className="max-w-4xl mx-auto p-6">
       <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-6">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">
-          Create a Post
+          Edit Post
         </h1>
 
-        {/* Post Type Tabs */}
+        {/* Post Type Indicator (Read-only) */}
         <div className="flex border-b border-gray-200 dark:border-gray-700 mb-6">
-          <button
-            type="button"
-            onClick={() => setActiveTab("text")}
-            className={`flex items-center gap-2 px-4 py-2 border-b-2 transition-colors ${
+          <div
+            className={`flex items-center gap-2 px-4 py-2 border-b-2 ${
               activeTab === "text"
                 ? "border-[#0079D3] text-[#0079D3]"
-                : "border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
-            }`}
-          >
-            <FileText size={18} />
-            Text
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveTab("media")}
-            className={`flex items-center gap-2 px-4 py-2 border-b-2 transition-colors ${
-              activeTab === "media"
+                : activeTab === "media"
                 ? "border-[#0079D3] text-[#0079D3]"
-                : "border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+                : "border-[#0079D3] text-[#0079D3]"
             }`}
           >
-            <ImageIcon size={18} />
-            Images & Video
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveTab("link")}
-            className={`flex items-center gap-2 px-4 py-2 border-b-2 transition-colors ${
-              activeTab === "link"
-                ? "border-[#0079D3] text-[#0079D3]"
-                : "border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
-            }`}
-          >
-            <LinkIcon size={18} />
-            Link
-          </button>
+            {activeTab === "text" && (
+              <>
+                <FileText size={18} />
+                Text Post
+              </>
+            )}
+            {activeTab === "media" && (
+              <>
+                <ImageIcon size={18} />
+                Media Post
+              </>
+            )}
+            {activeTab === "link" && (
+              <>
+                <LinkIcon size={18} />
+                Link Post
+              </>
+            )}
+          </div>
+          <span className="ml-auto self-center text-sm text-gray-500 dark:text-gray-400">
+            Post type cannot be changed
+          </span>
         </div>
 
         <form onSubmit={handleSubmit}>
@@ -465,7 +469,7 @@ export default function CreatePostPage() {
             <Button
               type="button"
               variant="secondary"
-              onClick={() => router.push(ROUTES.DASHBOARD)}
+              onClick={() => router.push("/profile")}
               disabled={isSubmitting}
             >
               Cancel
@@ -480,7 +484,7 @@ export default function CreatePostPage() {
                   <Spinner size="sm" />
                 </>
               ) : (
-                "Create Post"
+                "Update Post"
               )}
             </Button>
           </div>

@@ -195,7 +195,7 @@ const Topbar = ({ setIsMobileOpen }) => {
                           <p className="font-medium text-gray-900 dark:text-gray-100">
                             {user?.firstName} {user?.lastName}
                           </p>
-                          <p className="text-sm text-gray-500 dark:text-gray-400">
+                          <p className="text-[0.60rem] sm:text-sm text-gray-500 dark:text-gray-400">
                             {user?.email}
                           </p>
                         </div>
