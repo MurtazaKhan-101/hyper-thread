@@ -266,7 +266,7 @@ export default function DashboardPage() {
 
             {/* Community Guidelines */}
             <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg overflow-hidden">
-              <div className="bg-gradient-to-r from-purple-500 to-purple-600 px-4 py-3">
+              <div className="bg-buttons-gradient px-4 py-3">
                 <h3 className="text-white font-semibold text-sm">
                   Community Guidelines
                 </h3>

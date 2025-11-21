@@ -74,7 +74,7 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
       {/* Mobile Menu Button */}
       <button
         onClick={() => setIsMobileOpen(true)}
-        className="lg:hidden fixed top-4 left-4 z-50 p-2  bg-sidebar-gradient text-white rounded-lg shadow-lg hover:bg-buttons-gradient transition-all duration-200"
+        className="lg:hidden fixed top-4 left-4 z-50 p-2  bg-sidebar-gradient text-white rounded-lg shadow-lg hover:bg-black transition-all duration-200"
         aria-label="Open sidebar"
       >
         <Menu size={20} />
@@ -102,7 +102,7 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
           {isMobileOpen && (
             <button
               onClick={() => setIsMobileOpen(false)}
-              className="lg:hidden absolute top-4 right-1 p-2 rounded-lg text-white hover:bg-buttons-gradient transition-all duration-200"
+              className="lg:hidden absolute top-4 right-1 p-2 rounded-lg text-white hover:bg-black transition-all duration-200"
               aria-label="Close sidebar"
             >
               <X size={24} />
@@ -125,7 +125,7 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
                     ${
                       active
                         ? "bg-buttons-gradient shadow-lg transform scale-105"
-                        : "text-white hover:bg-buttons-gradient hover:shadow-md hover:transform hover:scale-105"
+                        : "text-white hover:bg-black hover:shadow-md hover:transform hover:scale-105"
                     }
                   `}
                 >
@@ -143,7 +143,7 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
           <div className="px-6 py-4">
             <button
               onClick={() => setTopicsExpanded(!topicsExpanded)}
-              className="w-full flex items-center justify-between px-4 py-3 text-lg font-semibold rounded-xl hover:bg-buttons-gradient transition-all duration-200"
+              className="w-full flex items-center justify-between px-4 py-3 text-lg font-semibold rounded-xl hover:bg-black transition-all duration-200"
             >
               <span>Topics</span>
               {topicsExpanded ? (
@@ -159,7 +159,7 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
                   <button
                     key={item.id}
                     onClick={() => handleMenuClick(item.href)}
-                    className="w-full text-left px-4 py-2 text-white hover:bg-buttons-gradient hover:bg-opacity-80 rounded-lg transition-all duration-200"
+                    className="w-full text-left px-4 py-2 text-white hover:bg-black hover:bg-opacity-80 rounded-lg transition-all duration-200"
                   >
                     {item.label}
                   </button>
@@ -175,7 +175,7 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
           <div className="px-6 py-4 flex-grow">
             <button
               onClick={() => setResourcesExpanded(!resourcesExpanded)}
-              className="w-full flex items-center justify-between px-4 py-3 text-lg font-semibold rounded-xl hover:bg-buttons-gradient transition-all duration-200"
+              className="w-full flex items-center justify-between px-4 py-3 text-lg font-semibold rounded-xl hover:bg-black transition-all duration-200"
             >
               <span>Resources</span>
               {resourcesExpanded ? (
@@ -191,7 +191,7 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
                   <button
                     key={item.id}
                     onClick={() => handleMenuClick(item.href)}
-                    className="w-full text-left px-4 py-2 text-white hover:bg-buttons-gradient hover:bg-opacity-80 rounded-lg transition-all duration-200"
+                    className="w-full text-left px-4 py-2 text-white hover:bg-buttons-g hover:bg-opacity-80 rounded-lg transition-all duration-200"
                   >
                     {item.label}
                   </button>
