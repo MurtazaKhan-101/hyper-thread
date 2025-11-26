@@ -21,7 +21,7 @@ export const AuthLayout = ({ children, title, subtitle }) => {
         <div className="text-center mb-8">
           <Link href="/" className="inline-block">
             <Image
-              src="/images/NEWS_NET.svg"
+              src="/images/NEWS_NET-V2.svg"
               alt="News Natter Logo"
               width={150}
               height={150}

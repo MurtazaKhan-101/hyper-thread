@@ -5,21 +5,35 @@ const {
   validatePost,
   validateLinkPreview,
 } = require("../middleware/postValidation");
+const {
+  moderatePost,
+  rateLimitByUser,
+} = require("../middleware/contentModeration");
 const postController = require("../controllers/postController");
 
-// Post creation routes
-router.post("/", authenticate, validatePost, postController.createPost);
+// Post creation routes (with moderation and rate limiting)
+router.post(
+  "/",
+  authenticate,
+  rateLimitByUser(10, 60 * 60 * 1000), // 10 posts per hour
+  validatePost,
+  moderatePost,
+  postController.createPost
+);
 router.post("/media/upload", authenticate, postController.uploadMedia);
 router.post(
   "/media",
   authenticate,
+  rateLimitByUser(10, 60 * 60 * 1000), // 10 posts per hour
   validatePost,
+  moderatePost,
   postController.createMediaPost
 );
 router.post(
   "/link-preview",
   authenticate,
   validateLinkPreview,
+  moderatePost,
   postController.generateLinkPreview
 );
 
@@ -32,8 +46,14 @@ router.get("/:postId", postController.getPostById);
 // Post interaction routes
 router.post("/:postId/like", authenticate, postController.toggleLike);
 
-// Post management routes
-router.put("/:postId", authenticate, validatePost, postController.updatePost);
+// Post management routes (with moderation on edit)
+router.put(
+  "/:postId",
+  authenticate,
+  validatePost,
+  moderatePost,
+  postController.updatePost
+);
 router.delete("/:postId", authenticate, postController.deletePost);
 
 module.exports = router;

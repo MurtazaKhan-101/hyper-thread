@@ -51,6 +51,19 @@ const userSchema = new mongoose.Schema(
       likesReceived: { type: Number, default: 0 },
       likesGiven: { type: Number, default: 0 },
     },
+
+    // Notification preferences
+    notificationPreferences: {
+      emailNotifications: { type: Boolean, default: true },
+      digestFrequency: {
+        type: String,
+        enum: ["daily", "weekly", "never"],
+        default: "weekly",
+      },
+      lastEmailSent: { type: Date, default: null },
+      categories: { type: [String], default: [] }, // Empty means all interests
+    },
+
     isVerified: { type: Boolean, default: false },
     onboardingCompleted: { type: Boolean, default: false },
     onboardingStep: { type: Number, default: 0 }, // 0: not started, 1: username, 2: interests, 3: completed

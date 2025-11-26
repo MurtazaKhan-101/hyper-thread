@@ -66,6 +66,24 @@ export default function DashboardPage() {
           <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg mb-6top-20">
             <div className="flex border-b border-gray-200 dark:border-gray-800">
               <button
+                onClick={() => handleTabChange("personalized")}
+                className={`flex items-center gap-2 px-6 py-3 text-sm font-medium border-b-2 transition-colors ${
+                  activeTab === "personalized"
+                    ? "border-[#0079D3] text-[#0079D3]"
+                    : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                }`}
+              >
+                <svg
+                  className="w-4 h-4"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path d="M10 3.5a1.5 1.5 0 013 0V4a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-.5a1.5 1.5 0 000 3h.5a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-.5a1.5 1.5 0 00-3 0v.5a1 1 0 01-1 1H6a1 1 0 01-1-1v-3a1 1 0 00-1-1h-.5a1.5 1.5 0 010-3H4a1 1 0 001-1V6a1 1 0 011-1h3a1 1 0 001-1v-.5z" />
+                </svg>
+                For You
+              </button>
+
+              <button
                 onClick={() => handleTabChange("latest")}
                 className={`flex items-center gap-2 px-6 py-3 text-sm font-medium border-b-2 transition-colors ${
                   activeTab === "latest"
@@ -300,7 +318,7 @@ export default function DashboardPage() {
               <div className="text-center space-y-2">
                 <div className="flex items-center justify-center gap-2">
                   <Image
-                    src="/images/NEWS_NET.svg"
+                    src="/images/NEWS_NET-V2.svg"
                     alt="News Natter Logo"
                     width={80}
                     height={80}

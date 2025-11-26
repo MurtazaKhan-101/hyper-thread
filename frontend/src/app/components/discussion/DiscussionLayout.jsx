@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { PostView } from "./PostView";
 import { DiscussionPanel } from "./DiscussionPanel";
+import { SimilarPosts } from "../posts/SimilarPosts";
 import { ChevronLeft } from "lucide-react";
 
 export const DiscussionLayout = ({ post, onPostUpdate }) => {
@@ -42,12 +43,14 @@ export const DiscussionLayout = ({ post, onPostUpdate }) => {
         <div className="hidden md:flex h-[calc(100vh-80px)]">
           {/* Left side - Post content */}
           <div className="w-1/2 overflow-y-auto scrollbar-hide">
-            <div className="p-6">
+            <div className="p-6 space-y-6">
               <PostView
                 post={postWithUpdatedComments}
                 onUpdate={onPostUpdate}
                 isDiscussionView={true}
               />
+              {/* Similar Posts Section */}
+              <SimilarPosts postId={post._id} />
             </div>
           </div>
 
@@ -64,12 +67,14 @@ export const DiscussionLayout = ({ post, onPostUpdate }) => {
         {/* Mobile layout */}
         <div className="md:hidden w-full overflow-hidden">
           {/* Post content */}
-          <div className="p-4 w-full overflow-hidden">
+          <div className="p-4 w-full overflow-hidden space-y-6">
             <PostView
               post={postWithUpdatedComments}
               onUpdate={onPostUpdate}
               isDiscussionView={true}
             />
+            {/* Similar Posts Section */}
+            <SimilarPosts postId={post._id} />
           </div>
 
           {/* Discussion panel below post */}

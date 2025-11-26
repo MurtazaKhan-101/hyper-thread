@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { postService } from "../../lib/posts";
+import { feedService } from "../../lib/engagement";
 import { PostCard } from "./PostCard";
 import { Spinner, Button } from "../ui";
 import { Newspaper } from "lucide-react";
@@ -35,8 +36,11 @@ export const PostFeed = ({
       }
 
       switch (feedType) {
+        case "personalized":
+          response = await feedService.getPersonalizedFeed(params);
+          break;
         case "trending":
-          response = await postService.getTrendingPosts(params);
+          response = await feedService.getTrendingPosts(params);
           break;
         case "search":
           if (!searchQuery.trim()) {

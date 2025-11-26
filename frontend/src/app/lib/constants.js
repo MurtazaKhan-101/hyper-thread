@@ -47,6 +47,21 @@ export const API_ENDPOINTS = {
   UPDATE_POST: "/posts",
   DELETE_POST: "/posts",
 
+  // Engagement endpoints
+  TRACK_VIEW: "/engagement/view",
+  TRACK_LIKE: "/engagement/like",
+  TRACK_COMMENT: "/engagement/comment",
+  TRACK_SEARCH: "/engagement/search",
+  GET_ENGAGEMENT_STATS: "/engagement/stats",
+
+  // Feed endpoints
+  PERSONALIZED_FEED: "/feed/personalized",
+  TRENDING_FEED: "/feed/trending",
+  SIMILAR_POSTS: "/feed/similar",
+
+  // User preferences endpoints
+  NOTIFICATION_PREFERENCES: "/user/notification-preferences",
+
   // Chat endpoints
   GET_CHAT_ROOM: "/chat",
   // JOIN_CHAT_ROOM: "/chat", // Handled via Socket.IO only

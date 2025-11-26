@@ -2,17 +2,20 @@ const express = require("express");
 const router = express.Router();
 const { authenticate } = require("../middleware/auth");
 const { validateComment } = require("../middleware/postValidation");
+const { rateLimitByUser } = require("../middleware/contentModeration");
 const commentController = require("../controllers/commentController");
 
 router.post(
   "/:postId/comment",
   authenticate,
+  rateLimitByUser(30, 60 * 60 * 1000), // 30 comments per hour
   validateComment,
   commentController.addComment
 );
 router.post(
   "/:postId/comment/:commentId/reply",
   authenticate,
+  rateLimitByUser(30, 60 * 60 * 1000), // 30 replies per hour
   validateComment,
   commentController.addReply
 );

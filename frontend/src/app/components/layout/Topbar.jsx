@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../../context/AuthContext";
 import { useSearch } from "../../context/SearchContext";
+import { useSearchTracking } from "../../hooks/useEngagementTracking";
 import { ROUTES } from "../../lib/constants";
 import Link from "next/link";
 import Image from "next/image";
@@ -17,6 +18,7 @@ const Topbar = ({ setIsMobileOpen }) => {
     searchQuery,
     setSearchQuery,
   } = useSearch();
+  const { trackSearch } = useSearchTracking();
   const [localSearchQuery, setLocalSearchQuery] = useState("");
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
 
@@ -24,6 +26,7 @@ const Topbar = ({ setIsMobileOpen }) => {
     e.preventDefault();
     if (localSearchQuery.trim()) {
       contextHandleSearch(localSearchQuery);
+      trackSearch(localSearchQuery); // Track search engagement
       setLocalSearchQuery(""); // Clear the input after search
     }
   };
@@ -47,7 +50,7 @@ const Topbar = ({ setIsMobileOpen }) => {
               <h1 className="text-lg sm:text-xl lg:text-2xl font-bold bg-clip-text text-bg-buttons-gradient cursor-pointer hover:opacity-80 transition-opacity">
                 {/* <span className="hidden sm:inline">News Natter</span> */}
                 <Image
-                  src="/images/NEWS_NET.svg"
+                  src="/images/NEWS_NET-V2.svg"
                   alt="News Natter Logo"
                   width={150}
                   height={150}

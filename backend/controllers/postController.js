@@ -166,6 +166,12 @@ class PostController {
         }
       }
 
+      // Add moderation data from middleware
+      if (req.moderationData) {
+        postData.moderationStatus = req.moderationData.moderationStatus;
+        postData.moderationScores = req.moderationData.moderationScores;
+      }
+
       const newPost = new Post(postData);
       await newPost.save();
 

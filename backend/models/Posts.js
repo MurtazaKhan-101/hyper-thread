@@ -132,6 +132,48 @@ const postSchema = new mongoose.Schema(
       default: null,
     },
 
+    // Moderation
+    moderationStatus: {
+      type: String,
+      enum: ["approved", "pending_review", "flagged", "removed"],
+      default: "approved",
+    },
+
+    moderationScores: {
+      profanity: {
+        hasProfanity: Boolean,
+        cleanedText: String,
+      },
+      toxicity: {
+        isToxic: Boolean,
+        scores: {
+          toxicity: Number,
+          severeToxicity: Number,
+          identityAttack: Number,
+          insult: Number,
+          profanity: Number,
+          threat: Number,
+        },
+      },
+      spam: {
+        isSpam: Boolean,
+        spamScore: Number,
+        confidence: Number,
+      },
+    },
+
+    // Trending
+    trendingScore: {
+      type: Number,
+      default: 0,
+      index: true,
+    },
+
+    lastTrendingUpdate: {
+      type: Date,
+      default: Date.now,
+    },
+
     // Engagement
     likes: {
       type: Number,
@@ -173,6 +215,9 @@ postSchema.index({ author: 1, createdAt: -1 });
 postSchema.index({ postType: 1 });
 postSchema.index({ status: 1 });
 postSchema.index({ tags: 1 });
+postSchema.index({ trendingScore: -1, createdAt: -1 });
+postSchema.index({ category: 1, createdAt: -1 });
+postSchema.index({ moderationStatus: 1 });
 
 // Virtual for comment count
 postSchema.virtual("commentCount").get(function () {

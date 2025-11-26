@@ -1,6 +1,7 @@
 const { Post } = require("../models/Posts");
 const { Comment } = require("../models/Comments");
 const User = require("../models/User");
+const emailService = require("../services/emailService");
 
 class CommentController {
   // Helper function to recursively populate comments and their replies
@@ -84,6 +85,23 @@ class CommentController {
         "firstName lastName username profileImage isVerified"
       );
 
+      // Send email notification to post author
+      // try {
+      //   const postAuthor = await User.findById(post.author);
+      //   const commenter = await User.findById(userId);
+      //   if (postAuthor && commenter) {
+      //     await emailService.sendCommentNotification(
+      //       postAuthor,
+      //       commenter,
+      //       post,
+      //       newComment
+      //     );
+      //   }
+      // } catch (emailError) {
+      //   console.error("Error sending comment notification email:", emailError);
+      //   // Don't fail the request if email fails
+      // }
+
       res.status(201).json({
         success: true,
         message: "Comment added successfully",
@@ -155,6 +173,23 @@ class CommentController {
         "user",
         "firstName lastName username profileImage isVerified"
       );
+
+      // Send email notification to parent comment author
+      // try {
+      //   const commentAuthor = await User.findById(parentComment.user);
+      //   const replier = await User.findById(userId);
+      //   if (commentAuthor && replier) {
+      //     await emailService.sendReplyNotification(
+      //       commentAuthor,
+      //       replier,
+      //       post,
+      //       newReply
+      //     );
+      //   }
+      // } catch (emailError) {
+      //   console.error("Error sending reply notification email:", emailError);
+      //   // Don't fail the request if email fails
+      // }
 
       res.status(201).json({
         success: true,

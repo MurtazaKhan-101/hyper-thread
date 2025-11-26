@@ -3,13 +3,15 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { postService, formatPostTime, formatNumber } from "../../lib/posts";
+import { trackLikeEngagement } from "../../hooks/useEngagementTracking";
 import { useRouter } from "next/navigation";
 import { ImageSlider } from "./ImageSlider";
-import { MessageCircle } from "lucide-react";
+import { MessageCircle, Flame } from "lucide-react";
 
 export const PostCard = ({ post, onUpdate }) => {
   const { user, isAuthenticated } = useAuth();
   const router = useRouter();
+  const [isMobile, setIsMobile] = useState(false);
   const [isLiked, setIsLiked] = useState(
     post.likedBy?.includes(user?._id) || false
   );
@@ -18,6 +20,20 @@ export const PostCard = ({ post, onUpdate }) => {
 
   // Local comment state management
   const [comments, setComments] = useState(post.comments || []);
+
+  // Check if post is trending (score > 50, must be a valid number)
+  const isTrending =
+    typeof post.trendingScore === "number" && post.trendingScore > 50;
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768 || "ontouchstart" in window);
+    };
+
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   // Update comments when post prop changes
   useEffect(() => {
@@ -51,6 +67,11 @@ export const PostCard = ({ post, onUpdate }) => {
       const response = await postService.toggleLike(post._id);
       setIsLiked(response.liked);
       setLikeCount(response.likes);
+
+      // Track like engagement if liking (not unliking)
+      if (response.liked) {
+        await trackLikeEngagement(post._id);
+      }
     } catch (error) {
       console.error("Failed to toggle like:", error);
     }
@@ -197,7 +218,7 @@ export const PostCard = ({ post, onUpdate }) => {
                 <span className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate min-w-0">
                   {post.author?.username || "unknown"}
                 </span>
-                {post.author?.isVerified && (
+                {/* {post.author?.isVerified && (
                   <svg
                     className="w-4 h-4 text-blue-500"
                     fill="currentColor"
@@ -209,16 +230,31 @@ export const PostCard = ({ post, onUpdate }) => {
                       clipRule="evenodd"
                     />
                   </svg>
-                )}
+                )} */}
               </div>
               <span className="text-xs text-gray-500">•</span>
-              <span className="text-[0.50rem] sm:text-sm text-gray-500">
+              <span className="text-[0.60rem] sm:text-sm text-gray-500">
                 {formatPostTime(post.createdAt)}
               </span>
+              {isTrending && (
+                <>
+                  <span className="text-xs text-gray-500">•</span>
+                  {isMobile ? (
+                    <span className="flex items-center gap-1 text-[0.60rem] sm:text-sm bg-orange-100 dark:bg-orange-900 px-2 py-1 rounded-full text-orange-600 dark:text-orange-300">
+                      <Flame className="w-3 h-3" />
+                    </span>
+                  ) : (
+                    <span className="flex items-center gap-1 text-[0.60rem] sm:text-sm bg-orange-100 dark:bg-orange-900 px-2 py-1 rounded-full text-orange-600 dark:text-orange-300">
+                      <Flame className="w-3 h-3" />
+                      Trending
+                    </span>
+                  )}
+                </>
+              )}
               {post.category && (
                 <>
                   <span className="text-xs text-gray-500">•</span>
-                  <span className="text-[0.50rem] sm:text-sm bg-blue-100 dark:bg-blue-900 px-2 py-1 rounded-full text-blue-600 dark:text-blue-300 capitalize">
+                  <span className="text-[0.60rem] sm:text-sm bg-blue-100 dark:bg-blue-900 px-2 py-1 rounded-full text-blue-600 dark:text-blue-300 capitalize">
                     {post.category}
                   </span>
                 </>

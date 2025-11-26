@@ -3,6 +3,7 @@ const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const User = require("../models/User");
 const { sendOTP } = require("../config/email");
+const emailService = require("../services/emailService");
 
 // Helper function to generate access and refresh tokens
 const generateTokens = (user) => {
@@ -75,6 +76,13 @@ class AuthController {
       });
 
       await newUser.save();
+      try {
+        await emailService.sendWelcomeEmail(newUser);
+        console.log("Welcome email sent to:", newUser.email);
+      } catch (emailError) {
+        console.error("Error sending welcome email:", emailError);
+        console.log("Proceeding without welcome email.");
+      }
 
       // Generate and send OTP
       const otp = Math.floor(1000 + Math.random() * 9000).toString(); // 4-digit OTP

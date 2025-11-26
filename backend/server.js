@@ -7,6 +7,7 @@ const { Server } = require("socket.io");
 const connectDB = require("./config/dbconnect");
 const { createTransporter, testEmailConnection } = require("./config/email");
 const SocketService = require("./services/socketService");
+const ScheduledJobs = require("./jobs/scheduledJobs");
 
 dotenv.config();
 const app = express();
@@ -44,6 +45,9 @@ app.use("/onboarding", require("./routes/onboardingRoutes"));
 app.use("/posts", require("./routes/postRoutes"));
 app.use("/posts", require("./routes/commentRoutes"));
 app.use("/chat", require("./routes/chatRoomRoutes"));
+app.use("/engagement", require("./routes/engagementRoutes"));
+app.use("/feed", require("./routes/feedRoutes"));
+app.use("/user", require("./routes/userRoutes"));
 
 // Health check route
 app.get("/", (req, res) => {
@@ -54,6 +58,10 @@ const startServer = async () => {
   try {
     await connectDB();
     await testEmailConnection(createTransporter());
+
+    // Initialize scheduled jobs
+    ScheduledJobs.initJobs();
+
     server.listen(PORT, () => {
       console.log(`🚀 Server running on http://localhost:${PORT}`);
       console.log(`💬 Socket.IO server ready for connections`);

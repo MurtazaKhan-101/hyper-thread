@@ -6,6 +6,10 @@ import { postService } from "../../lib/posts";
 import { Button } from "../ui";
 import { CommentThread } from "../posts/CommentThread";
 import { SendHorizontal } from "lucide-react";
+import {
+  usePostViewTracking,
+  trackCommentEngagement,
+} from "../../hooks/useEngagementTracking";
 
 export const DiscussionPanel = ({
   post,
@@ -20,6 +24,9 @@ export const DiscussionPanel = ({
   const [isRefreshingComments, setIsRefreshingComments] = useState(false);
   const messagesEndRef = useRef(null);
   const textareaRef = useRef(null);
+
+  // Track view duration for this post
+  usePostViewTracking(post?._id, true);
 
   useEffect(() => {
     setLocalComments(comments || []);
@@ -61,6 +68,9 @@ export const DiscussionPanel = ({
       );
       setNewComment("");
 
+      // Track comment engagement
+      await trackCommentEngagement(post._id);
+
       // Add new comment to local state immediately
       const updatedComments = [...localComments, response.comment];
       setLocalComments(updatedComments);
@@ -73,6 +83,7 @@ export const DiscussionPanel = ({
       }
     } catch (error) {
       console.error("Failed to add comment:", error);
+      setErrors({ submit: error.message || "Failed to add comment" });
     }
     setIsSubmittingComment(false);
   };
@@ -269,7 +280,7 @@ export const DiscussionPanel = ({
       {isAuthenticated && !isMobile && (
         <div className="px-6 py-4 border border-gray-800 bg-[#0f0f0f]">
           <form onSubmit={handleComment} className="space-y-3">
-            <div className="flex gap-3">
+            <div className="flex gap-3 mt-4">
               <div className="flex-1 relative">
                 <textarea
                   ref={textareaRef}
@@ -293,7 +304,7 @@ export const DiscussionPanel = ({
               <Button
                 type="submit"
                 disabled={!newComment.trim() || isSubmittingComment}
-                className="px-4 py-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed self-end"
+                className="mb-4 px-4 py-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed self-end"
               >
                 {isSubmittingComment ? (
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>

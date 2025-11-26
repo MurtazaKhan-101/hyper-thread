@@ -70,7 +70,7 @@ export default function OnboardingPage() {
           <div className="flex items-center justify-between h-14">
             <Link href={ROUTES.HOME}>
               <Image
-                src="/images/NEWS_NET.svg"
+                src="/images/NEWS_NET-V2.svg"
                 alt="News Natter Logo"
                 width={150}
                 height={150}
