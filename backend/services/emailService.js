@@ -41,7 +41,7 @@ class EmailService {
       await this.transporter.sendMail({
         from: this.fromEmail,
         to: user.email,
-        subject: `Welcome to ${this.appName}! 🎉`,
+        subject: `Welcome to ${this.appName}!`,
         html,
       });
 
@@ -251,7 +251,7 @@ class EmailService {
     <p>Ready to get started?</p>
     
     <a href="${
-      process.env.FRONTEND_URL || "http://localhost:3000"
+      process.env.CLIENT_URL || "http://localhost:3000"
     }" class="button">Explore Now</a>
     
     <p style="margin-top: 30px;">If you have any questions, feel free to reach out to our community support.</p>
@@ -263,7 +263,7 @@ class EmailService {
       this.appName
     }.</p>
     <p><a href="${
-      process.env.FRONTEND_URL
+      process.env.CLIENT_URL
     }/settings/notifications">Manage email preferences</a></p>
   </div>
 </body>
@@ -276,7 +276,7 @@ class EmailService {
    */
   getCommentNotificationTemplate(postAuthor, commenter, post, comment) {
     const postUrl = `${
-      process.env.FRONTEND_URL || "http://localhost:3000"
+      process.env.CLIENT_URL || "http://localhost:3000"
     }/discussion/${post._id}`;
 
     return `
@@ -320,7 +320,7 @@ class EmailService {
   </div>
   <div class="footer">
     <p><a href="${
-      process.env.FRONTEND_URL
+      process.env.CLIENT_URL
     }/settings/notifications">Unsubscribe from notifications</a></p>
   </div>
 </body>
@@ -333,7 +333,7 @@ class EmailService {
    */
   getReplyNotificationTemplate(commentAuthor, replier, post, reply) {
     const postUrl = `${
-      process.env.FRONTEND_URL || "http://localhost:3000"
+      process.env.CLIENT_URL || "http://localhost:3000"
     }/discussion/${post._id}`;
 
     return `
@@ -373,7 +373,7 @@ class EmailService {
   </div>
   <div class="footer">
     <p><a href="${
-      process.env.FRONTEND_URL
+      process.env.CLIENT_URL
     }/settings/notifications">Unsubscribe from notifications</a></p>
   </div>
 </body>
@@ -400,7 +400,7 @@ class EmailService {
           <span>${Math.round(post.trendingScore)}</span>
         </div>
         <a href="${
-          process.env.FRONTEND_URL || "http://localhost:3000"
+          process.env.CLIENT_URL || "http://localhost:3000"
         }/discussion/${post._id}" 
            style="display: inline-block; margin-top: 10px; color: #667eea; text-decoration: none;">Read more →</a>
       </div>
@@ -434,7 +434,7 @@ class EmailService {
     ${postCards}
     
     <div style="text-align: center; margin-top: 30px;">
-      <a href="${process.env.FRONTEND_URL || "http://localhost:3000"}" 
+      <a href="${process.env.CLIENT_URL || "http://localhost:3000"}" 
          style="display: inline-block; padding: 12px 30px; background: #667eea; color: white; text-decoration: none; border-radius: 5px;">
         Explore More
       </a>
@@ -442,7 +442,7 @@ class EmailService {
   </div>
   <div class="footer">
     <p><a href="${
-      process.env.FRONTEND_URL
+      process.env.CLIENT_URL
     }/settings/notifications">Manage email preferences</a></p>
   </div>
 </body>
@@ -468,7 +468,7 @@ class EmailService {
           <span>${post.comments.length}</span>
         </div>
         <a href="${
-          process.env.FRONTEND_URL || "http://localhost:3000"
+          process.env.CLIENT_URL || "http://localhost:3000"
         }/discussion/${post._id}" 
            style="display: inline-block; margin-top: 10px; color: #667eea; text-decoration: none;">Read more →</a>
       </div>
@@ -502,7 +502,7 @@ class EmailService {
     ${postCards}
     
     <div style="text-align: center; margin-top: 30px;">
-      <a href="${process.env.FRONTEND_URL || "http://localhost:3000"}" 
+      <a href="${process.env.CLIENT_URL || "http://localhost:3000"}" 
          style="display: inline-block; padding: 12px 30px; background: #667eea; color: white; text-decoration: none; border-radius: 5px;">
         Explore More
       </a>
@@ -510,7 +510,7 @@ class EmailService {
   </div>
   <div class="footer">
     <p><a href="${
-      process.env.FRONTEND_URL
+      process.env.CLIENT_URL
     }/settings/notifications">Manage email preferences</a></p>
   </div>
 </body>
