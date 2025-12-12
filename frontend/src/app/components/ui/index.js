@@ -13,7 +13,7 @@ export const Button = ({
 
   const variants = {
     primary:
-      "bg-buttons-gradient text-white transition-all duration-300 ease-in-out hover:bg-buttons-gradient-hover",
+      "bg-buttons-gradient text-black transition-all duration-300 ease-in-out hover:bg-buttons-gradient-hover",
     secondary:
       "bg-transparent border border-[#0079D3] text-[#0079D3] hover:bg-[#0079D3] hover:text-gray-900",
     outline:

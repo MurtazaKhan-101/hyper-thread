@@ -299,8 +299,8 @@ export const ChatRoom = ({ post, currentUser }) => {
       <div className="flex items-center justify-between p-4 border-b border-gray-800 dark:border-gray-700">
         <div className="flex items-center space-x-3">
           <div>
-            <h3 className="font-semibold text-white">Chat Room</h3>
-            <div className="flex items-center space-x-2 text-sm text-gray-300 ">
+            <h3 className="font-semibold text-black">Chat Room</h3>
+            <div className="flex items-center space-x-2 text-sm text-gray-600 ">
               {isConnected ? (
                 <>
                   <Wifi size={14} className="text-green-500" />
@@ -328,7 +328,7 @@ export const ChatRoom = ({ post, currentUser }) => {
       {/* Participants Panel */}
       {showParticipants && (
         <div className="p-4 border-b border-gray-200border-gray-800">
-          <h4 className="font-medium text-white mb-2">
+          <h4 className="font-medium text-black mb-2">
             Participants ({activeParticipants.length})
           </h4>
           <div className="flex flex-wrap gap-2">
@@ -386,7 +386,7 @@ export const ChatRoom = ({ post, currentUser }) => {
         {/* No More Messages Indicator */}
         {messages.length > 0 && !hasMoreMessages && (
           <div className="flex justify-center py-2 mb-2">
-            <span className="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-full">
+            <span className="text-xs text-black dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-full">
               Beginning of conversation
             </span>
           </div>

@@ -45,6 +45,7 @@ const postSchema = new mongoose.Schema(
         "politics",
         "business",
         "health",
+        "music",
       ],
       default: null,
     },

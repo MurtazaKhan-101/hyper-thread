@@ -99,7 +99,7 @@ export default function ForgetPassword() {
           {loading ? (
             <Spinner size="sm" className="mx-auto" />
           ) : (
-            "Send Reset Code"
+            <span className="text-black">Send Reset Code</span>
           )}
         </Button>
       </form>

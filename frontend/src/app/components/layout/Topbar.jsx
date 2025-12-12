@@ -94,7 +94,7 @@ const Topbar = ({ setIsMobileOpen }) => {
           <div className="flex items-center gap-1 sm:gap-2 lg:gap-3 flex-shrink-0">
             {/* Create Button */}
             <Link href={ROUTES.CREATE_POST}>
-              <button className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 lg:px-4 py-1.5 sm:py-2 text-xs sm:text-sm bg-buttons-gradient text-white border-none rounded-lg hover:bg-ui-cards-gradient hover:scale-105 transition-all duration-200 shadow-md">
+              <button className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 lg:px-4 py-1.5 sm:py-2 text-xs sm:text-sm bg-buttons-gradient text-black border-none rounded-lg hover:bg-ui-cards-gradient hover:scale-105 transition-all duration-200 shadow-md">
                 <svg
                   className="w-3 h-3 sm:w-4 sm:h-4"
                   fill="none"
@@ -108,12 +108,12 @@ const Topbar = ({ setIsMobileOpen }) => {
                     d="M12 4v16m8-8H4"
                   />
                 </svg>
-                <span className="hidden md:inline">Create</span>
+                <span className="hidden md:inline ">Create</span>
               </button>
             </Link>
 
             {/* Notifications - Hidden on very small screens */}
-            <button className="hidden xs:block p-1.5 sm:p-2 text-gray-600 dark:text-gray-400 hover:text-white hover:bg-buttons-gradient rounded-lg transition-all duration-200 hover:scale-105">
+            <button className="hidden xs:block p-1.5 sm:p-2 text-gray-600 dark:text-gray-400 hover:text-white hover:bg-black rounded-lg transition-all duration-200 hover:scale-105">
               <svg
                 className="w-4 h-4 sm:w-5 sm:h-5"
                 fill="none"

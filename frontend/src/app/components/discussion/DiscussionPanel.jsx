@@ -149,8 +149,8 @@ export const DiscussionPanel = ({
         <div className="flex items-center gap-3">
           <div className="w-2 h-2 bg-green-500 rounded-full"></div>
           <div>
-            <h2 className="font-semibold text-gray-100">Discussion</h2>
-            <p className="text-sm text-gray-300">
+            <h2 className="font-semibold text-black">Discussion</h2>
+            <p className="text-sm text-gray-700">
               {getTotalCommentCount(localComments)}{" "}
               {getTotalCommentCount(localComments) === 1
                 ? "message"
@@ -172,7 +172,7 @@ export const DiscussionPanel = ({
                 onKeyDown={handleKeyDown}
                 placeholder="Write a comment..."
                 maxLength={1000}
-                className="w-full px-4 py-3 bg-[#1a1a1a] border border-gray-700 rounded-lg resize-none text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 overflow-hidden"
+                className="w-full px-4 py-3 bg-[#1a1a1a] border border-gray-700 rounded-lg resize-none text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 overflow-hidden"
                 rows={1}
                 style={{ minHeight: "44px", maxHeight: "120px" }}
               />
@@ -248,10 +248,10 @@ export const DiscussionPanel = ({
                 />
               </svg>
             </div>
-            <h3 className="text-lg font-medium text-gray-100 mb-2">
+            <h3 className="text-lg font-medium text-black mb-2">
               Start the conversation
             </h3>
-            <p className="text-gray-400">
+            <p className="text-gray-600">
               Be the first to share your thoughts on this post
             </p>
           </div>
@@ -289,7 +289,7 @@ export const DiscussionPanel = ({
                   onKeyDown={handleKeyDown}
                   placeholder="Type your message..."
                   maxLength={1000}
-                  className="w-full scrollbar-hide p-3 border border-gray-700 rounded-lg resize-none bg-gray-800 text-gray-100 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full scrollbar-hide p-3 border border-gray-700 rounded-lg resize-none bg-gray-800 text-white placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   rows={1}
                   style={{ minHeight: "44px", maxHeight: "120px" }}
                 />
@@ -309,7 +309,7 @@ export const DiscussionPanel = ({
                 {isSubmittingComment ? (
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
                 ) : (
-                  <SendHorizontal className="w-4 h-4" />
+                  <SendHorizontal className="w-4 h-4 text-black" />
                 )}
               </Button>
             </div>
@@ -338,7 +338,7 @@ export const DiscussionPanel = ({
 
       {!isAuthenticated && (
         <div className="px-6 py-4 border-t border-gray-800 bg-[#0f0f0f] text-center">
-          <p className="text-gray-400 mb-3">Sign in to join the discussion</p>
+          <p className="text-gray-600 mb-3">Sign in to join the discussion</p>
           <Button
             onClick={() => (window.location.href = "/auth/login")}
             variant="primary"

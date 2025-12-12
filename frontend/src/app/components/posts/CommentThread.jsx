@@ -244,12 +244,12 @@ export const CommentThread = ({
                 {/* Message Header */}
                 <div className="flex items-center justify-between mb-1">
                   <div className="flex items-baseline gap-2">
-                    <span className="font-medium text-gray-100 text-sm">
+                    <span className="font-medium text-black text-sm">
                       {localComment.user?.firstName ||
                         localComment.user?.username ||
                         "Unknown"}
                     </span>
-                    <span className="text-xs text-gray-300">
+                    <span className="text-xs text-gray-700">
                       {formatPostTime(localComment.createdAt)}
                       {localComment.updatedAt && (
                         <span className="ml-1 text-gray-300">(edited)</span>
@@ -301,18 +301,20 @@ export const CommentThread = ({
                     <textarea
                       value={editText}
                       onChange={(e) => setEditText(e.target.value)}
-                      className="w-full p-2 text-sm border border-gray-700 rounded resize-none bg-gray-700 text-gray-100"
+                      className="w-full p-2 text-sm border border-gray-700 rounded resize-none bg-gray-700 text-white"
                       rows={2}
                       maxLength={1000}
                       placeholder="Edit your message..."
                     />
                     <div className="flex justify-end gap-2 mt-2">
-                      <button
+                      <Button
+                        type="button"
                         onClick={handleCancelEdit}
-                        className="px-2 py-1 text-xs text-gray-400 hover:text-gray-200"
+                        variant="outline_secondary"
+                        className="text-xs px-3 py-1"
                       >
                         Cancel
-                      </button>
+                      </Button>
                       <Button
                         onClick={handleEdit}
                         disabled={!editText.trim() || isSubmittingEdit}
@@ -323,7 +325,7 @@ export const CommentThread = ({
                     </div>
                   </div>
                 ) : (
-                  <div className="text-sm text-gray-200 whitespace-pre-wrap break-words overflow-wrap-anywhere word-break-break-word">
+                  <div className="text-sm text-black whitespace-pre-wrap break-words overflow-wrap-anywhere word-break-break-word">
                     {localComment.comment}
                   </div>
                 )}
@@ -332,7 +334,7 @@ export const CommentThread = ({
                 {showDeleteConfirm && (
                   <div className="fixed inset-0 backdrop-blur-sm bg-transparent flex items-center justify-center z-50">
                     <div className="bg-gray-800 border border-gray-700 rounded-lg p-6 max-w-sm mx-4">
-                      <h3 className="text-lg font-medium text-gray-100 mb-2">
+                      <h3 className="text-lg font-medium text-white mb-2">
                         Delete Message
                       </h3>
                       <p className="text-gray-400 mb-4">
@@ -340,12 +342,14 @@ export const CommentThread = ({
                         action cannot be undone.
                       </p>
                       <div className="flex gap-3 justify-end">
-                        <button
+                        <Button
+                          type="button"
                           onClick={() => setShowDeleteConfirm(false)}
-                          className="px-4 py-2 text-sm text-gray-400 hover:text-gray-200"
+                          variant="outline_secondary"
+                          className="text-xs px-3 py-1"
                         >
                           Cancel
-                        </button>
+                        </Button>
                         <Button
                           onClick={handleDelete}
                           disabled={isDeleting}
@@ -366,7 +370,7 @@ export const CommentThread = ({
                     className={`flex items-center gap-1 text-xs px-2 py-1 rounded transition-colors ${
                       isLiked
                         ? "text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20"
-                        : "text-gray-300 hover:text-gray-300 hover:bg-gray-700"
+                        : "text-gray-700 hover:text-black hover:bg-gray-700"
                     }`}
                   >
                     <svg
@@ -415,7 +419,7 @@ export const CommentThread = ({
                         value={newReply}
                         onChange={(e) => setNewReply(e.target.value)}
                         placeholder="Reply..."
-                        className="w-full p-2 border border-gray-700 rounded text-sm resize-none bg-gray-800 text-gray-100"
+                        className="w-full p-2 border border-gray-700 rounded text-sm resize-none bg-gray-800 text-white"
                         rows={2}
                       />
                       <div className="flex justify-end gap-2">
@@ -506,7 +510,7 @@ export const CommentThread = ({
           {/* Comment Header */}
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-gray-100">
+              <span className="text-sm font-medium text-black">
                 {localComment.user?.username || "unknown"}
               </span>
               {localComment.user?.isVerified && (
@@ -522,10 +526,10 @@ export const CommentThread = ({
                   />
                 </svg>
               )}
-              <span className="text-xs text-gray-300">
+              <span className="text-xs text-gray-700">
                 {formatPostTime(localComment.createdAt)}
                 {localComment.updatedAt && (
-                  <span className="ml-1 text-gray-300">(edited)</span>
+                  <span className="ml-1 text-gray-700">(edited)</span>
                 )}
               </span>
             </div>
@@ -574,7 +578,7 @@ export const CommentThread = ({
               <textarea
                 value={editText}
                 onChange={(e) => setEditText(e.target.value)}
-                className="w-full p-2 text-sm border border-gray-700 rounded resize-none bg-gray-800 text-gray-100"
+                className="w-full p-2 text-sm border border-gray-700 rounded resize-none bg-gray-800 text-white"
                 rows={3}
                 maxLength={1000}
                 placeholder="Edit your comment..."
@@ -596,7 +600,7 @@ export const CommentThread = ({
               </div>
             </div>
           ) : (
-            <p className="text-sm text-gray-800 dark:text-gray-200 mb-3 whitespace-pre-wrap break-words overflow-wrap-anywhere word-break-break-word">
+            <p className="text-sm text-black mb-3 whitespace-pre-wrap break-words overflow-wrap-anywhere word-break-break-word">
               {localComment.comment}
             </p>
           )}
@@ -605,10 +609,10 @@ export const CommentThread = ({
           {showDeleteConfirm && (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
               <div className="bg-gray-800 border border-gray-700 rounded-lg p-6 max-w-sm mx-4">
-                <h3 className="text-lg font-medium text-gray-100 mb-2">
+                <h3 className="text-lg font-medium text-black mb-2">
                   Delete Comment
                 </h3>
-                <p className="text-gray-400 mb-4">
+                <p className="text-gray-600 mb-4">
                   Are you sure you want to delete this comment? This action
                   cannot be undone.
                 </p>
@@ -639,7 +643,7 @@ export const CommentThread = ({
               className={`flex items-center gap-1 text-xs transition-colors ${
                 isLiked
                   ? "text-red-600 dark:text-red-400"
-                  : "text-gray-400 hover:text-gray-300"
+                  : "text-gray-700 hover:text-black"
               }`}
             >
               <svg
@@ -661,7 +665,7 @@ export const CommentThread = ({
             {isAuthenticated && depth < maxDepth && (
               <button
                 onClick={() => setShowReplyForm(!showReplyForm)}
-                className="text-xs text-gray-400 hover:text-gray-300 transition-colors"
+                className="text-xs text-gray-700 hover:text-black transition-colors"
               >
                 Reply
               </button>
@@ -685,7 +689,7 @@ export const CommentThread = ({
                 value={newReply}
                 onChange={(e) => setNewReply(e.target.value)}
                 placeholder="Write a reply..."
-                className="w-full p-2 text-sm border border-gray-700 rounded resize-none bg-gray-800 text-gray-100"
+                className="w-full p-2 text-sm border border-gray-700 rounded resize-none bg-gray-800 text-black"
                 rows={2}
               />
               <div className="flex justify-end gap-2 mt-2">

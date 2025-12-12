@@ -130,7 +130,11 @@ export default function Login() {
         </div>
 
         <Button type="submit" variant="primary" fullWidth disabled={loading}>
-          {loading ? <Spinner size="sm" className="mx-auto" /> : "Log In"}
+          {loading ? (
+            <Spinner size="sm" className="mx-auto" />
+          ) : (
+            <span className="text-black">Log In</span>
+          )}
         </Button>
       </form>
 

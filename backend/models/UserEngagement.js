@@ -22,6 +22,10 @@ const userEngagementSchema = new mongoose.Schema(
             "politics",
             "business",
             "health",
+            "sports",
+            "music",
+            "internet",
+            "history",
           ],
         },
         interactions: {

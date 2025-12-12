@@ -91,6 +91,7 @@ export const ROUTES = {
   OAUTH_SUCCESS: "/auth/oauth-success",
   ONBOARDING: "/onboarding",
   DASHBOARD: "/dashboard",
+  EXPLORE: "/explore",
   CREATE_POST: "/create-post",
   CHAT: "/chat",
   HELP: "/help",
