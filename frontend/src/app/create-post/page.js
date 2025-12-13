@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../context/AuthContext";
-import { Button, Input, Spinner } from "../components/ui";
+import { Button, Input, Spinner, UpgradeBanner } from "../components/ui";
 import {
   MediaPreview,
   MediaUpload,
@@ -73,6 +73,9 @@ export default function CreatePostPage() {
       router.push(ROUTES.LOGIN);
     }
   }, [mounted, loading, isAuthenticated, router]);
+
+  // Check if user is premium
+  const isPremium = user?.isPremium || false;
 
   // Generate link preview with debounce
   useEffect(() => {
@@ -317,6 +320,20 @@ export default function CreatePostPage() {
 
   if (!isAuthenticated) {
     return null;
+  }
+
+  // Show upgrade prompt if user is not premium
+  if (!isPremium) {
+    return (
+      <div className="max-w-4xl mx-auto p-6">
+        <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-6">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">
+            Create a Post
+          </h1>
+          <UpgradeBanner feature="post" />
+        </div>
+      </div>
+    );
   }
 
   return (

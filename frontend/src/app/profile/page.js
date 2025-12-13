@@ -12,6 +12,7 @@ import {
   AlertCircle,
   MoreVertical,
   ChevronLeft,
+  Newspaper,
 } from "lucide-react";
 import { Button } from "../components/ui";
 
@@ -221,7 +222,9 @@ export default function ProfilePage() {
           </div>
         ) : userPosts.length === 0 ? (
           <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-            <div className="text-6xl mb-4">📝</div>
+            <div className="text-6xl mb-4">
+              <Newspaper className="mx-auto text-gray-300 dark:text-gray-600 w-12 h-12" />
+            </div>
             <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
               No posts yet
             </h3>

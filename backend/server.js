@@ -27,6 +27,10 @@ const io = new Server(server, {
 // Initialize Socket Service
 const socketService = new SocketService(io);
 
+// IMPORTANT: Webhook route MUST come BEFORE express.json() middleware
+// Stripe webhooks require raw body
+app.use("/webhooks", require("./routes/webhookRoutes"));
+
 // Middleware
 app.use(
   cors({
@@ -48,6 +52,7 @@ app.use("/chat", require("./routes/chatRoomRoutes"));
 app.use("/engagement", require("./routes/engagementRoutes"));
 app.use("/feed", require("./routes/feedRoutes"));
 app.use("/user", require("./routes/userRoutes"));
+app.use("/stripe", require("./routes/stripeRoutes"));
 
 // Health check route
 app.get("/", (req, res) => {

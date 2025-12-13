@@ -20,6 +20,9 @@ class ScheduledJobs {
     // Send weekly digests on Monday at 9 AM
     this.scheduleWeeklyDigests();
 
+    // Clean up expired subscriptions daily at 3 AM
+    this.scheduleSubscriptionCleanup();
+
     console.log("✅ All scheduled jobs initialized");
   }
 
@@ -159,6 +162,64 @@ class ScheduledJobs {
   }
 
   /**
+   * Clean up expired subscriptions
+   * Runs daily at 3:00 AM as a webhook backup
+   */
+  static scheduleSubscriptionCleanup() {
+    cron.schedule("0 3 * * *", async () => {
+      console.log("🧹 Running daily subscription cleanup...");
+      try {
+        // Find users with expired premium but still marked as premium
+        const expiredUsers = await User.updateMany(
+          {
+            isPremium: true,
+            premiumExpiresAt: { $lt: new Date() },
+          },
+          {
+            $set: {
+              isPremium: false,
+              premiumExpiresAt: null,
+            },
+          }
+        );
+
+        if (expiredUsers.modifiedCount > 0) {
+          console.log(
+            `⚠️ Cleaned up ${expiredUsers.modifiedCount} expired subscriptions that webhooks missed`
+          );
+        } else {
+          console.log(
+            "✅ No expired subscriptions found - all webhooks working correctly"
+          );
+        }
+
+        // Also check for users with subscriptionStatus but no matching premium state
+        const inconsistentUsers = await User.find({
+          subscriptionStatus: {
+            $in: ["canceled", "incomplete_expired", "unpaid"],
+          },
+          isPremium: true,
+        });
+
+        if (inconsistentUsers.length > 0) {
+          console.log(
+            `⚠️ Found ${inconsistentUsers.length} users with inconsistent subscription status`
+          );
+          for (const user of inconsistentUsers) {
+            user.isPremium = false;
+            user.subscriptionStatus = null;
+            await user.save();
+          }
+        }
+      } catch (error) {
+        console.error("Error in subscription cleanup:", error);
+      }
+    });
+
+    console.log("✓ Subscription cleanup job scheduled (daily 3:00 AM)");
+  }
+
+  /**
    * Manual trigger for testing (use via API endpoint)
    */
   static async manualTrendingUpdate() {
@@ -204,6 +265,42 @@ class ScheduledJobs {
 
     await emailService.sendWeeklyDigest(user, trendingPosts);
     return { success: true, message: "Weekly digest sent" };
+  }
+
+  static async manualSubscriptionCleanup() {
+    console.log("🧹 Manual subscription cleanup triggered");
+
+    const expiredUsers = await User.updateMany(
+      {
+        isPremium: true,
+        premiumExpiresAt: { $lt: new Date() },
+      },
+      {
+        $set: {
+          isPremium: false,
+          premiumExpiresAt: null,
+        },
+      }
+    );
+
+    const inconsistentUsers = await User.find({
+      subscriptionStatus: { $in: ["canceled", "incomplete_expired", "unpaid"] },
+      isPremium: true,
+    });
+
+    if (inconsistentUsers.length > 0) {
+      for (const user of inconsistentUsers) {
+        user.isPremium = false;
+        user.subscriptionStatus = null;
+        await user.save();
+      }
+    }
+
+    return {
+      success: true,
+      expiredCleaned: expiredUsers.modifiedCount,
+      inconsistentCleaned: inconsistentUsers.length,
+    };
   }
 }
 

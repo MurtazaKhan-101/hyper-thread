@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const { authenticate } = require("../middleware/auth");
+const { checkPremium } = require("../middleware/premiumCheck");
 const {
   validatePost,
   validateLinkPreview,
@@ -11,19 +12,26 @@ const {
 } = require("../middleware/contentModeration");
 const postController = require("../controllers/postController");
 
-// Post creation routes (with moderation and rate limiting)
+// Post creation routes (with moderation and rate limiting) - PREMIUM ONLY
 router.post(
   "/",
   authenticate,
+  checkPremium, // Premium required
   rateLimitByUser(10, 60 * 60 * 1000), // 10 posts per hour
   validatePost,
   moderatePost,
   postController.createPost
 );
-router.post("/media/upload", authenticate, postController.uploadMedia);
+router.post(
+  "/media/upload",
+  authenticate,
+  checkPremium, // Premium required
+  postController.uploadMedia
+);
 router.post(
   "/media",
   authenticate,
+  checkPremium, // Premium required
   rateLimitByUser(10, 60 * 60 * 1000), // 10 posts per hour
   validatePost,
   moderatePost,

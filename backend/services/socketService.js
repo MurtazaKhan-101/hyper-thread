@@ -72,6 +72,18 @@ class SocketService {
         return next(new Error("Authentication error: Invalid user"));
       }
 
+      // Check if user has premium access for chat
+      if (!user.isPremium) {
+        return next(
+          new Error("Premium subscription required to access chat rooms")
+        );
+      }
+
+      // Check if premium has expired
+      if (user.premiumExpiresAt && user.premiumExpiresAt < new Date()) {
+        return next(new Error("Premium subscription has expired"));
+      }
+
       socket.userId = user._id.toString();
       socket.user = user;
       next();

@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { postService } from "../../lib/posts";
-import { Button } from "../ui";
+import { Button, UpgradeBanner } from "../ui";
 import { CommentThread } from "../posts/CommentThread";
 import { SendHorizontal } from "lucide-react";
 import {
@@ -27,6 +27,9 @@ export const DiscussionPanel = ({
 
   // Track view duration for this post
   usePostViewTracking(post?._id, true);
+
+  // Check if user is premium
+  const isPremium = user?.isPremium || false;
 
   useEffect(() => {
     setLocalComments(comments || []);
@@ -163,57 +166,61 @@ export const DiscussionPanel = ({
       {/* Comment Input - Move to top for mobile */}
       {isAuthenticated && isMobile && (
         <div className="px-6 py-4 border-b border-gray-800 bg-[#0f0f0f]">
-          <form onSubmit={handleComment} className="space-y-3">
-            <div className="relative">
-              <textarea
-                ref={textareaRef}
-                value={newComment}
-                onChange={handleInputChange}
-                onKeyDown={handleKeyDown}
-                placeholder="Write a comment..."
-                maxLength={1000}
-                className="w-full px-4 py-3 bg-[#1a1a1a] border border-gray-700 rounded-lg resize-none text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 overflow-hidden"
-                rows={1}
-                style={{ minHeight: "44px", maxHeight: "120px" }}
-              />
+          {isPremium ? (
+            <form onSubmit={handleComment} className="space-y-3">
+              <div className="relative">
+                <textarea
+                  ref={textareaRef}
+                  value={newComment}
+                  onChange={handleInputChange}
+                  onKeyDown={handleKeyDown}
+                  placeholder="Write a comment..."
+                  maxLength={1000}
+                  className="w-full px-4 py-3 bg-[#1a1a1a] border border-gray-700 rounded-lg resize-none text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 overflow-hidden"
+                  rows={1}
+                  style={{ minHeight: "44px", maxHeight: "120px" }}
+                />
 
-              {/* Character count indicator */}
-              {newComment.length > 0 && (
-                <div className="absolute bottom-5 right-2 text-xs text-gray-500">
-                  {newComment.length}/1000
+                {/* Character count indicator */}
+                {newComment.length > 0 && (
+                  <div className="absolute bottom-5 right-2 text-xs text-gray-500">
+                    {newComment.length}/1000
+                  </div>
+                )}
+              </div>
+
+              {/* Character Limit Warning */}
+              {newComment.length > 900 && (
+                <div className="mt-2 text-right">
+                  <span
+                    className={`text-xs font-medium ${
+                      newComment.length >= 1000
+                        ? "text-red-500"
+                        : newComment.length > 950
+                        ? "text-orange-500"
+                        : "text-yellow-500"
+                    }`}
+                  >
+                    {newComment.length >= 1000
+                      ? "Character limit reached"
+                      : `${1000 - newComment.length} characters remaining`}
+                  </span>
                 </div>
               )}
-            </div>
 
-            {/* Character Limit Warning */}
-            {newComment.length > 900 && (
-              <div className="mt-2 text-right">
-                <span
-                  className={`text-xs font-medium ${
-                    newComment.length >= 1000
-                      ? "text-red-500"
-                      : newComment.length > 950
-                      ? "text-orange-500"
-                      : "text-yellow-500"
-                  }`}
+              <div className="flex justify-end items-center">
+                <Button
+                  type="submit"
+                  disabled={!newComment.trim() || isSubmittingComment}
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {newComment.length >= 1000
-                    ? "Character limit reached"
-                    : `${1000 - newComment.length} characters remaining`}
-                </span>
+                  {isSubmittingComment ? "Sending..." : "Send"}
+                </Button>
               </div>
-            )}
-
-            <div className="flex justify-end items-center">
-              <Button
-                type="submit"
-                disabled={!newComment.trim() || isSubmittingComment}
-                className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isSubmittingComment ? "Sending..." : "Send"}
-              </Button>
-            </div>
-          </form>
+            </form>
+          ) : (
+            <UpgradeBanner feature="comment" compact />
+          )}
         </div>
       )}
 
@@ -279,60 +286,64 @@ export const DiscussionPanel = ({
       {/* Comment Input - Bottom for desktop only */}
       {isAuthenticated && !isMobile && (
         <div className="px-6 py-4 border border-gray-800 bg-[#0f0f0f]">
-          <form onSubmit={handleComment} className="space-y-3">
-            <div className="flex gap-3 mt-4">
-              <div className="flex-1 relative">
-                <textarea
-                  ref={textareaRef}
-                  value={newComment}
-                  onChange={handleInputChange}
-                  onKeyDown={handleKeyDown}
-                  placeholder="Type your message..."
-                  maxLength={1000}
-                  className="w-full scrollbar-hide p-3 border border-gray-700 rounded-lg resize-none bg-gray-800 text-white placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  rows={1}
-                  style={{ minHeight: "44px", maxHeight: "120px" }}
-                />
+          {isPremium ? (
+            <form onSubmit={handleComment} className="space-y-3">
+              <div className="flex gap-3 mt-4">
+                <div className="flex-1 relative">
+                  <textarea
+                    ref={textareaRef}
+                    value={newComment}
+                    onChange={handleInputChange}
+                    onKeyDown={handleKeyDown}
+                    placeholder="Type your message..."
+                    maxLength={1000}
+                    className="w-full scrollbar-hide p-3 border border-gray-700 rounded-lg resize-none bg-gray-800 text-white placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    rows={1}
+                    style={{ minHeight: "44px", maxHeight: "120px" }}
+                  />
 
-                {/* Character count indicator */}
-                {newComment.length > 0 && (
-                  <div className="absolute bottom-5 right-2 text-xs text-gray-500">
-                    {newComment.length}/1000
-                  </div>
-                )}
-              </div>
-              <Button
-                type="submit"
-                disabled={!newComment.trim() || isSubmittingComment}
-                className="mb-4 px-4 py-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed self-end"
-              >
-                {isSubmittingComment ? (
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                ) : (
-                  <SendHorizontal className="w-4 h-4 text-black" />
-                )}
-              </Button>
-            </div>
-
-            {/* Character Limit Warning for Desktop */}
-            {newComment.length > 900 && (
-              <div className="text-right">
-                <span
-                  className={`text-xs font-medium ${
-                    newComment.length >= 1000
-                      ? "text-red-500"
-                      : newComment.length > 950
-                      ? "text-orange-500"
-                      : "text-yellow-500"
-                  }`}
+                  {/* Character count indicator */}
+                  {newComment.length > 0 && (
+                    <div className="absolute bottom-5 right-2 text-xs text-gray-500">
+                      {newComment.length}/1000
+                    </div>
+                  )}
+                </div>
+                <Button
+                  type="submit"
+                  disabled={!newComment.trim() || isSubmittingComment}
+                  className="mb-4 px-4 py-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed self-end"
                 >
-                  {newComment.length >= 1000
-                    ? "Character limit reached"
-                    : `${1000 - newComment.length} characters remaining`}
-                </span>
+                  {isSubmittingComment ? (
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                  ) : (
+                    <SendHorizontal className="w-4 h-4 text-black" />
+                  )}
+                </Button>
               </div>
-            )}
-          </form>
+
+              {/* Character Limit Warning for Desktop */}
+              {newComment.length > 900 && (
+                <div className="text-right">
+                  <span
+                    className={`text-xs font-medium ${
+                      newComment.length >= 1000
+                        ? "text-red-500"
+                        : newComment.length > 950
+                        ? "text-orange-500"
+                        : "text-yellow-500"
+                    }`}
+                  >
+                    {newComment.length >= 1000
+                      ? "Character limit reached"
+                      : `${1000 - newComment.length} characters remaining`}
+                  </span>
+                </div>
+              )}
+            </form>
+          ) : (
+            <UpgradeBanner feature="comment" compact />
+          )}
         </div>
       )}
 

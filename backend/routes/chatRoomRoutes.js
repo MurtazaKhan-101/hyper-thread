@@ -1,12 +1,14 @@
 const express = require("express");
 const chatRoomController = require("../controllers/chatRoomController");
 const { authenticate } = require("../middleware/auth");
+const { checkPremium } = require("../middleware/premiumCheck");
 const { upload, uploadChatImage } = require("../middleware/chatUpload");
 
 const router = express.Router();
 
-// All chat room routes require authentication
+// All chat room routes require authentication AND premium subscription
 router.use(authenticate);
+router.use(checkPremium); // All chat features require premium
 
 // Get or create chat room for a specific post
 router.get("/:postId", chatRoomController.getChatRoom);

@@ -45,6 +45,22 @@ const userSchema = new mongoose.Schema(
       type: Date,
       default: null,
     },
+    stripeCustomerId: { type: String, default: null },
+    stripeSubscriptionId: { type: String, default: null },
+    subscriptionStatus: {
+      type: String,
+      enum: [
+        "active",
+        "past_due",
+        "canceled",
+        "incomplete",
+        "incomplete_expired",
+        "trialing",
+        "unpaid",
+        "paused",
+      ],
+      default: null,
+    },
     stats: {
       postsCount: { type: Number, default: 0 },
       commentsCount: { type: Number, default: 0 },
@@ -105,13 +121,37 @@ userSchema.methods.isFollowing = function (userId) {
 };
 
 userSchema.pre("save", function (next) {
+  // Handle subscription status logic
+  if (this.subscriptionStatus) {
+    // Active states - user should have premium
+    if (["active", "trialing"].includes(this.subscriptionStatus)) {
+      this.isPremium = true;
+    }
+    // Grace period states - keep premium active during payment retry period
+    else if (this.subscriptionStatus === "past_due") {
+      // Keep premium active while Stripe retries payment
+      this.isPremium = true;
+    }
+    // Inactive states - remove premium
+    else if (
+      ["canceled", "incomplete_expired", "unpaid", "paused"].includes(
+        this.subscriptionStatus
+      )
+    ) {
+      this.isPremium = false;
+    }
+  }
+
+  // Fallback: Check expiry date if subscription status not set
   if (
     this.isPremium &&
     this.premiumExpiresAt &&
-    this.premiumExpiresAt < new Date()
+    this.premiumExpiresAt < new Date() &&
+    !this.subscriptionStatus
   ) {
     this.isPremium = false;
   }
+
   next();
 });
 

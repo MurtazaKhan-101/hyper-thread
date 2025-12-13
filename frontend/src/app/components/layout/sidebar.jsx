@@ -10,6 +10,7 @@ import {
   ChevronDown,
   X,
   Menu,
+  Crown,
 } from "lucide-react";
 
 const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
@@ -21,6 +22,7 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
     { id: "home", label: "Home", icon: Home, href: "/dashboard" },
     { id: "trending", label: "Trending", icon: TrendingUp, href: "/dashboard" },
     { id: "explore", label: "Explore", icon: Compass, href: "/explore" },
+    { id: "pricing", label: "Pricing", icon: Crown, href: "/pricing" },
   ];
 
   const topicsItems = [

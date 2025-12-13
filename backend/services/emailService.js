@@ -451,6 +451,332 @@ class EmailService {
   }
 
   /**
+   * Send payment failed notification
+   */
+  async sendPaymentFailedEmail(user, paymentDetails) {
+    try {
+      if (!user.email || !user.notificationPreferences?.emailNotifications) {
+        return;
+      }
+
+      const html = this.getPaymentFailedTemplate(user, paymentDetails);
+
+      await this.transporter.sendMail({
+        from: this.fromEmail,
+        to: user.email,
+        subject: "Payment Failed - Action Required",
+        html,
+      });
+
+      console.log(`✅ Payment failed email sent to ${user.email}`);
+    } catch (error) {
+      console.error("Error sending payment failed email:", error);
+    }
+  }
+
+  /**
+   * Send subscription cancelled notification
+   */
+  async sendSubscriptionCancelledEmail(user) {
+    try {
+      if (!user.email || !user.notificationPreferences?.emailNotifications) {
+        return;
+      }
+
+      const html = this.getSubscriptionCancelledTemplate(user);
+
+      await this.transporter.sendMail({
+        from: this.fromEmail,
+        to: user.email,
+        subject: `Your ${this.appName} Premium subscription has been cancelled`,
+        html,
+      });
+
+      console.log(`✅ Subscription cancelled email sent to ${user.email}`);
+    } catch (error) {
+      console.error("Error sending subscription cancelled email:", error);
+    }
+  }
+
+  /**
+   * Send subscription cancellation scheduled notification (when user cancels but still has access)
+   */
+  async sendSubscriptionCancellationScheduledEmail(user, cancelDate) {
+    try {
+      if (!user.email || !user.notificationPreferences?.emailNotifications) {
+        return;
+      }
+
+      const html = this.getSubscriptionCancellationScheduledTemplate(
+        user,
+        cancelDate
+      );
+
+      await this.transporter.sendMail({
+        from: this.fromEmail,
+        to: user.email,
+        subject: `Your ${
+          this.appName
+        } Premium will end on ${cancelDate.toLocaleDateString("en-GB")}`,
+        html,
+      });
+
+      console.log(`✅ Cancellation scheduled email sent to ${user.email}`);
+    } catch (error) {
+      console.error("Error sending cancellation scheduled email:", error);
+    }
+  }
+
+  /**
+   * Payment failed email template
+   */
+  getPaymentFailedTemplate(user, paymentDetails) {
+    const { amount, currency, nextRetryDate, attemptCount } = paymentDetails;
+    const retryDateStr = nextRetryDate
+      ? nextRetryDate.toLocaleDateString("en-GB", {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        })
+      : "soon";
+
+    return `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; background: #f5f5f5; }
+    .container { background: #ffffff; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+    .header { background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%); color: white; padding: 30px; text-align: center; }
+    .content { padding: 30px; }
+    .warning-box { background: #fef3c7; border-left: 4px solid #f59e0b; padding: 15px; margin: 20px 0; border-radius: 4px; }
+    .button { display: inline-block; padding: 12px 30px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; text-decoration: none; border-radius: 5px; margin: 20px 0; font-weight: bold; }
+    .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1 style="margin: 0;">⚠️ Payment Failed</h1>
+      <p style="margin: 10px 0 0 0;">Action required to continue your premium access</p>
+    </div>
+    <div class="content">
+      <p>Hi ${user.firstName},</p>
+      
+      <div class="warning-box">
+        <strong>We were unable to process your payment for ${
+          this.appName
+        } Premium.</strong>
+      </div>
+      
+      <p><strong>Payment Details:</strong></p>
+      <ul>
+        <li>Amount: ${currency} ${amount}</li>
+        <li>Attempt: ${attemptCount}</li>
+        <li>Next retry: ${retryDateStr}</li>
+      </ul>
+      
+      <p>Don't worry! Your premium access is still active while we retry the payment. We'll automatically attempt to charge your card again ${
+        nextRetryDate ? "on " + retryDateStr : "soon"
+      }.</p>
+      
+      <p><strong>What you can do:</strong></p>
+      <ul>
+        <li>Update your payment method to avoid service interruption</li>
+        <li>Ensure your card has sufficient funds</li>
+        <li>Check with your bank if payments are being blocked</li>
+      </ul>
+      
+      <div style="text-align: center;">
+        <a href="${
+          process.env.FRONTEND_URL || "http://localhost:3000"
+        }/settings" class="button">
+          Update Payment Method
+        </a>
+      </div>
+      
+      <p style="color: #666; font-size: 14px; margin-top: 30px;">If payment continues to fail, your premium subscription will be cancelled automatically.</p>
+    </div>
+    <div class="footer">
+      <p>Need help? <a href="${
+        process.env.FRONTEND_URL || "http://localhost:3000"
+      }/help">Contact Support</a></p>
+    </div>
+  </div>
+</body>
+</html>
+    `;
+  }
+
+  /**
+   * Subscription cancellation scheduled email template
+   */
+  getSubscriptionCancellationScheduledTemplate(user, cancelDate) {
+    const cancelDateStr = cancelDate.toLocaleDateString("en-GB", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
+
+    return `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; background: #f5f5f5; }
+    .container { background: #ffffff; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+    .header { background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%); color: white; padding: 30px; text-align: center; }
+    .content { padding: 30px; }
+    .info-box { background: #fef3c7; border-left: 4px solid #f59e0b; padding: 15px; margin: 20px 0; border-radius: 4px; }
+    .button { display: inline-block; padding: 12px 30px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; text-decoration: none; border-radius: 5px; margin: 20px 0; font-weight: bold; }
+    .feature-list { background: #f9fafb; padding: 20px; border-radius: 8px; margin: 20px 0; }
+    .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1 style="margin: 0;">⏳ Subscription Cancellation Confirmed</h1>
+      <p style="margin: 10px 0 0 0;">You'll have premium access until ${cancelDateStr}</p>
+    </div>
+    <div class="content">
+      <p>Hi ${user.firstName},</p>
+      
+      <p>We've received your cancellation request for ${
+        this.appName
+      } Premium.</p>
+      
+      <div class="info-box">
+        <strong>Your premium access will end on ${cancelDateStr}.</strong><br>
+        Until then, you can continue enjoying all premium features.
+      </div>
+      
+      <p><strong>What happens next:</strong></p>
+      <ul>
+        <li>You'll keep full premium access until ${cancelDateStr}</li>
+        <li>You won't be charged again</li>
+        <li>After ${cancelDateStr}, you'll switch to the free plan</li>
+        <li>You can resubscribe anytime</li>
+      </ul>
+      
+      <div class="feature-list">
+        <p style="margin: 0 0 10px 0; font-weight: bold;">Premium features you'll lose after ${cancelDateStr}:</p>
+        <ul style="margin: 0; padding-left: 20px;">
+          <li>Create unlimited posts</li>
+          <li>Comment on any discussion</li>
+          <li>Join live chat rooms</li>
+          <li>Priority support</li>
+          <li>Ad-free experience</li>
+        </ul>
+      </div>
+      
+      <p><strong>Changed your mind?</strong> You can easily reactivate your subscription before ${cancelDateStr}.</p>
+      
+      <div style="text-align: center;">
+        <a href="${
+          process.env.FRONTEND_URL || "http://localhost:3000"
+        }/settings" class="button">
+          Reactivate Subscription
+        </a>
+      </div>
+      
+      <p style="color: #666; font-size: 14px; margin-top: 30px;">We'd love to hear your feedback! Let us know why you cancelled and how we can improve.</p>
+    </div>
+    <div class="footer">
+      <p>Questions? <a href="${
+        process.env.FRONTEND_URL || "http://localhost:3000"
+      }/help">Contact Support</a></p>
+    </div>
+  </div>
+</body>
+</html>
+    `;
+  }
+
+  /**
+   * Subscription cancelled email template
+   */
+  getSubscriptionCancelledTemplate(user) {
+    return `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; background: #f5f5f5; }
+    .container { background: #ffffff; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+    .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; }
+    .content { padding: 30px; }
+    .info-box { background: #e0e7ff; border-left: 4px solid #667eea; padding: 15px; margin: 20px 0; border-radius: 4px; }
+    .button { display: inline-block; padding: 12px 30px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; text-decoration: none; border-radius: 5px; margin: 20px 0; font-weight: bold; }
+    .feature-list { background: #f9fafb; padding: 20px; border-radius: 8px; margin: 20px 0; }
+    .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1 style="margin: 0;">Subscription Cancelled</h1>
+      <p style="margin: 10px 0 0 0;">We're sorry to see you go</p>
+    </div>
+    <div class="content">
+      <p>Hi ${user.firstName},</p>
+      
+      <p>Your ${
+        this.appName
+      } Premium subscription has been cancelled. We're sad to see you go, but we understand.</p>
+      
+      <div class="info-box">
+        <strong>Your premium access has ended.</strong> You're now on the free plan.
+      </div>
+      
+      <p><strong>What this means:</strong></p>
+      <ul>
+        <li>You can still browse and engage with the community</li>
+        <li>Some premium features are no longer available</li>
+        <li>You can resubscribe anytime to regain full access</li>
+      </ul>
+      
+      <div class="feature-list">
+        <p style="margin: 0 0 10px 0; font-weight: bold;">Premium features you'll miss:</p>
+        <ul style="margin: 0; padding-left: 20px;">
+          <li>Create unlimited posts</li>
+          <li>Comment on any discussion</li>
+          <li>Join live chat rooms</li>
+          <li>Priority support</li>
+          <li>Ad-free experience</li>
+        </ul>
+      </div>
+      
+      <p>Changed your mind? You can reactivate your premium subscription anytime!</p>
+      
+      <div style="text-align: center;">
+        <a href="${
+          process.env.FRONTEND_URL || "http://localhost:3000"
+        }/pricing" class="button">
+          Resubscribe to Premium
+        </a>
+      </div>
+      
+      <p style="color: #666; font-size: 14px; margin-top: 30px;">We'd love to hear your feedback! Let us know why you cancelled and how we can improve.</p>
+    </div>
+    <div class="footer">
+      <p>Questions? <a href="${
+        process.env.FRONTEND_URL || "http://localhost:3000"
+      }/help">Contact Support</a></p>
+    </div>
+  </div>
+</body>
+</html>
+    `;
+  }
+
+  /**
    * Daily digest email template
    */
   getDailyDigestTemplate(user, posts) {

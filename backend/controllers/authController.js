@@ -199,6 +199,8 @@ class AuthController {
           profileImage: user.profileImage,
           onboardingCompleted: user.onboardingCompleted,
           onboardingStep: user.onboardingStep,
+          isPremium: user.isPremium,
+          premiumExpiresAt: user.premiumExpiresAt,
         },
         token: accessToken, // Only send access token, not refresh token
       });
@@ -283,6 +285,8 @@ class AuthController {
           profileImage: user.profileImage,
           onboardingCompleted: user.onboardingCompleted,
           onboardingStep: user.onboardingStep,
+          isPremium: user.isPremium,
+          premiumExpiresAt: user.premiumExpiresAt,
         },
         token: accessToken, // Only send access token
       });

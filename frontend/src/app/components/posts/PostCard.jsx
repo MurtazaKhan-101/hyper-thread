@@ -6,7 +6,8 @@ import { postService, formatPostTime, formatNumber } from "../../lib/posts";
 import { trackLikeEngagement } from "../../hooks/useEngagementTracking";
 import { useRouter } from "next/navigation";
 import { ImageSlider } from "./ImageSlider";
-import { MessageCircle, Flame } from "lucide-react";
+import { MessageCircle, Flame, Crown } from "lucide-react";
+import { UpgradeModal } from "../ui";
 
 export const PostCard = ({ post, onUpdate }) => {
   const { user, isAuthenticated } = useAuth();
@@ -17,6 +18,7 @@ export const PostCard = ({ post, onUpdate }) => {
   );
   const [likeCount, setLikeCount] = useState(post.likes || 0);
   const [showFullContent, setShowFullContent] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
   // Local comment state management
   const [comments, setComments] = useState(post.comments || []);
@@ -24,6 +26,9 @@ export const PostCard = ({ post, onUpdate }) => {
   // Check if post is trending (score > 50, must be a valid number)
   const isTrending =
     typeof post.trendingScore === "number" && post.trendingScore > 50;
+
+  // Check if user is premium
+  const isPremium = user?.isPremium || false;
 
   useEffect(() => {
     const checkMobile = () => {
@@ -353,16 +358,33 @@ export const PostCard = ({ post, onUpdate }) => {
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                router.push(`/chat/${post._id}`);
+                if (isPremium) {
+                  router.push(`/chat/${post._id}`);
+                } else {
+                  setShowUpgradeModal(true);
+                }
               }}
-              className="flex items-center gap-2 px-2 py-1 rounded-full text-sm hover:bg-blue-100 dark:hover:bg-blue-900 text-blue-600 dark:text-blue-400 transition-colors"
-              title="Join chat room"
+              className={`flex items-center gap-2 px-2 py-1 rounded-full text-sm transition-colors ${
+                isPremium
+                  ? "hover:bg-blue-100 dark:hover:bg-blue-900 text-blue-600 dark:text-blue-400"
+                  : "hover:bg-yellow-100 dark:hover:bg-yellow-900 text-gray-500 dark:text-gray-400"
+              }`}
+              title={isPremium ? "Join chat room" : "Premium feature"}
             >
-              <MessageCircle className="w-4 h-4" />
-              Chat
+              {isPremium ? (
+                <>
+                  <MessageCircle className="w-4 h-4" />
+                  Chat
+                </>
+              ) : (
+                <>
+                  <Crown className="w-4 h-4 text-yellow-600 dark:text-yellow-500" />
+                  <span className="text-gray-500 dark:text-gray-400">Chat</span>
+                </>
+              )}
             </button>
 
-            <button className="flex items-center gap-2 px-2 py-1 rounded-full text-sm hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400 transition-colors">
+            {/* <button className="flex items-center gap-2 px-2 py-1 rounded-full text-sm hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400 transition-colors">
               <svg
                 className="w-4 h-4"
                 fill="none"
@@ -377,10 +399,17 @@ export const PostCard = ({ post, onUpdate }) => {
                 />
               </svg>
               Share
-            </button>
+            </button> */}
           </div>
         </div>
       </div>
+
+      {/* Upgrade Modal */}
+      <UpgradeModal
+        isOpen={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        feature="chat"
+      />
     </div>
   );
 };

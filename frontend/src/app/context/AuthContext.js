@@ -215,6 +215,22 @@ export const AuthProvider = ({ children }) => {
     authService.saveUserData(userData);
   };
 
+  // Refresh user data from API
+  const refreshUser = async () => {
+    try {
+      const result = await authService.initializeAuth();
+      if (result.authenticated && result.user) {
+        setUser(result.user);
+        setIsAuthenticated(true);
+        return { success: true, user: result.user };
+      }
+      return { success: false };
+    } catch (error) {
+      console.error("Failed to refresh user:", error);
+      return { success: false, error: error.message };
+    }
+  };
+
   const value = {
     user,
     loading,
@@ -229,6 +245,7 @@ export const AuthProvider = ({ children }) => {
     logout,
     handleOAuthSuccess,
     updateUser,
+    refreshUser,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

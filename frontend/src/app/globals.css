@@ -96,6 +96,35 @@
     background: #e5e7eb6e;
   }
 
+  /* Animations for modals */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fadeIn {
+    animation: fadeIn 0.2s ease-out;
+  }
+
+  .animate-slideUp {
+    animation: slideUp 0.3s ease-out;
+  }
+
   /* Hover state - animated colorful border */
   .post-card-border:hover {
     background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899, #3b82f6) 0 0 /

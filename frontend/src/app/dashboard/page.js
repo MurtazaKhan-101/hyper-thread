@@ -4,21 +4,30 @@ import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "../context/AuthContext";
 import { useSearch } from "../context/SearchContext";
-import { Spinner } from "../components/ui";
+import { Spinner, UpgradeModal, UpgradeBanner } from "../components/ui";
 import { PostFeed } from "../components/posts/PostFeed";
 import { ROUTES } from "../lib/constants";
 import Link from "next/link";
 import Image from "next/image";
-import { FileText, Link as LinkIcon, Image as ImageIcon } from "lucide-react";
+import {
+  FileText,
+  Link as LinkIcon,
+  Image as ImageIcon,
+  Crown,
+} from "lucide-react";
 export default function DashboardPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, loading, isAuthenticated } = useAuth();
   const { activeTab, searchQuery, handleTabChange } = useSearch();
   const [mounted, setMounted] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
   // Get category from URL params
   const category = searchParams.get("category") || "";
+
+  // Check if user is premium
+  const isPremium = user?.isPremium || false;
 
   // Category labels for display
   const categoryLabels = {
@@ -148,38 +157,62 @@ export default function DashboardPage() {
             {/* Create Post CTA - Inside the nav */}
             {activeTab !== "search" && (
               <div className="p-4">
-                <Link href={ROUTES.CREATE_POST}>
-                  <div className="flex items-center gap-3 p-3 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors cursor-pointer">
-                    {/* User Avatar */}
-                    <div className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
-                      {user?.profileImage ? (
-                        <Image
-                          src={user.profileImage}
-                          alt={user.firstName}
-                          width={32}
-                          height={32}
-                          className="rounded-full"
-                        />
-                      ) : (
-                        <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                          {user?.firstName?.[0]?.toUpperCase() || "U"}
-                        </span>
-                      )}
+                {isPremium ? (
+                  <Link href={ROUTES.CREATE_POST}>
+                    <div className="flex items-center gap-3 p-3 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors cursor-pointer">
+                      {/* User Avatar */}
+                      <div className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                        {user?.profileImage ? (
+                          <Image
+                            src={user.profileImage}
+                            alt={user.firstName}
+                            width={32}
+                            height={32}
+                            className="rounded-full"
+                          />
+                        ) : (
+                          <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                            {user?.firstName?.[0]?.toUpperCase() || "U"}
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Placeholder text */}
+                      <span className="flex-1 text-gray-500 dark:text-gray-400 text-left">
+                        Create a post
+                      </span>
+
+                      {/* Lucide Icons */}
+                      <div className="flex gap-3">
+                        <FileText className="w-5 h-5 text-gray-400 stroke-blue-500 transition-all duration-300" />
+                        <LinkIcon className="w-5 h-5 text-gray-400 stroke-blue-500 transition-all duration-300" />
+                        <ImageIcon className="w-5 h-5 text-gray-400 stroke-blue-500 transition-all duration-300" />
+                      </div>
+                    </div>
+                  </Link>
+                ) : (
+                  <div
+                    onClick={() => setShowUpgradeModal(true)}
+                    className="flex items-center gap-3 p-3 border-2 border-dashed border-yellow-300 dark:border-yellow-700 bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-900/10 dark:to-orange-900/10 rounded-lg hover:from-yellow-100 hover:to-orange-100 dark:hover:from-yellow-900/20 dark:hover:to-orange-900/20 transition-colors cursor-pointer"
+                  >
+                    {/* Premium Icon */}
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center">
+                      <Crown className="w-4 h-4 text-white" />
                     </div>
 
                     {/* Placeholder text */}
-                    <span className="flex-1 text-gray-500 dark:text-gray-400 text-left">
-                      Create a post
+                    <span className="flex-1 text-gray-700 dark:text-gray-300 text-left font-medium">
+                      Upgrade to create posts
                     </span>
 
-                    {/* Lucide Icons */}
-                    <div className="flex gap-3">
-                      <FileText className="w-5 h-5 text-gray-400 stroke-blue-500 transition-all duration-300" />
-                      <LinkIcon className="w-5 h-5 text-gray-400 stroke-blue-500 transition-all duration-300" />
-                      <ImageIcon className="w-5 h-5 text-gray-400 stroke-blue-500 transition-all duration-300" />
+                    {/* Lucide Icons - dimmed */}
+                    <div className="flex gap-3 opacity-50">
+                      <FileText className="w-5 h-5 text-gray-400" />
+                      <LinkIcon className="w-5 h-5 text-gray-400" />
+                      <ImageIcon className="w-5 h-5 text-gray-400" />
                     </div>
                   </div>
-                </Link>
+                )}
               </div>
             )}
           </div>
@@ -355,6 +388,13 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
+
+      {/* Upgrade Modal */}
+      <UpgradeModal
+        isOpen={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        feature="post"
+      />
     </div>
   );
 }

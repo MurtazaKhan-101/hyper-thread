@@ -170,6 +170,8 @@ class GoogleAuthController {
         profileImage: existingUser.profileImage,
         onboardingCompleted: existingUser.onboardingCompleted,
         onboardingStep: existingUser.onboardingStep,
+        isPremium: existingUser.isPremium,
+        premiumExpiresAt: existingUser.premiumExpiresAt,
       };
 
       // Set refresh token as HTTP-only cookie

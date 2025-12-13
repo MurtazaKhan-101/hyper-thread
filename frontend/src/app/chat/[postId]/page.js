@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useAuth } from "../../context/AuthContext";
 import { postService } from "../../lib/posts";
-import { Spinner, Button } from "../../components/ui";
+import { Spinner, Button, UpgradeBanner } from "../../components/ui";
 import { ChatLayout } from "../../components/chat/ChatLayout";
 
 export default function ChatRoomPage() {
@@ -15,6 +15,9 @@ export default function ChatRoomPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const postId = params.postId;
+
+  // Check if user is premium
+  const isPremium = user?.isPremium || false;
 
   useEffect(() => {
     if (!loading && !isAuthenticated) {
@@ -103,6 +106,31 @@ export default function ChatRoomPage() {
             >
               Back to Dashboard
             </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show upgrade prompt if user is not premium
+  if (!isPremium) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-[#030303] flex items-center justify-center p-4">
+        <div className="max-w-2xl w-full">
+          <div className="bg-white dark:bg-[#1a1a1a] rounded-lg p-6 border border-gray-200 dark:border-gray-800">
+            <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-6">
+              Chat Room: {post.title}
+            </h2>
+            <UpgradeBanner feature="chat" />
+            <div className="mt-6">
+              <Button
+                onClick={() => router.push(`/discussion/${post._id}`)}
+                variant="outline"
+                fullWidth
+              >
+                View Discussion Instead
+              </Button>
+            </div>
           </div>
         </div>
       </div>

@@ -1,3 +1,9 @@
+// Export upgrade components
+export { UpgradeModal, UpgradeBanner } from "./UpgradePrompt";
+
+// Export confirmation modal
+export { default as ConfirmationModal } from "./ConfirmationModal";
+
 // Button Component - Reddit style
 export const Button = ({
   children,

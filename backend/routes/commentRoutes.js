@@ -1,13 +1,16 @@
 const express = require("express");
 const router = express.Router();
 const { authenticate } = require("../middleware/auth");
+const { checkPremium } = require("../middleware/premiumCheck");
 const { validateComment } = require("../middleware/postValidation");
 const { rateLimitByUser } = require("../middleware/contentModeration");
 const commentController = require("../controllers/commentController");
 
+// Comment and reply routes - PREMIUM ONLY
 router.post(
   "/:postId/comment",
   authenticate,
+  checkPremium, // Premium required
   rateLimitByUser(30, 60 * 60 * 1000), // 30 comments per hour
   validateComment,
   commentController.addComment
@@ -15,6 +18,7 @@ router.post(
 router.post(
   "/:postId/comment/:commentId/reply",
   authenticate,
+  checkPremium, // Premium required
   rateLimitByUser(30, 60 * 60 * 1000), // 30 replies per hour
   validateComment,
   commentController.addReply
