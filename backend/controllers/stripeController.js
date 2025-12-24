@@ -212,3 +212,58 @@ exports.cancelSubscription = async (req, res) => {
     });
   }
 };
+
+// Reactivate subscription
+exports.reactivateSubscription = async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    // Get user from database
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (!user.stripeSubscriptionId) {
+      return res.status(400).json({
+        message: "No subscription found to reactivate",
+      });
+    }
+
+    // Get current subscription status
+    const currentSubscription = await stripe.subscriptions.retrieve(
+      user.stripeSubscriptionId
+    );
+
+    // Check if subscription is scheduled for cancellation
+    if (
+      !currentSubscription.cancel_at_period_end &&
+      !currentSubscription.cancel_at
+    ) {
+      return res.status(400).json({
+        message: "Subscription is not scheduled for cancellation",
+      });
+    }
+
+    // Reactivate the subscription by removing the cancellation
+    // Note: Only pass cancel_at_period_end, not both parameters
+    const subscription = await stripe.subscriptions.update(
+      user.stripeSubscriptionId,
+      {
+        cancel_at_period_end: false,
+      }
+    );
+
+    res.status(200).json({
+      message: "Subscription reactivated successfully",
+      cancelAtPeriodEnd: subscription.cancel_at_period_end,
+      currentPeriodEnd: new Date(subscription.current_period_end * 1000),
+    });
+  } catch (error) {
+    console.error("Error reactivating subscription:", error);
+    res.status(500).json({
+      message: "Failed to reactivate subscription",
+      error: error.message,
+    });
+  }
+};

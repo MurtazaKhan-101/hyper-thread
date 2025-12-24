@@ -14,7 +14,6 @@ export const UpgradeModal = ({ isOpen, onClose, feature }) => {
     "Comment on any discussion",
     "Join live chat rooms",
     "Get priority support",
-    "No ads experience",
   ];
 
   const getFeatureMessage = () => {

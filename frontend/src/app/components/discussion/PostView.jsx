@@ -184,12 +184,9 @@ export const PostView = ({ post, onUpdate, isDiscussionView = false }) => {
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1 flex-wrap">
-              <Link
-                href={`/profile/${post.author?.username}`}
-                className="font-medium text-gray-900 dark:text-gray-100 hover:text-blue-600 dark:hover:text-blue-400 truncate"
-              >
+              <span className="font-medium text-gray-900 dark:text-gray-100 truncate">
                 {post.author?.username || "unknown"}
-              </Link>
+              </span>
               {post.author?.isVerified && (
                 <svg
                   className="w-4 h-4 text-blue-500"
@@ -308,23 +305,6 @@ export const PostView = ({ post, onUpdate, isDiscussionView = false }) => {
             <MessageCircle className="w-4 h-4 md:w-5 md:h-5" />
             <span className="hidden sm:inline">Chat Room</span>
             <span className="sm:hidden">Chat</span>
-          </button>
-
-          <button className="flex items-center gap-1 md:gap-2 px-3 md:px-4 py-2 rounded-full text-xs md:text-sm hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400 transition-colors">
-            <svg
-              className="w-4 h-4 md:w-5 md:h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"
-              />
-            </svg>
-            <span className="hidden sm:inline">Share</span>
           </button>
         </div>
       </div>

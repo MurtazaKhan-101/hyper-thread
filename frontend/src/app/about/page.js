@@ -4,7 +4,9 @@ import { Button, Card } from "../components/ui";
 import Link from "next/link";
 import { ROUTES } from "../lib/constants";
 import Image from "next/image";
+import { useAuth } from "../context/AuthContext";
 export default function AboutUs() {
+  const { isAuthenticated } = useAuth();
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-[#030303]">
       {/* Main Content */}
@@ -155,22 +157,44 @@ export default function AboutUs() {
             connection.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Link href={ROUTES.SIGNUP}>
-              <Button
-                variant="secondary"
-                className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold bg-white text-gray-900 hover:bg-buttons-gradient border-0"
-              >
-                Explore Trending
-              </Button>
-            </Link>
-            <Link href={ROUTES.SIGNUP} className="w-full sm:w-auto">
-              <Button
-                variant="outline"
-                className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold border-2 border-white text-white hover:bg-white hover:text-gray-900 dark:hover:text-gray-100 transition-all duration-300"
-              >
-                Get Started
-              </Button>
-            </Link>
+            {isAuthenticated ? (
+              <Link href={ROUTES.EXPLORE}>
+                <Button
+                  variant="secondary"
+                  className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold bg-white text-gray-900 hover:bg-buttons-gradient border-0"
+                >
+                  Explore Trending
+                </Button>
+              </Link>
+            ) : (
+              <Link href={ROUTES.SIGNUP}>
+                <Button
+                  variant="secondary"
+                  className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold bg-white text-gray-900 hover:bg-buttons-gradient border-0"
+                >
+                  Explore Trending
+                </Button>
+              </Link>
+            )}
+            {isAuthenticated ? (
+              <Link href={ROUTES.DASHBOARD} className="w-full sm:w-auto">
+                <Button
+                  variant="outline"
+                  className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold border-2 border-white text-white hover:bg-white hover:text-gray-900 dark:hover:text-gray-100 transition-all duration-300"
+                >
+                  Get Started
+                </Button>
+              </Link>
+            ) : (
+              <Link href={ROUTES.SIGNUP} className="w-full sm:w-auto">
+                <Button
+                  variant="outline"
+                  className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold border-2 border-white text-white hover:bg-white hover:text-gray-900 dark:hover:text-gray-100 transition-all duration-300"
+                >
+                  Get Started
+                </Button>
+              </Link>
+            )}
           </div>
         </div>
       </main>

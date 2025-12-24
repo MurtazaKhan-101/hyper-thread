@@ -60,6 +60,10 @@ export const feedService = {
         limit: params.limit || 10,
       });
 
+      if (params.category) {
+        queryParams.append("category", params.category);
+      }
+
       return await apiClient.get(`/feed/personalized?${queryParams}`);
     } catch (error) {
       console.error("Error getting personalized feed:", error);

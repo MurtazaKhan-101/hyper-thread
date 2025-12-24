@@ -14,6 +14,7 @@ export default function SettingsPage() {
   const [subscriptionData, setSubscriptionData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [cancelling, setCancelling] = useState(false);
+  const [reactivating, setReactivating] = useState(false);
   const [managingBilling, setManagingBilling] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
 
@@ -145,6 +146,50 @@ export default function SettingsPage() {
       });
     } finally {
       setCancelling(false);
+    }
+  };
+
+  const handleReactivateSubscription = async () => {
+    try {
+      setReactivating(true);
+
+      const loadingToast = toast.loading("Reactivating subscription...", {
+        style: {
+          background: "#667eea",
+          color: "#fff",
+        },
+      });
+
+      await apiClient.request("/stripe/reactivate-subscription", {
+        method: "POST",
+      });
+
+      toast.dismiss(loadingToast);
+      toast.success(
+        "Subscription reactivated successfully! Your premium access will continue.",
+        {
+          duration: 5000,
+          style: {
+            background: "#10b981",
+            color: "#fff",
+          },
+        }
+      );
+
+      // Refresh subscription data
+      await fetchSubscriptionStatus();
+      await refreshUser();
+    } catch (error) {
+      console.error("Error reactivating subscription:", error);
+      toast.error(error.message || "Failed to reactivate subscription", {
+        duration: 4000,
+        style: {
+          background: "#ef4444",
+          color: "#fff",
+        },
+      });
+    } finally {
+      setReactivating(false);
     }
   };
 
@@ -288,7 +333,6 @@ export default function SettingsPage() {
                                 "Comment on any discussion",
                                 "Join live chat rooms",
                                 "Priority support",
-                                "No ads experience",
                               ].map((feature, index) => (
                                 <li
                                   key={index}
@@ -330,10 +374,20 @@ export default function SettingsPage() {
                       {managingBilling ? <>Opening...</> : <>Manage Billing</>}
                     </Button>
 
-                    {!(
-                      subscriptionData?.subscription?.cancelAtPeriodEnd ||
-                      subscriptionData?.subscription?.cancelAt
-                    ) && (
+                    {subscriptionData?.subscription?.cancelAtPeriodEnd ||
+                    subscriptionData?.subscription?.cancelAt ? (
+                      <Button
+                        onClick={handleReactivateSubscription}
+                        disabled={reactivating}
+                        className="flex-1 bg-gradient-to-r from-green-600 to-emerald-600 text-black hover:from-green-700 hover:to-emerald-700 shadow-md hover:shadow-lg transition-all duration-200"
+                      >
+                        {reactivating ? (
+                          <>Reactivating...</>
+                        ) : (
+                          <>Reactivate Subscription</>
+                        )}
+                      </Button>
+                    ) : (
                       <Button
                         onClick={() => setShowCancelModal(true)}
                         disabled={cancelling}

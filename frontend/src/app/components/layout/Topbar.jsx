@@ -113,7 +113,7 @@ const Topbar = ({ setIsMobileOpen }) => {
             </Link>
 
             {/* Notifications - Hidden on very small screens */}
-            <button className="hidden xs:block p-1.5 sm:p-2 text-gray-600 dark:text-gray-400 hover:text-white hover:bg-black rounded-lg transition-all duration-200 hover:scale-105">
+            {/* <button className="hidden xs:block p-1.5 sm:p-2 text-gray-600 dark:text-gray-400 hover:text-white hover:bg-black rounded-lg transition-all duration-200 hover:scale-105">
               <svg
                 className="w-4 h-4 sm:w-5 sm:h-5"
                 fill="none"
@@ -127,7 +127,7 @@ const Topbar = ({ setIsMobileOpen }) => {
                   d="M15 17h5l-3.5-3.5a1.5 1.5 0 01-.44-1.06V9a6 6 0 00-6-6 6 6 0 00-6 6v3.44c0 .4-.16.78-.44 1.06L0 17h5m10 0v1a3 3 0 11-6 0v-1m6 0H9"
                 />
               </svg>
-            </button>
+            </button> */}
 
             {/* User Profile with Dropdown */}
             <div className="relative">

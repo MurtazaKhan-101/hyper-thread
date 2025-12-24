@@ -59,7 +59,7 @@ class RecommendationService {
   /**
    * Get personalized feed for a user
    */
-  async getPersonalizedFeed(userId, page = 1, limit = 10) {
+  async getPersonalizedFeed(userId, page = 1, limit = 10, category = null) {
     try {
       const user = await User.findById(userId);
       if (!user) {
@@ -71,11 +71,18 @@ class RecommendationService {
       // Get recent posts (last 30 days for better variety)
       const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
 
-      const posts = await Post.find({
+      const filter = {
         status: "published",
         moderationStatus: { $in: ["approved", "pending_review"] },
         createdAt: { $gte: thirtyDaysAgo },
-      })
+      };
+
+      // Add category filter if specified
+      if (category) {
+        filter.category = category;
+      }
+
+      const posts = await Post.find(filter)
         .populate(
           "author",
           "firstName lastName username profileImage isVerified"

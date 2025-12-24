@@ -31,4 +31,11 @@ router.post(
   stripeController.cancelSubscription
 );
 
+// Reactivate subscription (protected route)
+router.post(
+  "/reactivate-subscription",
+  authenticate,
+  stripeController.reactivateSubscription
+);
+
 module.exports = router;

@@ -69,7 +69,7 @@ export const ChatProvider = ({ children }) => {
   // Connect to chat service when user is authenticated
   useEffect(() => {
     if (isAuthenticated && user) {
-      console.log("👤 User authenticated, attempting chat connection...");
+      // console.log("👤 User authenticated, attempting chat connection...");
       // Get token from API client
       const connectToService = async () => {
         try {
@@ -78,7 +78,7 @@ export const ChatProvider = ({ children }) => {
           const token = apiClient.getAccessToken();
 
           if (token) {
-            console.log("🔑 Access token found, connecting to chat...");
+            // console.log("🔑 Access token found, connecting to chat...");
             await connectToChat(token);
           } else {
             console.warn("⚠️ No access token available for chat connection");
@@ -92,7 +92,7 @@ export const ChatProvider = ({ children }) => {
 
       connectToService();
     } else {
-      console.log("🚪 User not authenticated, disconnecting chat...");
+      // console.log("🚪 User not authenticated, disconnecting chat...");
       disconnectFromChat();
     }
 
@@ -107,7 +107,7 @@ export const ChatProvider = ({ children }) => {
 
   const connectToChat = async (token) => {
     try {
-      console.log("🔌 Attempting to connect to chat service...");
+      // console.log("🔌 Attempting to connect to chat service...");
 
       // Set up event listeners first
       const cleanup = setupEventListeners();
@@ -115,7 +115,7 @@ export const ChatProvider = ({ children }) => {
       // Then connect
       await chatService.connect(token);
 
-      console.log("✅ Chat service connected successfully");
+      // console.log("✅ Chat service connected successfully");
 
       // Store cleanup function for later
       window.chatCleanup = cleanup;
@@ -127,11 +127,11 @@ export const ChatProvider = ({ children }) => {
   };
 
   const setupEventListeners = () => {
-    console.log("🎧 Setting up chat event listeners...");
+    // console.log("🎧 Setting up chat event listeners...");
 
     // Connection status
     const unsubscribeConnection = chatService.onConnection((connected) => {
-      console.log("🔗 Connection status changed:", connected);
+      // console.log("🔗 Connection status changed:", connected);
       setIsConnected(connected);
       // Don't clear messages and participants on disconnect - keep them cached
       // Only clear the room if explicitly leaving
@@ -280,7 +280,7 @@ export const ChatProvider = ({ children }) => {
   };
 
   const disconnectFromChat = () => {
-    console.log("🔌 Disconnecting from chat service...");
+    // console.log("🔌 Disconnecting from chat service...");
 
     // Clean up event listeners
     if (window.chatCleanup) {
@@ -316,7 +316,7 @@ export const ChatProvider = ({ children }) => {
 
       // Check if already in the room
       if (currentRoom === `post_${postId}`) {
-        console.log("Already in room:", postId);
+        // console.log("Already in room:", postId);
         return;
       }
 

@@ -18,8 +18,8 @@ class ChatService {
   }
 
   // Initialize socket connection
-  connect(token) {
-    console.log("🔌 ChatService: Attempting to connect...");
+  async connect(token = null) {
+    // console.log("🔌 ChatService: Attempting to connect...");
 
     if (this.socket && this.isConnected) {
       console.log("✅ ChatService: Already connected");
@@ -33,12 +33,34 @@ class ChatService {
       this.socket = null;
     }
 
+    // Get token from apiClient if not provided
+    let validToken = token || apiClient.getAccessToken();
+
+    if (!validToken) {
+      console.error("❌ ChatService: No authentication token available");
+      return Promise.reject(new Error("No authentication token available"));
+    }
+
+    // Check if token is expiring soon and refresh if needed
+    if (apiClient.isTokenExpiringSoon(validToken)) {
+      console.log("🔄 ChatService: Token expiring soon, refreshing...");
+      try {
+        validToken = await apiClient.refreshAccessToken();
+        console.log("✅ ChatService: Token refreshed successfully");
+      } catch (error) {
+        console.error("❌ ChatService: Failed to refresh token:", error);
+        return Promise.reject(
+          new Error("Failed to refresh authentication token")
+        );
+      }
+    }
+
     return new Promise((resolve, reject) => {
       try {
-        console.log("🚀 ChatService: Creating new socket connection...");
+        // console.log("🚀 ChatService: Creating new socket connection...");
         this.socket = io(API_BASE_URL, {
           auth: {
-            token: token,
+            token: validToken,
           },
           transports: ["websocket", "polling"],
           timeout: 20000,
@@ -49,16 +71,53 @@ class ChatService {
         this.setupEventListeners();
 
         this.socket.on("connect", () => {
-          console.log("✅ ChatService: Connected to chat server");
+          // console.log("✅ ChatService: Connected to chat server");
           this.isConnected = true;
           this.connectionCallbacks.forEach((callback) => callback(true));
           resolve();
         });
 
-        this.socket.on("connect_error", (error) => {
+        this.socket.on("connect_error", async (error) => {
           console.error("❌ ChatService: Socket connection error:", error);
           this.isConnected = false;
           this.connectionCallbacks.forEach((callback) => callback(false));
+
+          // Check if it's an authentication error
+          if (
+            error?.message?.includes("Authentication") ||
+            error?.message?.includes("Invalid token")
+          ) {
+            console.log(
+              "🔐 ChatService: Authentication error detected, attempting to reconnect with fresh token..."
+            );
+
+            // Disconnect current socket
+            if (this.socket) {
+              this.socket.disconnect();
+              this.socket = null;
+            }
+
+            try {
+              // Get fresh token
+              const freshToken = await apiClient.refreshAccessToken();
+              console.log("✅ ChatService: Got fresh token, reconnecting...");
+
+              // Retry connection with fresh token
+              await this.connect(freshToken);
+              resolve();
+              return;
+            } catch (refreshError) {
+              console.error(
+                "❌ ChatService: Failed to reconnect with fresh token:",
+                refreshError
+              );
+              reject(
+                new Error("Authentication failed. Please refresh the page.")
+              );
+              return;
+            }
+          }
+
           reject(error);
         });
 
@@ -93,14 +152,14 @@ class ChatService {
 
     // Chat room events
     this.socket.on("joinedRoom", (data) => {
-      console.log("Joined room:", data);
+      // console.log("Joined room:", data);
       this.userEventCallbacks.forEach((callback) =>
         callback({ type: "joinedRoom", data })
       );
     });
 
     this.socket.on("leftRoom", (data) => {
-      console.log("Left room:", data);
+      // console.log("Left room:", data);
       this.userEventCallbacks.forEach((callback) =>
         callback({ type: "leftRoom", data })
       );
@@ -108,7 +167,7 @@ class ChatService {
 
     // Message events
     this.socket.on("newMessage", (data) => {
-      console.log("New message:", data);
+      // console.log("New message:", data);
       this.messageCallbacks.forEach((callback) => callback(data));
     });
 
@@ -163,7 +222,7 @@ class ChatService {
 
     // Prevent duplicate joins to the same room
     if (this.currentRoom === postId) {
-      console.log("Already in room:", postId);
+      // console.log("Already in room:", postId);
       return Promise.resolve({ roomId: `post_${postId}` });
     }
 

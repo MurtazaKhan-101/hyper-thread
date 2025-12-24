@@ -279,6 +279,12 @@ export default function CommunityRules() {
             <Button
               variant="outline"
               className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold border-2 border-white text-white hover:bg-white hover:text-gray-900 dark:hover:text-gray-100 transition-all duration-300"
+              onClick={() =>
+                window.open(
+                  "https://mail.google.com/mail/?view=cm&to=hello@newsnatter.com&su=Support Request",
+                  "_blank"
+                )
+              }
             >
               Contact Support
             </Button>

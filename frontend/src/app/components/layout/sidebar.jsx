@@ -107,7 +107,7 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
           {isMobileOpen && (
             <button
               onClick={() => setIsMobileOpen(false)}
-              className="lg:hidden absolute top-4 right-1 p-2 rounded-lg text-black hover:bg-black hover:text-white transition-all duration-200"
+              className="lg:hidden absolute top-4 right-[-1] p-2 rounded-lg text-black hover:text-white transition-all duration-200"
               aria-label="Close sidebar"
             >
               <X size={18} />

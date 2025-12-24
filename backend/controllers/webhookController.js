@@ -228,6 +228,13 @@ async function handleSubscriptionUpdated(subscription) {
       ? new Date(subscription.cancel_at * 1000)
       : periodEnd;
 
+    // Check if subscription was reactivated (previously cancelled, now not cancelled)
+    const wasReactivated =
+      user.premiumExpiresAt &&
+      user.isPremium &&
+      !isCancelled &&
+      subscription.status === "active";
+
     // Handle different subscription statuses
     if (
       subscription.status === "active" ||
@@ -236,8 +243,16 @@ async function handleSubscriptionUpdated(subscription) {
       user.isPremium = true;
       user.premiumExpiresAt = periodEnd;
 
+      // Send reactivation confirmation if subscription was reactivated
+      if (wasReactivated) {
+        const emailService = require("../services/emailService");
+        await emailService.sendSubscriptionReactivatedEmail(user, periodEnd);
+        console.log(
+          `Subscription reactivated for user ${user._id}, access until ${periodEnd}`
+        );
+      }
       // Send cancellation notification email if subscription is scheduled to cancel
-      if (
+      else if (
         isCancelled &&
         subscription.cancellation_details?.reason === "cancellation_requested"
       ) {

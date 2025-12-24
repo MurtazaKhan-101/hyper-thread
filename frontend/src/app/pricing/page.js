@@ -18,7 +18,6 @@ export default function PricingPage() {
     "Comment on any discussion",
     "Join live chat rooms",
     "Get priority support",
-    "No ads experience",
   ];
 
   const monthlyPrice = 3;

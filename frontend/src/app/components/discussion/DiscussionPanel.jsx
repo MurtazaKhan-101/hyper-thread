@@ -176,7 +176,7 @@ export const DiscussionPanel = ({
                   onKeyDown={handleKeyDown}
                   placeholder="Write a comment..."
                   maxLength={1000}
-                  className="w-full px-4 py-3 bg-[#1a1a1a] border border-gray-700 rounded-lg resize-none text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 overflow-hidden"
+                  className="w-full px-4 py-3 bg-[#1a1a1a] border border-gray-700 rounded-lg resize-none text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 overflow-hidden"
                   rows={1}
                   style={{ minHeight: "44px", maxHeight: "120px" }}
                 />
@@ -212,7 +212,7 @@ export const DiscussionPanel = ({
                 <Button
                   type="submit"
                   disabled={!newComment.trim() || isSubmittingComment}
-                  className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="bg-blue-600 hover:bg-blue-700 text-black font-medium py-2 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isSubmittingComment ? "Sending..." : "Send"}
                 </Button>

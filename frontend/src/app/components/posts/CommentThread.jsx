@@ -262,7 +262,7 @@ export const CommentThread = ({
                     <div className="relative" ref={optionsRef}>
                       <button
                         onClick={() => setShowOptions(!showOptions)}
-                        className="p-1 text-gray-300 hover:text-gray-200 transition-colors opacity-0 group-hover:opacity-100"
+                        className="p-1 text-black hover:text-gray-200 transition-colors"
                       >
                         <MoreHorizontal className="w-3 h-3" />
                       </button>

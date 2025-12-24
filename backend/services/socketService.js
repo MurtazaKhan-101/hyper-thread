@@ -97,9 +97,9 @@ class SocketService {
     this.io.use(this.authenticateSocket.bind(this));
 
     this.io.on("connection", (socket) => {
-      console.log(
-        `👤 User ${socket.user.username} connected with socket ${socket.id}`
-      );
+      // console.log(
+      //   `👤 User ${socket.user.username} connected with socket ${socket.id}`
+      // );
 
       // Store user connection
       this.connectedUsers.set(socket.userId, socket.id);
@@ -126,7 +126,7 @@ class SocketService {
         const roomId = `post_${postId}`;
         const joinKey = `${userId}_${postId}`;
 
-        console.log(`👤 ${socket.user.username} joining room ${roomId}`);
+        // console.log(`👤 ${socket.user.username} joining room ${roomId}`);
 
         // Rate limiting: prevent rapid join attempts
         const now = Date.now();
@@ -253,7 +253,7 @@ class SocketService {
         const userId = socket.userId;
         const roomId = `post_${postId}`;
 
-        console.log(`👤 ${socket.user.username} leaving room ${roomId}`);
+        // console.log(`👤 ${socket.user.username} leaving room ${roomId}`);
 
         // Use atomic operation to update participant status
         const chatRoom = await ChatRoom.findOneAndUpdate(
@@ -417,8 +417,6 @@ class SocketService {
           message: populatedMessage,
           roomId,
         });
-
-        console.log(`💬 ${socket.user.username} sent message in ${roomId}`);
       } catch (error) {
         console.error("Error sending message:", error);
         socket.emit("error", {
@@ -523,7 +521,7 @@ class SocketService {
   handleDisconnect(socket) {
     socket.on("disconnect", async () => {
       const userId = socket.userId;
-      console.log(`👤 User ${socket.user?.username} disconnected`);
+      // console.log(`👤 User ${socket.user?.username} disconnected`);
 
       // Remove from tracking maps
       this.connectedUsers.delete(userId);

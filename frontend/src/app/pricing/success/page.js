@@ -115,7 +115,6 @@ export default function PricingSuccessPage() {
               "Comment on any discussion",
               "Join live chat rooms",
               "Get priority support",
-              "No ads experience",
             ].map((feature, index) => (
               <div key={index} className="flex items-center gap-2 sm:gap-3">
                 <div className="flex-shrink-0 w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">

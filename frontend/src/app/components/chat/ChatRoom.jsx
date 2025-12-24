@@ -71,7 +71,7 @@ export const ChatRoom = ({ post, currentUser }) => {
       !hasJoinedRef.current &&
       !joinInProgressRef.current
     ) {
-      console.log("🚪 ChatRoom: Joining room for the first time:", post._id);
+      // console.log("🚪 ChatRoom: Joining room for the first time:", post._id);
       hasJoinedRef.current = true;
       joinInProgressRef.current = true;
 
@@ -82,7 +82,7 @@ export const ChatRoom = ({ post, currentUser }) => {
 
     return () => {
       if (isInRoom(post._id)) {
-        console.log("🚪 ChatRoom: Leaving room on cleanup:", post._id);
+        // console.log("🚪 ChatRoom: Leaving room on cleanup:", post._id);
         leaveRoom();
         hasJoinedRef.current = false;
         joinInProgressRef.current = false;

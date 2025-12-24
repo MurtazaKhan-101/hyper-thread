@@ -11,11 +11,13 @@ router.get("/personalized", async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
+    const category = req.query.category;
 
     const result = await recommendationService.getPersonalizedFeed(
       req.user.id,
       page,
-      limit
+      limit,
+      category
     );
 
     res.status(200).json(result);
@@ -40,7 +42,6 @@ router.get("/trending", async (req, res) => {
       limit,
       category
     );
-    console.log("Trending posts result:", result);
     res.status(200).json(result);
   } catch (error) {
     console.error("Error getting trending posts:", error);
