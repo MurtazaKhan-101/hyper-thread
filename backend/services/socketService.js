@@ -158,7 +158,7 @@ class SocketService {
 
         // Use atomic operation to add participant
         const existingParticipant = chatRoom.participants.find(
-          (p) => p.user.toString() === userId.toString()
+          (p) => p && p.user && p.user.toString() === userId.toString()
         );
 
         if (!existingParticipant) {
@@ -212,20 +212,24 @@ class SocketService {
 
         // Notify room about new participant
         const participant = chatRoom.participants.find(
-          (p) => p.user._id.toString() === userId
+          (p) => p && p.user && p.user._id.toString() === userId
         );
 
-        socket.to(roomId).emit("userJoined", {
-          user: participant.user,
-          participantCount: chatRoom.participantCount,
-          timestamp: new Date(),
-        });
+        if (participant && participant.user) {
+          socket.to(roomId).emit("userJoined", {
+            user: participant.user,
+            participantCount: chatRoom.participantCount,
+            timestamp: new Date(),
+          });
+        }
 
         // Send confirmation to the joining user
         socket.emit("joinedRoom", {
           roomId,
           participantCount: chatRoom.participantCount,
-          participants: chatRoom.participants.filter((p) => p.isActive),
+          participants: chatRoom.participants.filter(
+            (p) => p && p.user && p.isActive
+          ),
         });
 
         // Notify room about new participant (without system message)
