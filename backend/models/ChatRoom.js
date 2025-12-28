@@ -224,7 +224,7 @@ chatRoomSchema.methods.updateLastSeen = function (userId) {
 
 chatRoomSchema.methods.isParticipant = function (userId) {
   return this.participants.some(
-    (p) => p.user.toString() === userId.toString() && p.isActive
+    (p) => p && p.user && p.user.toString() === userId.toString() && p.isActive
   );
 };
 
