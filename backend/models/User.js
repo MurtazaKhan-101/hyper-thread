@@ -25,7 +25,7 @@ const userSchema = new mongoose.Schema(
     password: { type: String, required: false },
     profileImage: {
       type: String,
-      default: "https://pub-ab2287d8b98448b28b402cbb2d7098d8.r2.dev/user.svg",
+      default: "https://pub-875ccf591d5e436c8c8f404de11eae03.r2.dev/user.svg",
     },
     role: { type: String, enum: ["user", "admin"], default: "user" },
     bio: { type: String, default: "" },
