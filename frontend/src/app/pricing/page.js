@@ -40,8 +40,8 @@ export default function PricingPage() {
     try {
       const priceId =
         planType === "monthly"
-          ? "price_1SdlYGFpevkwZF4jEUu17b4R" // Your monthly price ID
-          : "price_1SdlYbFpevkwZF4jzY0xg2xa"; // Your yearly price ID
+          ? "price_1SdlDwFpevkwZF4j2ia47jva" // Your monthly price ID
+          : "price_1SdlFjFpevkwZF4jbxtQMFkc"; // Your yearly price ID
 
       toast.loading("Redirecting to checkout...");
 
