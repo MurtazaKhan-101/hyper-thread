@@ -56,7 +56,7 @@ app.use("/stripe", require("./routes/stripeRoutes"));
 
 // Health check route
 app.get("/", (req, res) => {
-  res.json({ message: "News Natter API is running!", status: "healthy" });
+  res.json({ message: "newsnatter API is running!", status: "healthy" });
 });
 
 const startServer = async () => {

@@ -23,7 +23,7 @@ const createTransporter = () => {
 class EmailService {
   constructor() {
     this.fromEmail = process.env.EMAIL_FROM || "noreply@yourdomain.com";
-    this.appName = "News Natter";
+    this.appName = "newsnatter";
     this.transporter = createTransporter();
   }
 

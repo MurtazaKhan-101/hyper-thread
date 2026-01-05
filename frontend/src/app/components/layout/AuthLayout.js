@@ -22,7 +22,7 @@ export const AuthLayout = ({ children, title, subtitle }) => {
           <Link href="/" className="inline-block">
             <Image
               src="/images/NEWS_NET-V2.svg"
-              alt="News Natter Logo"
+              alt="newsnatter Logo"
               width={150}
               height={150}
               className="hidden sm:inline"

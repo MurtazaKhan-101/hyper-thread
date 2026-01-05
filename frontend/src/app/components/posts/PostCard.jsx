@@ -29,6 +29,8 @@ export const PostCard = ({ post, onUpdate }) => {
 
   // Check if user is premium
   const isPremium = user?.isPremium || false;
+  const adminUser = user?.role === "admin";
+  const hasPremiumAccess = isPremium || adminUser;
 
   useEffect(() => {
     const checkMobile = () => {
@@ -358,20 +360,20 @@ export const PostCard = ({ post, onUpdate }) => {
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                if (isPremium) {
+                if (hasPremiumAccess) {
                   router.push(`/chat/${post._id}`);
                 } else {
                   setShowUpgradeModal(true);
                 }
               }}
               className={`flex items-center gap-2 px-2 py-1 rounded-full text-sm transition-colors ${
-                isPremium
+                hasPremiumAccess
                   ? "hover:bg-blue-100 dark:hover:bg-blue-900 text-blue-600 dark:text-blue-400"
                   : "hover:bg-yellow-100 dark:hover:bg-yellow-900 text-gray-500 dark:text-gray-400"
               }`}
-              title={isPremium ? "Join chat room" : "Premium feature"}
+              title={hasPremiumAccess ? "Join chat room" : "Premium feature"}
             >
-              {isPremium ? (
+              {hasPremiumAccess ? (
                 <>
                   <MessageCircle className="w-4 h-4" />
                   Chat

@@ -76,6 +76,8 @@ export default function CreatePostPage() {
 
   // Check if user is premium
   const isPremium = user?.isPremium || false;
+  const adminUser = user?.role === "admin";
+  const hasPremiumAccess = isPremium || adminUser;
 
   // Generate link preview with debounce
   useEffect(() => {
@@ -323,7 +325,7 @@ export default function CreatePostPage() {
   }
 
   // Show upgrade prompt if user is not premium
-  if (!isPremium) {
+  if (!hasPremiumAccess) {
     return (
       <div className="max-w-4xl mx-auto p-6">
         <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-6">

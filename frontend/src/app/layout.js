@@ -21,7 +21,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <head>
-        <title>News Natter - Connect & Share</title>
+        <title>newsnatter - Connect & Share</title>
         <meta name="description" content="A modern community platform" />
       </head>
       <body

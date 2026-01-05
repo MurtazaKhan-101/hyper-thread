@@ -3,7 +3,7 @@ import Signup from "../../components/authentication/signup";
 
 export default function SignupPage() {
   return (
-    <AuthLayout title="Create your account" subtitle="Join News Natter today">
+    <AuthLayout title="Create your account" subtitle="Join newsnatter today">
       <Signup />
     </AuthLayout>
   );

@@ -10,6 +10,11 @@ const checkPremium = (req, res, next) => {
       });
     }
 
+    // Grant full access to admin users
+    if (user.role === "admin") {
+      return next();
+    }
+
     // Check if user has premium access
     if (!user.isPremium) {
       return res.status(403).json({

@@ -20,7 +20,12 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
 
   const mainMenuItems = [
     { id: "home", label: "Home", icon: Home, href: "/dashboard" },
-    { id: "trending", label: "Trending", icon: TrendingUp, href: "/dashboard" },
+    {
+      id: "trending",
+      label: "Trending",
+      icon: TrendingUp,
+      href: "/dashboard?tab=trending",
+    },
     { id: "explore", label: "Explore", icon: Compass, href: "/explore" },
     { id: "pricing", label: "Pricing", icon: Crown, href: "/pricing" },
   ];

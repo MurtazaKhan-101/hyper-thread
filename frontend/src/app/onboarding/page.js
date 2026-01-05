@@ -71,7 +71,7 @@ export default function OnboardingPage() {
             <Link href={ROUTES.HOME}>
               <Image
                 src="/images/NEWS_NET-V2.svg"
-                alt="News Natter Logo"
+                alt="newsnatter Logo"
                 width={150}
                 height={150}
                 className="hidden sm:inline"

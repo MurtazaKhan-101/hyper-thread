@@ -863,8 +863,7 @@ class PostController {
       }
 
       // Soft delete by updating status
-      post.status = "deleted";
-      await post.save();
+      await post.deleteOne();
 
       // Update user's post count
       await User.findByIdAndUpdate(userId, {

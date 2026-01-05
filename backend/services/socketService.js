@@ -73,7 +73,7 @@ class SocketService {
       }
 
       // Check if user has premium access for chat
-      if (!user.isPremium) {
+      if (!user.isPremium && user.role !== "admin") {
         return next(
           new Error("Premium subscription required to access chat rooms")
         );

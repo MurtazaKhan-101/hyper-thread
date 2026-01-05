@@ -18,6 +18,8 @@ export default function ChatRoomPage() {
 
   // Check if user is premium
   const isPremium = user?.isPremium || false;
+  const adminUser = user?.role === "admin";
+  const hasPremiumAccess = isPremium || adminUser;
 
   useEffect(() => {
     if (!loading && !isAuthenticated) {
@@ -113,7 +115,7 @@ export default function ChatRoomPage() {
   }
 
   // Show upgrade prompt if user is not premium
-  if (!isPremium) {
+  if (!hasPremiumAccess) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-[#030303] flex items-center justify-center p-4">
         <div className="max-w-2xl w-full">

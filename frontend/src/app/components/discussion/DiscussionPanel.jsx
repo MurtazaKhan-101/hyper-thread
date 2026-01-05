@@ -30,6 +30,8 @@ export const DiscussionPanel = ({
 
   // Check if user is premium
   const isPremium = user?.isPremium || false;
+  const adminUser = user?.role === "admin";
+  const hasPremiumAccess = isPremium || adminUser;
 
   useEffect(() => {
     setLocalComments(comments || []);
@@ -166,7 +168,7 @@ export const DiscussionPanel = ({
       {/* Comment Input - Move to top for mobile */}
       {isAuthenticated && isMobile && (
         <div className="px-6 py-4 border-b border-gray-800 bg-[#0f0f0f]">
-          {isPremium ? (
+          {hasPremiumAccess ? (
             <form onSubmit={handleComment} className="space-y-3">
               <div className="relative">
                 <textarea
@@ -286,7 +288,7 @@ export const DiscussionPanel = ({
       {/* Comment Input - Bottom for desktop only */}
       {isAuthenticated && !isMobile && (
         <div className="px-6 py-4 border border-gray-800 bg-[#0f0f0f]">
-          {isPremium ? (
+          {hasPremiumAccess ? (
             <form onSubmit={handleComment} className="space-y-3">
               <div className="flex gap-3 mt-4">
                 <div className="flex-1 relative">

@@ -5,7 +5,7 @@ export default function LoginPage() {
   return (
     <AuthLayout
       title="Welcome back"
-      subtitle="Log in to continue to News Natter"
+      subtitle="Log in to continue to newsnatter"
     >
       <Login />
     </AuthLayout>

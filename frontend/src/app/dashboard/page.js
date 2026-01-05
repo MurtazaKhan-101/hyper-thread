@@ -23,11 +23,14 @@ export default function DashboardPage() {
   const [mounted, setMounted] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
-  // Get category from URL params
+  // Get category and tab from URL params
   const category = searchParams.get("category") || "";
+  const tabParam = searchParams.get("tab");
 
   // Check if user is premium
   const isPremium = user?.isPremium || false;
+  const adminUser = user?.role === "admin";
+  const hasPremiumAccess = isPremium || adminUser;
 
   // Category labels for display
   const categoryLabels = {
@@ -48,6 +51,13 @@ export default function DashboardPage() {
     setMounted(true);
   }, []);
 
+  // Handle tab parameter from URL
+  useEffect(() => {
+    if (tabParam && ["personalized", "latest", "trending"].includes(tabParam)) {
+      handleTabChange(tabParam);
+    }
+  }, [tabParam]);
+
   useEffect(() => {
     if (mounted && !loading && !isAuthenticated) {
       router.push(ROUTES.LOGIN);
@@ -66,6 +76,18 @@ export default function DashboardPage() {
     return null;
   }
 
+  // Custom tab change handler that clears URL params
+  const handleLocalTabChange = (tab) => {
+    handleTabChange(tab);
+    // Clear tab parameter from URL
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("tab");
+    const newUrl = params.toString()
+      ? `/dashboard?${params.toString()}`
+      : "/dashboard";
+    router.replace(newUrl, { scroll: false });
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Reddit-style Grid Layout */}
@@ -76,7 +98,7 @@ export default function DashboardPage() {
           <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg mb-6top-20">
             <div className="flex border-b border-gray-200 dark:border-gray-800">
               <button
-                onClick={() => handleTabChange("personalized")}
+                onClick={() => handleLocalTabChange("personalized")}
                 className={`flex items-center gap-2 px-6 py-3 text-sm font-medium border-b-2 transition-colors ${
                   activeTab === "personalized"
                     ? "border-[#0079D3] text-[#0079D3]"
@@ -90,11 +112,11 @@ export default function DashboardPage() {
                 >
                   <path d="M10 3.5a1.5 1.5 0 013 0V4a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-.5a1.5 1.5 0 000 3h.5a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-.5a1.5 1.5 0 00-3 0v.5a1 1 0 01-1 1H6a1 1 0 01-1-1v-3a1 1 0 00-1-1h-.5a1.5 1.5 0 010-3H4a1 1 0 001-1V6a1 1 0 011-1h3a1 1 0 001-1v-.5z" />
                 </svg>
-                For You
+                Explore
               </button>
 
               <button
-                onClick={() => handleTabChange("latest")}
+                onClick={() => handleLocalTabChange("latest")}
                 className={`flex items-center gap-2 px-6 py-3 text-sm font-medium border-b-2 transition-colors ${
                   activeTab === "latest"
                     ? "border-[#0079D3] text-[#0079D3]"
@@ -116,7 +138,7 @@ export default function DashboardPage() {
               </button>
 
               <button
-                onClick={() => handleTabChange("trending")}
+                onClick={() => handleLocalTabChange("trending")}
                 className={`flex items-center gap-2 px-6 py-3 text-sm font-medium border-b-2 transition-colors ${
                   activeTab === "trending"
                     ? "border-[#0079D3] text-[#0079D3]"
@@ -157,7 +179,7 @@ export default function DashboardPage() {
             {/* Create Post CTA - Inside the nav */}
             {activeTab !== "search" && (
               <div className="p-4">
-                {isPremium ? (
+                {hasPremiumAccess ? (
                   <Link href={ROUTES.CREATE_POST}>
                     <div className="flex items-center gap-3 p-3 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors cursor-pointer">
                       {/* User Avatar */}
@@ -184,9 +206,9 @@ export default function DashboardPage() {
 
                       {/* Lucide Icons */}
                       <div className="flex gap-3">
-                        <FileText className="w-5 h-5 text-gray-400 stroke-blue-500 transition-all duration-300" />
-                        <LinkIcon className="w-5 h-5 text-gray-400 stroke-blue-500 transition-all duration-300" />
-                        <ImageIcon className="w-5 h-5 text-gray-400 stroke-blue-500 transition-all duration-300" />
+                        <FileText className="w-5 h-5 text-gray-400 stroke-black transition-all duration-300" />
+                        <LinkIcon className="w-5 h-5 text-gray-400 stroke-black transition-all duration-300" />
+                        <ImageIcon className="w-5 h-5 text-gray-400 stroke-black transition-all duration-300" />
                       </div>
                     </div>
                   </Link>
@@ -353,14 +375,14 @@ export default function DashboardPage() {
                 <div className="flex items-center justify-center gap-2">
                   <Image
                     src="/images/NEWS_NET-V2.svg"
-                    alt="News Natter Logo"
+                    alt="newsnatter Logo"
                     width={80}
                     height={80}
                     className="hidden sm:inline"
                   />
                 </div>
                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                  &copy; {new Date().getFullYear()} News Natter. All rights
+                  &copy; {new Date().getFullYear()} newsnatter. All rights
                   reserved.
                 </p>
                 <div className="flex justify-center gap-4 text-xs">

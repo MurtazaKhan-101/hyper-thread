@@ -36,7 +36,7 @@ export default function Home() {
           <div className="flex items-center justify-between h-14">
             <Image
               src="/images/NEWS_NET-V2.svg"
-              alt="News Natter Logo"
+              alt="newsnatter Logo"
               width={150}
               height={150}
               className="hidden sm:inline"
@@ -58,7 +58,7 @@ export default function Home() {
       <main className="max-w-6xl mx-auto px-4 py-16">
         <div className="text-center mb-16">
           <h2 className="text-5xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-            Welcome to News Natter
+            Welcome to newsnatter
           </h2>
           <p className="text-xl text-gray-600 dark:text-gray-400 mb-8">
             Connect with communities and share what matters to you
@@ -125,7 +125,7 @@ export default function Home() {
             Ready to dive in?
           </h3>
           <p className="text-gray-600 dark:text-gray-400 mb-8">
-            Join thousands of users already connected on News Natter
+            Join thousands of users already connected on newsnatter
           </p>
           <Link href={ROUTES.SIGNUP}>
             <Button variant="primary" className="px-12 py-3 text-base">
@@ -139,9 +139,9 @@ export default function Home() {
       <footer className="border-t border-gray-200 dark:border-gray-800 mt-16">
         <div className="max-w-6xl mx-auto px-4 py-8">
           <div className="text-center text-sm text-gray-500 dark:text-gray-400">
-            <p>&copy; 2025 News Natter. All rights reserved.</p>
+            <p>&copy; 2025 newsnatter. All rights reserved.</p>
             <p className="mt-2">
-              By using News Natter, you agree to our User Agreement and Privacy
+              By using newsnatter, you agree to our User Agreement and Privacy
               Policy.
             </p>
           </div>
