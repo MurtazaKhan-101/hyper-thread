@@ -17,43 +17,73 @@ class EngagementController {
         });
       }
 
-      let engagement = await UserEngagement.findOne({ user: userId });
+      // Retry logic for handling version conflicts
+      const maxRetries = 3;
+      let retryCount = 0;
+      let success = false;
 
-      if (!engagement) {
-        engagement = new UserEngagement({ user: userId });
+      while (retryCount < maxRetries && !success) {
+        try {
+          let engagement = await UserEngagement.findOne({ user: userId });
+
+          if (!engagement) {
+            engagement = new UserEngagement({ user: userId });
+          }
+
+          // Add to viewed posts
+          const existingView = engagement.viewedPosts.find(
+            (vp) => vp.post.toString() === postId
+          );
+
+          if (!existingView) {
+            engagement.viewedPosts.push({
+              post: postId,
+              viewedAt: new Date(),
+              duration,
+            });
+            engagement.stats.totalViews += 1;
+          } else {
+            existingView.duration += duration;
+            existingView.viewedAt = new Date();
+          }
+
+          // Update category engagement
+          if (post.category) {
+            await UserEngagement.updateCategoryEngagement(
+              userId,
+              post.category
+            );
+          }
+
+          // Update average view duration
+          const totalDuration = engagement.viewedPosts.reduce(
+            (sum, vp) => sum + vp.duration,
+            0
+          );
+          engagement.stats.avgViewDuration =
+            totalDuration / engagement.viewedPosts.length;
+
+          await engagement.save();
+          success = true;
+        } catch (saveError) {
+          if (
+            saveError.name === "VersionError" &&
+            retryCount < maxRetries - 1
+          ) {
+            retryCount++;
+            // Add small delay before retry to reduce collision probability
+            await new Promise((resolve) =>
+              setTimeout(resolve, 50 * retryCount)
+            );
+            continue;
+          }
+          throw saveError;
+        }
       }
 
-      // Add to viewed posts
-      const existingView = engagement.viewedPosts.find(
-        (vp) => vp.post.toString() === postId
-      );
-
-      if (!existingView) {
-        engagement.viewedPosts.push({
-          post: postId,
-          viewedAt: new Date(),
-          duration,
-        });
-        engagement.stats.totalViews += 1;
-      } else {
-        existingView.duration += duration;
-        existingView.viewedAt = new Date();
+      if (!success) {
+        throw new Error("Failed to save engagement after retries");
       }
-
-      // Update category engagement
-      if (post.category) {
-        await UserEngagement.updateCategoryEngagement(userId, post.category);
-      }
-
-      // Update average view duration
-      const totalDuration = engagement.viewedPosts.reduce(
-        (sum, vp) => sum + vp.duration,
-        0
-      );
-      engagement.stats.avgViewDuration =
-        totalDuration / engagement.viewedPosts.length;
-
-      await engagement.save();
 
       res.status(200).json({
         success: true,
@@ -82,32 +112,61 @@ class EngagementController {
         });
       }
 
-      let engagement = await UserEngagement.findOne({ user: userId });
+      // Retry logic for handling version conflicts
+      const maxRetries = 3;
+      let retryCount = 0;
+      let success = false;
 
-      if (!engagement) {
-        engagement = new UserEngagement({ user: userId });
-      }
+      while (retryCount < maxRetries && !success) {
+        try {
+          let engagement = await UserEngagement.findOne({ user: userId });
 
-      // Add to liked posts
-      const existingLike = engagement.likedPosts.find(
-        (lp) => lp.post.toString() === postId
-      );
+          if (!engagement) {
+            engagement = new UserEngagement({ user: userId });
+          }
 
-      if (!existingLike) {
-        engagement.likedPosts.push({
-          post: postId,
-          likedAt: new Date(),
-          category: post.category,
-        });
-        engagement.stats.totalLikes += 1;
+          // Add to liked posts
+          const existingLike = engagement.likedPosts.find(
+            (lp) => lp.post.toString() === postId
+          );
 
-        // Update category engagement
-        if (post.category) {
-          await UserEngagement.updateCategoryEngagement(userId, post.category);
+          if (!existingLike) {
+            engagement.likedPosts.push({
+              post: postId,
+              likedAt: new Date(),
+              category: post.category,
+            });
+            engagement.stats.totalLikes += 1;
+
+            // Update category engagement
+            if (post.category) {
+              await UserEngagement.updateCategoryEngagement(
+                userId,
+                post.category
+              );
+            }
+          }
+
+          await engagement.save();
+          success = true;
+        } catch (saveError) {
+          if (
+            saveError.name === "VersionError" &&
+            retryCount < maxRetries - 1
+          ) {
+            retryCount++;
+            await new Promise((resolve) =>
+              setTimeout(resolve, 50 * retryCount)
+            );
+            continue;
+          }
+          throw saveError;
         }
       }
 
-      await engagement.save();
+      if (!success) {
+        throw new Error("Failed to save engagement after retries");
+      }
 
       res.status(200).json({
         success: true,
@@ -136,33 +195,65 @@ class EngagementController {
         });
       }
 
-      let engagement = await UserEngagement.findOne({ user: userId });
+      // Retry logic for handling version conflicts
+      const maxRetries = 3;
+      let retryCount = 0;
+      let success = false;
 
-      if (!engagement) {
-        engagement = new UserEngagement({ user: userId });
-      }
+      while (retryCount < maxRetries && !success) {
+        try {
+          let engagement = await UserEngagement.findOne({ user: userId });
 
-      // Add to commented posts
-      const existingComment = engagement.commentedPosts.find(
-        (cp) => cp.post.toString() === postId
-      );
+          if (!engagement) {
+            engagement = new UserEngagement({ user: userId });
+          }
 
-      if (!existingComment) {
-        engagement.commentedPosts.push({
-          post: postId,
-          commentedAt: new Date(),
-          category: post.category,
-        });
-        engagement.stats.totalComments += 1;
+          // Add to commented posts
+          const existingComment = engagement.commentedPosts.find(
+            (cp) => cp.post.toString() === postId
+          );
 
-        // Update category engagement (weighted more than likes)
-        if (post.category) {
-          await UserEngagement.updateCategoryEngagement(userId, post.category);
-          await UserEngagement.updateCategoryEngagement(userId, post.category); // Count twice for comments
+          if (!existingComment) {
+            engagement.commentedPosts.push({
+              post: postId,
+              commentedAt: new Date(),
+              category: post.category,
+            });
+            engagement.stats.totalComments += 1;
+
+            // Update category engagement (weighted more than likes)
+            if (post.category) {
+              await UserEngagement.updateCategoryEngagement(
+                userId,
+                post.category
+              );
+              await UserEngagement.updateCategoryEngagement(
+                userId,
+                post.category
+              ); // Count twice for comments
+            }
+          }
+
+          await engagement.save();
+          success = true;
+        } catch (saveError) {
+          if (
+            saveError.name === "VersionError" &&
+            retryCount < maxRetries - 1
+          ) {
+            retryCount++;
+            await new Promise((resolve) =>
+              setTimeout(resolve, 50 * retryCount)
+            );
+            continue;
+          }
+          throw saveError;
         }
       }
 
-      await engagement.save();
+      if (!success) {
+        throw new Error("Failed to save engagement after retries");
+      }
 
       res.status(200).json({
         success: true,

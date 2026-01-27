@@ -126,7 +126,7 @@ export const ChatInput = ({
   };
 
   return (
-    <div className="border border-gray-800 bg-[#0f0f0f] p-4">
+    <div className="border border-gray-800 bg-white p-4">
       {/* Image Preview */}
       {imagePreview && (
         <div className="mb-3 relative">
@@ -182,7 +182,7 @@ export const ChatInput = ({
             }
             disabled={disabled}
             maxLength={1000}
-            className="w-full px-4 py-2 mt-1.5 bg-gray-800 border border-gray-700 text-gray-100 placeholder-gray-400 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 min-h-[40px] max-h-32 scrollbar-hide"
+            className="w-full px-4 py-2 mt-1.5 bg-white border border-gray-700 text-black placeholder-gray-400 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 min-h-[40px] max-h-32 scrollbar-hide"
             rows={1}
             style={{
               height: "auto",

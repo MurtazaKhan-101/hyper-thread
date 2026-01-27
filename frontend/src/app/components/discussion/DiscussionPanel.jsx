@@ -167,7 +167,7 @@ export const DiscussionPanel = ({
 
       {/* Comment Input - Move to top for mobile */}
       {isAuthenticated && isMobile && (
-        <div className="px-6 py-4 border-b border-gray-800 bg-[#0f0f0f]">
+        <div className="px-6 py-4 border-b border-gray-800 bg-white">
           {hasPremiumAccess ? (
             <form onSubmit={handleComment} className="space-y-3">
               <div className="relative">
@@ -178,7 +178,7 @@ export const DiscussionPanel = ({
                   onKeyDown={handleKeyDown}
                   placeholder="Write a comment..."
                   maxLength={1000}
-                  className="w-full px-4 py-3 bg-[#1a1a1a] border border-gray-700 rounded-lg resize-none text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 overflow-hidden"
+                  className="w-full px-4 py-3 border border-gray-700 rounded-lg resize-none text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 overflow-hidden"
                   rows={1}
                   style={{ minHeight: "44px", maxHeight: "120px" }}
                 />
@@ -287,7 +287,7 @@ export const DiscussionPanel = ({
 
       {/* Comment Input - Bottom for desktop only */}
       {isAuthenticated && !isMobile && (
-        <div className="px-6 py-4 border border-gray-800 bg-[#0f0f0f]">
+        <div className="px-6 py-4 border bg-white">
           {hasPremiumAccess ? (
             <form onSubmit={handleComment} className="space-y-3">
               <div className="flex gap-3 mt-4">
@@ -299,7 +299,7 @@ export const DiscussionPanel = ({
                     onKeyDown={handleKeyDown}
                     placeholder="Type your message..."
                     maxLength={1000}
-                    className="w-full scrollbar-hide p-3 border border-gray-700 rounded-lg resize-none bg-gray-800 text-white placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full scrollbar-hide p-3 border border-gray-700 rounded-lg resize-none text-black placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     rows={1}
                     style={{ minHeight: "44px", maxHeight: "120px" }}
                   />

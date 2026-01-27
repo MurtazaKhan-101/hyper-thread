@@ -23,6 +23,9 @@ class ScheduledJobs {
     // Clean up expired subscriptions daily at 3 AM
     this.scheduleSubscriptionCleanup();
 
+    // Sync external news daily at 6 AM
+    this.scheduleExternalNewsSync();
+
     console.log("✅ All scheduled jobs initialized");
   }
 
@@ -301,6 +304,24 @@ class ScheduledJobs {
       expiredCleaned: expiredUsers.modifiedCount,
       inconsistentCleaned: inconsistentUsers.length,
     };
+  }
+
+  /**
+   * Sync external news from NewsAPI
+   * Runs every day at 6:00 AM
+   */
+  static scheduleExternalNewsSync() {
+    cron.schedule("0 6 * * *", async () => {
+      console.log("📰 Running external news sync...");
+      try {
+        const newsApiController = require("../controllers/newsApiController");
+        await newsApiController.syncExternalNews(null, null);
+      } catch (error) {
+        console.error("Error syncing external news:", error);
+      }
+    });
+
+    console.log("✓ External news sync job scheduled (daily at 6 AM)");
   }
 }
 

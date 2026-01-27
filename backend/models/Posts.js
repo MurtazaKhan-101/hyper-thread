@@ -35,17 +35,12 @@ const postSchema = new mongoose.Schema(
     category: {
       type: String,
       enum: [
-        "sports",
-        "culture",
-        "internet",
-        "history",
-        "entertainment",
-        "technology",
-        "science",
         "politics",
         "business",
-        "health",
-        "music",
+        "entertainment",
+        "lifestyle",
+        "technology",
+        "community",
       ],
       default: null,
     },
@@ -195,6 +190,11 @@ const postSchema = new mongoose.Schema(
         ref: "Comment",
       },
     ],
+
+    isExternal: {
+      type: Boolean,
+      default: false,
+    },
 
     createdAt: {
       type: Date,

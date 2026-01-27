@@ -9,7 +9,7 @@ export const AuthLayout = ({ children, title, subtitle }) => {
     <div
       className="min-h-screen flex items-center justify-center px-4 py-12"
       style={{
-        backgroundImage: "url(/images/login.svg)",
+        backgroundImage: "url(/images/sidebar-bg-v3.svg)",
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundRepeat: "no-repeat",
@@ -50,7 +50,7 @@ export const AuthLayout = ({ children, title, subtitle }) => {
 
         {/* Footer */}
         <div className="mt-6 text-center">
-          <p className="text-xs text-white">
+          <p className="text-xs text-black">
             By continuing, you agree to our User Agreement and Privacy Policy.
           </p>
         </div>

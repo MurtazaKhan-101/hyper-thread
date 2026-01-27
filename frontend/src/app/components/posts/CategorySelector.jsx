@@ -4,17 +4,12 @@ import { useState } from "react";
 import { Newspaper, ChevronDown } from "lucide-react";
 
 const CATEGORIES = [
-  { id: "entertainment", label: "Entertainment" },
-  { id: "sports", label: "Sports" },
-  { id: "music", label: "Music" },
-  { id: "culture", label: "Culture" },
-  { id: "technology", label: "Technology" },
-  { id: "science", label: "Science" },
   { id: "politics", label: "Politics" },
   { id: "business", label: "Business" },
-  { id: "health", label: "Health" },
-  { id: "internet", label: "Internet" },
-  { id: "history", label: "History" },
+  { id: "entertainment", label: "Entertainment" },
+  { id: "lifestyle", label: "Lifestyle" },
+  { id: "technology", label: "Science & Technology" },
+  { id: "community", label: "Community" },
 ];
 
 export const CategorySelector = ({ value, onChange, error }) => {

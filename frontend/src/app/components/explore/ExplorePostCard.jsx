@@ -2,12 +2,18 @@
 
 import { useRouter } from "next/navigation";
 import { formatPostTime } from "../../lib/posts";
+import { ExternalLink } from "lucide-react";
 
 export const ExplorePostCard = ({ post }) => {
   const router = useRouter();
 
   const handleClick = () => {
-    router.push(`/discussion/${post._id}`);
+    // For external posts, open the link in a new tab
+    if (post.isExternal && post.linkUrl) {
+      window.open(post.linkUrl, "_blank", "noopener,noreferrer");
+    } else {
+      router.push(`/discussion/${post._id}`);
+    }
   };
 
   // Get thumbnail image
@@ -34,8 +40,16 @@ export const ExplorePostCard = ({ post }) => {
   return (
     <div
       onClick={handleClick}
-      className="group cursor-pointer rounded-xl overflow-hidden bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-all duration-300 hover:scale-[1.02]"
+      className="group cursor-pointer rounded-xl overflow-hidden bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-all duration-300 hover:scale-[1.02] relative"
     >
+      {/* External Source Badge */}
+      {post.isExternal && (
+        <div className="absolute top-2 right-2 z-10 bg-blue-600 text-white text-xs font-semibold px-3 py-1 rounded-full flex items-center gap-1 shadow-lg">
+          <ExternalLink className="w-3 h-3" />
+          <span>External</span>
+        </div>
+      )}
+
       {/* Thumbnail */}
       <div className="relative aspect-video bg-sidebar-gradient overflow-hidden">
         {thumbnail ? (
@@ -78,7 +92,11 @@ export const ExplorePostCard = ({ post }) => {
               </div>
             )}
             <span className="font-medium">
-              {post.author?.firstName || post.author?.username || "Anonymous"}
+              {post.isExternal
+                ? "News Aggregator"
+                : post.author?.firstName ||
+                  post.author?.username ||
+                  "Anonymous"}
             </span>
           </div>
           <span>{formatPostTime(post.createdAt)}</span>

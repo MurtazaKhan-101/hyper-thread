@@ -57,12 +57,14 @@ export default function Home() {
       {/* Hero Section */}
       <main className="max-w-6xl mx-auto px-4 py-16">
         <div className="text-center mb-16">
-          <h2 className="text-5xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-            Welcome to newsnatter
-          </h2>
-          <p className="text-xl text-gray-600 dark:text-gray-400 mb-8">
-            Connect with communities and share what matters to you
-          </p>
+          <div className="flex-col justify-center mb-8">
+            <h2 className="text-5xl font-bold text-gray-900 dark:text-gray-100">
+              newsnatter
+            </h2>
+            <p className="text-sm font-bold text-gray-600 dark:text-gray-400">
+              news, shared and debated
+            </p>
+          </div>
           <div className="flex justify-center gap-4">
             <Link href={ROUTES.SIGNUP}>
               <Button variant="primary" className="px-8 py-3 text-base">
@@ -78,7 +80,7 @@ export default function Home() {
         </div>
 
         {/* Features Section */}
-        <div className="grid md:grid-cols-3 gap-6 mb-16">
+        {/* <div className="grid md:grid-cols-3 gap-6 mb-16">
           <Card className="p-6 text-center">
             <div className="flex justify-center mb-4">
               <Shield className="w-12 h-12 text-blue-600 dark:text-blue-400" />
@@ -117,7 +119,7 @@ export default function Home() {
               comfortable browsing
             </p>
           </Card>
-        </div>
+        </div> */}
 
         {/* CTA Section */}
         <Card className="p-12 text-center">

@@ -32,24 +32,42 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
 
   const topicsItems = [
     {
-      id: "entertainment",
-      label: "Entertainment",
-      href: "/dashboard?category=entertainment",
+      id: "politics",
+      label: "POLITICS",
+      href: "/dashboard?category=politics",
+      description:
+        "Government, elections, and policy decisions shaping society.",
     },
-    { id: "sports", label: "Sports", href: "/dashboard?category=sports" },
-    { id: "music", label: "Music", href: "/dashboard?category=music" },
-    { id: "culture", label: "Culture", href: "/dashboard?category=culture" },
+    {
+      id: "business",
+      label: "BUSINESS",
+      href: "/dashboard?category=business",
+      description: "Companies, markets, money, and economic trends.",
+    },
+    {
+      id: "entertainment",
+      label: "ENTERTAINMENT",
+      href: "/dashboard?category=entertainment",
+      description: "Movies, music, celebrities, and pop culture.",
+    },
+    {
+      id: "lifestyle",
+      label: "LIFESTYLE",
+      href: "/dashboard?category=lifestyle",
+      description: "Health, fashion, travel, food, and daily living.",
+    },
     {
       id: "technology",
-      label: "Technology",
+      label: "SCIENCE & TECHNOLOGY",
       href: "/dashboard?category=technology",
+      description: "Scientific research, technology, and innovation.",
     },
-    { id: "science", label: "Science", href: "/dashboard?category=science" },
-    { id: "politics", label: "Politics", href: "/dashboard?category=politics" },
-    { id: "business", label: "Business", href: "/dashboard?category=business" },
-    { id: "health", label: "Health", href: "/dashboard?category=health" },
-    { id: "internet", label: "Internet", href: "/dashboard?category=internet" },
-    { id: "history", label: "History", href: "/dashboard?category=history" },
+    {
+      id: "community",
+      label: "COMMUNITY",
+      href: "/dashboard?category=community",
+      description: " Local news, events, and social issues.",
+    },
   ];
 
   const resourcesItems = [
@@ -169,9 +187,12 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
                   <button
                     key={item.id}
                     onClick={() => handleMenuClick(item.href)}
-                    className="w-full text-left px-4 py-2 text-black hover:text-white hover:bg-black hover:bg-opacity-80 rounded-lg transition-all duration-200"
+                    className="group w-full text-left px-4 py-2 text-black font-bold hover:text-white hover:bg-black hover:bg-opacity-80 rounded-lg transition-all duration-200"
                   >
                     {item.label}
+                    <p className="text-sm text-gray-800 font-medium mt-0.5 group-hover:text-gray-400">
+                      {item.description}
+                    </p>
                   </button>
                 ))}
               </div>

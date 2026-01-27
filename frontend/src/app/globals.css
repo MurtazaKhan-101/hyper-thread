@@ -245,3 +245,7 @@ body {
   word-wrap: break-word;
   word-break: break-word;
 }
+
+body {
+  font-family: var(--font-aileron), sans-serif;
+}

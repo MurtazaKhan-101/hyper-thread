@@ -369,7 +369,7 @@ export default function CreatePostPage() {
             }`}
           >
             <ImageIcon size={18} />
-            Images & Video
+            Media
           </button>
           <button
             type="button"

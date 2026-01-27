@@ -53,6 +53,7 @@ app.use("/engagement", require("./routes/engagementRoutes"));
 app.use("/feed", require("./routes/feedRoutes"));
 app.use("/user", require("./routes/userRoutes"));
 app.use("/stripe", require("./routes/stripeRoutes"));
+app.use("/news", require("./routes/newsRoutes"));
 
 // Health check route
 app.get("/", (req, res) => {

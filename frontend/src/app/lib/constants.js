@@ -61,6 +61,13 @@ export const API_ENDPOINTS = {
 
   // User preferences endpoints
   NOTIFICATION_PREFERENCES: "/user/notification-preferences",
+  GET_USER_PROFILE: "/user/profile",
+  UPDATE_PROFILE: "/user/profile",
+  GENERATE_PROFILE_IMAGE_UPLOAD_URL: "/user/profile/image/upload-url",
+  UPDATE_PROFILE_IMAGE: "/user/profile/image",
+  UPDATE_PASSWORD: "/user/password",
+  DELETE_ACCOUNT: "/user/account",
+  CHECK_USERNAME: "/user/check-username",
 
   // Chat endpoints
   GET_CHAT_ROOM: "/chat",
@@ -72,6 +79,10 @@ export const API_ENDPOINTS = {
   ADD_MESSAGE_REACTION: "/chat",
   UPLOAD_CHAT_IMAGE: "/chat",
   GET_ACTIVE_CHAT_ROOMS: "/chat",
+
+  // News endpoints
+  GET_ALL_EXTERNAL_NEWS: "/news/external",
+  GET_EXTERNAL_NEWS_BY_CATEGORY: "/news/external",
 };
 
 // Local Storage Keys

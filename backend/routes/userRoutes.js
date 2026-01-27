@@ -2,6 +2,24 @@ const express = require("express");
 const router = express.Router();
 const { authenticate } = require("../middleware/auth");
 const User = require("../models/User");
+const userController = require("../controllers/userController");
+
+// Profile management routes
+router.get("/profile", authenticate, userController.getUserProfile);
+router.put("/profile", authenticate, userController.updateProfile);
+router.post(
+  "/profile/image/upload-url",
+  authenticate,
+  userController.generateProfileImageUploadUrl
+);
+router.put("/profile/image", authenticate, userController.updateProfileImage);
+router.put("/password", authenticate, userController.updatePassword);
+router.delete("/account", authenticate, userController.deleteAccount);
+router.get(
+  "/check-username/:username",
+  authenticate,
+  userController.checkUsername
+);
 
 // Get notification preferences
 router.get("/notification-preferences", authenticate, async (req, res) => {

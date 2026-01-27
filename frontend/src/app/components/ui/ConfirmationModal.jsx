@@ -7,6 +7,7 @@ export default function ConfirmationModal({
   onConfirm,
   title,
   message,
+  children,
   confirmText = "Confirm",
   cancelText = "Cancel",
   confirmButtonClass = "bg-red-600 hover:bg-red-700 text-white",
@@ -44,9 +45,11 @@ export default function ConfirmationModal({
 
         {/* Body */}
         <div className="p-6">
-          <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
-            {message}
-          </p>
+          {children || (
+            <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+              {message}
+            </p>
+          )}
         </div>
 
         {/* Footer */}

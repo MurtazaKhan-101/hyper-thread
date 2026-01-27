@@ -6,19 +6,16 @@ import { useAuth } from "../context/AuthContext";
 import { postService } from "../lib/posts";
 import { Spinner } from "../components/ui";
 import { CategoryPostsSection } from "../components/explore/CategoryPostsSection";
+import apiClient from "../lib/api";
+import { API_ENDPOINTS } from "../lib/constants";
 
 const CATEGORIES = [
-  { id: "entertainment", label: "Entertainment" },
-  { id: "sports", label: "Sports" },
-  { id: "music", label: "Music" },
-  { id: "culture", label: "Culture" },
-  { id: "technology", label: "Technology" },
-  { id: "science", label: "Science" },
   { id: "politics", label: "Politics" },
   { id: "business", label: "Business" },
-  { id: "health", label: "Health" },
-  { id: "internet", label: "Internet" },
-  { id: "history", label: "History" },
+  { id: "entertainment", label: "Entertainment" },
+  { id: "lifestyle", label: "Lifestyle" },
+  { id: "technology", label: "Science & Tech" },
+  { id: "community", label: "Community" },
 ];
 
 export default function ExplorePage() {
@@ -26,7 +23,9 @@ export default function ExplorePage() {
   const { isAuthenticated, loading } = useAuth();
   const [mounted, setMounted] = useState(false);
   const [categorizedPosts, setCategorizedPosts] = useState({});
+  const [externalNews, setExternalNews] = useState({});
   const [loadingPosts, setLoadingPosts] = useState(true);
+  const [loadingNews, setLoadingNews] = useState(true);
 
   useEffect(() => {
     setMounted(true);
@@ -40,9 +39,30 @@ export default function ExplorePage() {
 
   useEffect(() => {
     if (mounted && isAuthenticated) {
+      fetchExternalNews();
       fetchCategorizedPosts();
     }
   }, [mounted, isAuthenticated]);
+
+  const fetchExternalNews = async () => {
+    setLoadingNews(true);
+    try {
+      const response = await apiClient.request(
+        API_ENDPOINTS.GET_ALL_EXTERNAL_NEWS,
+        {
+          method: "GET",
+        }
+      );
+
+      if (response.success && response.data) {
+        setExternalNews(response.data);
+      }
+    } catch (error) {
+      console.error("Error fetching external news:", error);
+    } finally {
+      setLoadingNews(false);
+    }
+  };
 
   const fetchCategorizedPosts = async () => {
     setLoadingPosts(true);
@@ -88,6 +108,8 @@ export default function ExplorePage() {
     return null;
   }
 
+  const isLoading = loadingPosts || loadingNews;
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-[#030303]">
       <div className="max-w-7xl mx-auto px-4 py-6">
@@ -102,32 +124,59 @@ export default function ExplorePage() {
         </div>
 
         {/* Loading State */}
-        {loadingPosts && (
+        {isLoading && (
           <div className="flex justify-center py-12">
             <Spinner size="lg" />
           </div>
         )}
 
         {/* Category Sections */}
-        {!loadingPosts && (
+        {!isLoading && (
           <div className="space-y-12">
-            {Object.keys(categorizedPosts).length === 0 ? (
+            {CATEGORIES.map((category) => {
+              // Get external news for this category
+              const externalPosts = externalNews[category.id] || [];
+              // Get internal posts for this category
+              const internalPosts = categorizedPosts[category.id]?.posts || [];
+
+              // Combine external news first, then internal posts
+              // Deduplicate by _id to avoid React key conflicts
+              const allPosts = [...externalPosts, ...internalPosts];
+              const seenIds = new Set();
+              const combinedPosts = allPosts.filter((post) => {
+                if (seenIds.has(post._id)) {
+                  return false;
+                }
+                seenIds.add(post._id);
+                return true;
+              });
+
+              // Only render section if there are posts
+              if (combinedPosts.length === 0) {
+                return null;
+              }
+
+              return (
+                <CategoryPostsSection
+                  key={category.id}
+                  categoryId={category.id}
+                  categoryLabel={category.label}
+                  posts={combinedPosts}
+                />
+              );
+            })}
+
+            {/* Show message if no posts in any category */}
+            {CATEGORIES.every((category) => {
+              const externalPosts = externalNews[category.id] || [];
+              const internalPosts = categorizedPosts[category.id]?.posts || [];
+              return externalPosts.length === 0 && internalPosts.length === 0;
+            }) && (
               <div className="text-center py-12">
                 <p className="text-gray-600 dark:text-gray-400">
                   No posts found in any category
                 </p>
               </div>
-            ) : (
-              Object.entries(categorizedPosts).map(
-                ([categoryId, categoryData]) => (
-                  <CategoryPostsSection
-                    key={categoryId}
-                    categoryId={categoryId}
-                    categoryLabel={categoryData.label}
-                    posts={categoryData.posts}
-                  />
-                )
-              )
             )}
           </div>
         )}

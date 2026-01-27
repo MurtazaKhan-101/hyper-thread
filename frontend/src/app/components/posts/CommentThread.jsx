@@ -222,7 +222,7 @@ export const CommentThread = ({
             depth > 0 ? "border-l-2 border-blue-800 pl-3" : ""
           }`}
         >
-          <div className="group hover:bg-gray-600/50 rounded-lg p-3 transition-colors min-w-0">
+          <div className="group hover:bg-gray-100 rounded-lg p-3 transition-colors min-w-0">
             <div className="flex gap-3 min-w-0">
               <div className="flex-shrink-0">
                 {localComment.user?.profileImage ? (
@@ -262,7 +262,7 @@ export const CommentThread = ({
                     <div className="relative" ref={optionsRef}>
                       <button
                         onClick={() => setShowOptions(!showOptions)}
-                        className="p-1 text-black hover:text-gray-200 transition-colors"
+                        className="p-1 text-black transition-colors"
                       >
                         <MoreHorizontal className="w-3 h-3" />
                       </button>
@@ -301,7 +301,7 @@ export const CommentThread = ({
                     <textarea
                       value={editText}
                       onChange={(e) => setEditText(e.target.value)}
-                      className="w-full p-2 text-sm border border-gray-700 rounded resize-none bg-gray-700 text-white"
+                      className="w-full p-2 text-sm border border-gray-700 rounded resize-none bg-white text-black"
                       rows={2}
                       maxLength={1000}
                       placeholder="Edit your message..."
@@ -311,7 +311,7 @@ export const CommentThread = ({
                         type="button"
                         onClick={handleCancelEdit}
                         variant="outline_secondary"
-                        className="text-xs px-3 py-1"
+                        className="text-xs px-3 py-1 !text-black"
                       >
                         Cancel
                       </Button>
@@ -419,7 +419,7 @@ export const CommentThread = ({
                         value={newReply}
                         onChange={(e) => setNewReply(e.target.value)}
                         placeholder="Reply..."
-                        className="w-full p-2 border border-gray-700 rounded text-sm resize-none bg-gray-800 text-white"
+                        className="w-full p-2 border border-gray-700 rounded text-sm resize-none bg-white text-black"
                         rows={2}
                       />
                       <div className="flex justify-end gap-2">
@@ -427,7 +427,7 @@ export const CommentThread = ({
                           type="button"
                           onClick={() => setShowReplyForm(false)}
                           variant="outline_secondary"
-                          className="text-xs px-3 py-1"
+                          className="text-xs px-3 py-1 !text-black"
                         >
                           Cancel
                         </Button>
@@ -539,7 +539,7 @@ export const CommentThread = ({
               <div className="relative" ref={optionsRef}>
                 <button
                   onClick={() => setShowOptions(!showOptions)}
-                  className="p-1 text-gray-300 hover:text-gray-200 transition-colors"
+                  className="p-1 text-gray-300 transition-colors"
                 >
                   <MoreHorizontal className="w-4 h-4" />
                 </button>

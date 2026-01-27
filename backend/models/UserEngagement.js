@@ -15,17 +15,12 @@ const userEngagementSchema = new mongoose.Schema(
         category: {
           type: String,
           enum: [
-            "culture",
-            "entertainment",
-            "technology",
-            "science",
             "politics",
             "business",
-            "health",
-            "sports",
-            "music",
-            "internet",
-            "history",
+            "entertainment",
+            "lifestyle",
+            "technology",
+            "community",
           ],
         },
         interactions: {

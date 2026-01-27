@@ -1,148 +1,46 @@
 "use client";
 
-import { Button, Card } from "../components/ui";
+import { Button } from "../components/ui";
 import Link from "next/link";
 import { ROUTES } from "../lib/constants";
-import Image from "next/image";
 import { useAuth } from "../context/AuthContext";
+
 export default function AboutUs() {
   const { isAuthenticated } = useAuth();
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-[#030303]">
       {/* Main Content */}
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16">
+      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16">
         {/* Hero Section */}
-        <div className="text-center mb-12 sm:mb-16 lg:mb-20">
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-buttons-gradient mb-4 sm:mb-6">
-            About Us
+        <div className="mb-12 sm:mb-16 lg:mb-20">
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white mb-8 sm:mb-10">
+            About.
           </h1>
-          <p className="text-base sm:text-lg lg:text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto leading-relaxed">
-            Building a connected space where people share ideas, moments, and
-            meaningful conversations.
-          </p>
-        </div>
 
-        {/* Story Section */}
-        <div className="mb-12 sm:mb-16 lg:mb-20">
-          <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-            {/* Story Text */}
-            <div className="order-2 lg:order-1">
-              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-buttons-gradient mb-4 sm:mb-6">
-                Our Story
-              </h2>
-              <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400 leading-relaxed">
-                We started with a simple goal to make online communities more
-                open, expressive, and human. This platform allows users to share
-                thoughts, images, and ideas freely, while encouraging genuine
-                interaction.
-              </p>
-            </div>
-
-            {/* Story Illustration */}
-            <div className="order-1 lg:order-2 flex justify-center">
-              <div className="relative w-64 h-48 sm:w-80 sm:h-60">
-                <Image
-                  src="/images/communication.svg"
-                  alt="Communication Illustration"
-                  className="w-full h-full object-contain"
-                  height={250}
-                  width={250}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Mission & Vision */}
-        <div className="grid md:grid-cols-2 gap-6 sm:gap-8 lg:gap-12 mb-12 sm:mb-16 lg:mb-20">
-          {/* Mission */}
-          <Card className="p-6 sm:p-8 lg:p-10">
-            <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold text-buttons-gradient mb-4 sm:mb-6">
-              Our Mission
-            </h3>
-            <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400 leading-relaxed">
-              To connect people through authentic stories, diverse topics, and
-              shared experiences.
+          <div className="space-y-6 sm:space-y-8 text-gray-900 dark:text-white">
+            <p className="text-xl sm:text-2xl lg:text-3xl font-bold leading-relaxed">
+              Newsnatter is where stories spark conversation.
             </p>
-          </Card>
 
-          {/* Vision */}
-          <Card className="p-6 sm:p-8 lg:p-10">
-            <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold text-buttons-gradient mb-4 sm:mb-6">
-              Our Vision
-            </h3>
-            <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400 leading-relaxed">
-              A world where social media encourages learning, empathy, and
-              creativity, not just scrolling.
+            <p className="text-base sm:text-lg lg:text-xl leading-relaxed">
+              We're a platform for sharing news, trending stories, and viral
+              moments — and having real, focused discussions about them.
             </p>
-          </Card>
-        </div>
 
-        {/* Features Grid */}
-        <div className="mb-12 sm:mb-16 lg:mb-20">
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-buttons-gradient text-center mb-8 sm:mb-12">
-            What Makes Us Different
-          </h2>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-            <Card className="p-6 sm:p-8 text-center hover:shadow-lg transition-shadow duration-300">
-              <div className="mb-4 sm:mb-6">
-                <Image
-                  src="/images/shake-hand.svg"
-                  alt="Handshake Icon"
-                  className="w-24 h-24  object-contain mx-auto"
-                  width={500}
-                  height={500}
-                />
-              </div>
+            <p className="text-base sm:text-lg lg:text-xl leading-relaxed">
+              Every post becomes a hub for debate, context, and updates, so you
+              can follow the story, not the chaos.
+            </p>
 
-              <h3 className="text-lg sm:text-xl font-bold text-buttons-gradient mb-3 sm:mb-4">
-                Authentic Community
-              </h3>
-              <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 leading-relaxed">
-                Real conversations with real people, fostering genuine
-                connections and meaningful discussions.
-              </p>
-            </Card>
+            <p className="text-base sm:text-lg lg:text-xl leading-relaxed">
+              Whether it's breaking news, a viral clip, or a trending topic,
+              Newsnatter gives you the space to see multiple perspectives, share
+              your take, and discuss what's happening — all in one place.
+            </p>
 
-            <Card className="p-6 sm:p-8 text-center hover:shadow-lg transition-shadow duration-300">
-              <div className="mb-4 sm:mb-6">
-                <Image
-                  src="/images/creativity.svg"
-                  alt="Handshake Icon"
-                  className="w-24 h-24  object-contain mx-auto"
-                  width={500}
-                  height={500}
-                />
-              </div>
-
-              <h3 className="text-lg sm:text-xl font-bold text-buttons-gradient mb-3 sm:mb-4">
-                Creative Expression
-              </h3>
-              <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 leading-relaxed">
-                Share your thoughts, images, and ideas in a space that
-                celebrates creativity and diversity.
-              </p>
-            </Card>
-
-            <Card className="p-6 sm:p-8 text-center hover:shadow-lg transition-shadow duration-300 sm:col-span-2 lg:col-span-1">
-              <div className="mb-4 sm:mb-6">
-                <Image
-                  src="/images/user-experience.svg"
-                  alt="Handshake Icon"
-                  className="w-24 h-24  object-contain mx-auto"
-                  width={500}
-                  height={500}
-                />
-              </div>
-
-              <h3 className="text-lg sm:text-xl font-bold text-buttons-gradient mb-3 sm:mb-4">
-                Modern Experience
-              </h3>
-              <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 leading-relaxed">
-                Built with cutting-edge technology for a fast, responsive, and
-                delightful user experience.
-              </p>
-            </Card>
+            <p className="text-xl sm:text-2xl font-semibold text-buttons-gradient mt-8 sm:mt-10">
+              Join the conversation.
+            </p>
           </div>
         </div>
 
