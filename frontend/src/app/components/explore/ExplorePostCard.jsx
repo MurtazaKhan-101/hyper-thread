@@ -77,28 +77,6 @@ export const ExplorePostCard = ({ post }) => {
 
         {/* Author & Time */}
         <div className="flex items-center justify-between text-xs text-gray-600 dark:text-gray-400">
-          <div className="flex items-center gap-2">
-            {post.author?.profileImage ? (
-              <img
-                src={post.author.profileImage}
-                alt={post.author.username}
-                className="w-5 h-5 rounded-full"
-              />
-            ) : (
-              <div className="w-5 h-5 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-                <span className="text-white text-[10px] font-medium">
-                  {post.author?.firstName?.[0]?.toUpperCase() || "U"}
-                </span>
-              </div>
-            )}
-            <span className="font-medium">
-              {post.isExternal
-                ? "News Aggregator"
-                : post.author?.firstName ||
-                  post.author?.username ||
-                  "Anonymous"}
-            </span>
-          </div>
           <span>{formatPostTime(post.createdAt)}</span>
         </div>
       </div>

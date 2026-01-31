@@ -54,9 +54,25 @@ export const PostFeed = ({
       }
 
       if (append) {
-        setPosts((prev) => [...prev, ...response.posts]);
+        setPosts((prev) => {
+          // Deduplicate posts by _id
+          const existingIds = new Set(prev.map((p) => p._id));
+          const newPosts = response.posts.filter(
+            (post) => !existingIds.has(post._id),
+          );
+          return [...prev, ...newPosts];
+        });
       } else {
-        setPosts(response.posts);
+        // Deduplicate posts in initial load as well
+        const seenIds = new Set();
+        const uniquePosts = response.posts.filter((post) => {
+          if (seenIds.has(post._id)) {
+            return false;
+          }
+          seenIds.add(post._id);
+          return true;
+        });
+        setPosts(uniquePosts);
       }
 
       setPagination(response.pagination);

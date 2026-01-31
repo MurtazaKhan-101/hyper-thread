@@ -94,89 +94,53 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6 max-w-7xl mx-auto px-4 py-8">
         {/* Left Column - Main Feed (Scrollable) */}
         <div className="min-h-0">
-          {/* Reddit-style Navigation Tabs */}
-          <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg mb-6top-20">
-            <div className="flex border-b border-gray-200 dark:border-gray-800">
-              <button
-                onClick={() => handleLocalTabChange("personalized")}
-                className={`flex items-center gap-2 px-6 py-3 text-sm font-medium border-b-2 transition-colors ${
-                  activeTab === "personalized"
-                    ? "border-[#0079D3] text-[#0079D3]"
-                    : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-                }`}
-              >
-                <svg
-                  className="w-4 h-4"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path d="M10 3.5a1.5 1.5 0 013 0V4a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-.5a1.5 1.5 0 000 3h.5a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-.5a1.5 1.5 0 00-3 0v.5a1 1 0 01-1 1H6a1 1 0 01-1-1v-3a1 1 0 00-1-1h-.5a1.5 1.5 0 010-3H4a1 1 0 001-1V6a1 1 0 011-1h3a1 1 0 001-1v-.5z" />
-                </svg>
-                Explore
-              </button>
-
+          {/* Gradient Tab Buttons */}
+          <div className="mb-6">
+            <div className="flex flex-wrap items-center gap-3">
               <button
                 onClick={() => handleLocalTabChange("latest")}
-                className={`flex items-center gap-2 px-6 py-3 text-sm font-medium border-b-2 transition-colors ${
+                className={`px-6 py-2.5 rounded-full text-base font-bold transition-all ${
                   activeTab === "latest"
-                    ? "border-[#0079D3] text-[#0079D3]"
-                    : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                    ? "bg-sidebar-gradient text-black shadow-lg scale-105"
+                    : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:shadow-md border border-gray-200 dark:border-gray-700"
                 }`}
               >
-                <svg
-                  className="w-4 h-4"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-                Latest
+                LATEST
               </button>
 
               <button
                 onClick={() => handleLocalTabChange("trending")}
-                className={`flex items-center gap-2 px-6 py-3 text-sm font-medium border-b-2 transition-colors ${
+                className={`px-6 py-2.5 rounded-full text-base font-bold transition-all ${
                   activeTab === "trending"
-                    ? "border-[#0079D3] text-[#0079D3]"
-                    : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                    ? "bg-sidebar-gradient text-black shadow-lg scale-105"
+                    : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:shadow-md border border-gray-200 dark:border-gray-700"
                 }`}
               >
-                <svg
-                  className="w-4 h-4"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path d="M2 10a8 8 0 018-8v8h8a8 8 0 11-16 0z" />
-                  <path d="M12 2.252A8.014 8.014 0 0117.748 8H12V2.252z" />
-                </svg>
-                Trending
+                TRENDING
+              </button>
+
+              <button
+                onClick={() => handleLocalTabChange("personalized")}
+                className={`px-6 py-2.5 rounded-full text-base font-bold transition-all ${
+                  activeTab === "personalized"
+                    ? "bg-sidebar-gradient text-black shadow-lg scale-105"
+                    : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:shadow-md border border-gray-200 dark:border-gray-700"
+                }`}
+              >
+                EXPLORE
               </button>
 
               {activeTab === "search" && (
-                <div className="flex items-center px-6 py-3 text-sm font-medium border-b-2 border-[#0079D3] text-[#0079D3]">
-                  <svg
-                    className="w-4 h-4 mr-2"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                    />
-                  </svg>
-                  Search: &ldquo;{searchQuery}&rdquo;
+                <div className="px-6 py-2.5 rounded-full text-base font-bold bg-sidebar-gradient text-white shadow-lg">
+                  SEARCH: &ldquo;{searchQuery}&rdquo;
                 </div>
               )}
             </div>
+          </div>
 
-            {/* Create Post CTA - Inside the nav */}
+          {/* Old Navigation Tabs - Removed */}
+          <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg mb-6">
+            {/* Create Post CTA */}
             {activeTab !== "search" && (
               <div className="p-4">
                 {hasPremiumAccess ? (

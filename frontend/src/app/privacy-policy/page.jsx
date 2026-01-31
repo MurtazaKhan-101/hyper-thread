@@ -66,21 +66,13 @@ export default function PrivacyPolicy() {
             your data and respect your privacy.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center max-w-md mx-auto">
-            <Link href={ROUTES.HELP}>
-              <Button
-                variant="secondary"
-                className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold bg-white text-gray-900 hover:bg-gray-100 border-0"
-              >
-                Visit Help Center
-              </Button>
-            </Link>
             <Button
-              variant="outline"
-              className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold border-2 border-white text-white hover:bg-white hover:text-gray-900 dark:hover:text-gray-100 transition-all duration-300"
+              variant="secondary"
+              className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold bg-white text-gray-900 hover:bg-buttons-gradient border-0"
               onClick={() =>
                 window.open(
-                  "https://mail.google.com/mail/?view=cm&to=hello@newsnatter.com&su=Privacy Inquiry",
-                  "_blank"
+                  "https://mail.google.com/mail/?view=cm&to=hello@newsnatter.com&su=Support Request",
+                  "_blank",
                 )
               }
             >

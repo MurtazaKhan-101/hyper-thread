@@ -7,7 +7,7 @@ import { Button, Card } from "./components/ui";
 import { ROUTES } from "./lib/constants";
 import Link from "next/link";
 import Image from "next/image";
-import { Shield, Zap, Sparkles } from "lucide-react";
+import { aileronBlack } from "./fonts/aileron";
 
 export default function Home() {
   const router = useRouter();
@@ -58,8 +58,10 @@ export default function Home() {
       <main className="max-w-6xl mx-auto px-4 py-16">
         <div className="text-center mb-16">
           <div className="flex-col justify-center mb-8">
-            <h2 className="text-5xl font-bold text-gray-900 dark:text-gray-100">
-              newsnatter
+            <h2
+              className={`${aileronBlack.className} tracking-tighter text-5xl font-bold text-gray-900 dark:text-gray-100`}
+            >
+              newsnatter.
             </h2>
             <p className="text-sm font-bold text-gray-600 dark:text-gray-400">
               news, shared and debated
@@ -124,7 +126,7 @@ export default function Home() {
         {/* CTA Section */}
         <Card className="p-12 text-center">
           <h3 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-            Ready to dive in?
+            Join the conversation.
           </h3>
           <p className="text-gray-600 dark:text-gray-400 mb-8">
             Join thousands of users already connected on newsnatter
@@ -141,7 +143,7 @@ export default function Home() {
       <footer className="border-t border-gray-200 dark:border-gray-800 mt-16">
         <div className="max-w-6xl mx-auto px-4 py-8">
           <div className="text-center text-sm text-gray-500 dark:text-gray-400">
-            <p>&copy; 2025 newsnatter. All rights reserved.</p>
+            <p>&copy; 2026 newsnatter. All rights reserved.</p>
             <p className="mt-2">
               By using newsnatter, you agree to our User Agreement and Privacy
               Policy.
