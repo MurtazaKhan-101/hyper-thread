@@ -59,11 +59,11 @@ export default function Home() {
         <div className="text-center mb-16">
           <div className="flex-col justify-center mb-8">
             <h2
-              className={`${aileronBlack.className} tracking-tighter text-5xl font-bold text-gray-900 dark:text-gray-100`}
+              className={`${aileronBlack.className} tracking-tighter text-8xl font-bold text-gray-900 dark:text-gray-100`}
             >
               newsnatter.
             </h2>
-            <p className="text-sm font-bold text-gray-600 dark:text-gray-400">
+            <p className="text-xl font-bold text-gray-600 dark:text-gray-400">
               news, shared and debated
             </p>
           </div>
@@ -128,9 +128,6 @@ export default function Home() {
           <h3 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">
             Join the conversation.
           </h3>
-          <p className="text-gray-600 dark:text-gray-400 mb-8">
-            Join thousands of users already connected on newsnatter
-          </p>
           <Link href={ROUTES.SIGNUP}>
             <Button variant="primary" className="px-12 py-3 text-base">
               Create Account

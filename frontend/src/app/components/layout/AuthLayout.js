@@ -9,7 +9,7 @@ export const AuthLayout = ({ children, title, subtitle }) => {
     <div
       className="min-h-screen flex items-center justify-center px-4 py-12"
       style={{
-        backgroundImage: "url(/images/sidebar-bg-v3.svg)",
+        backgroundImage: "url(/images/sidebar-bg-v4.svg)",
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundRepeat: "no-repeat",

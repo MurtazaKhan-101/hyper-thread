@@ -73,7 +73,7 @@ export default function TermsAndConditions() {
         </div>
 
         {/* CTA Section */}
-        <div className="bg-ui-cards-gradient rounded-xl sm:rounded-2xl p-8 sm:p-12 text-center text-white">
+        {/* <div className="bg-ui-cards-gradient rounded-xl sm:rounded-2xl p-8 sm:p-12 text-center text-white">
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-4 sm:mb-6">
             Questions About Our Terms?
           </h2>
@@ -95,7 +95,7 @@ export default function TermsAndConditions() {
               Contact Support
             </Button>
           </div>
-        </div>
+        </div> */}
       </main>
     </div>
   );

@@ -96,43 +96,53 @@ export default function DashboardPage() {
         <div className="min-h-0">
           {/* Gradient Tab Buttons */}
           <div className="mb-6">
-            <div className="flex flex-wrap items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3 md:gap-6">
               <button
                 onClick={() => handleLocalTabChange("latest")}
-                className={`px-6 py-2.5 rounded-full text-base font-bold transition-all ${
-                  activeTab === "latest"
-                    ? "bg-sidebar-gradient text-black shadow-lg scale-105"
-                    : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:shadow-md border border-gray-200 dark:border-gray-700"
-                }`}
+                className={`relative px-3 py-2 md:px-6 md:py-2.5 text-sm md:text-base font-black tracking-wide transition-all duration-200 ${activeTab === "latest"
+                    ? "text-black dark:text-white"
+                    : "text-gray-400 dark:text-gray-500 hover:text-black dark:hover:text-white"
+                  }`}
               >
                 LATEST
+                <span
+                  className={`absolute bottom-0 left-0 right-0 h-1 rounded-full bg-sidebar-gradient transition-all duration-200 ${activeTab === "latest" ? "opacity-100" : "opacity-0"
+                    }`}
+                />
               </button>
 
               <button
                 onClick={() => handleLocalTabChange("trending")}
-                className={`px-6 py-2.5 rounded-full text-base font-bold transition-all ${
-                  activeTab === "trending"
-                    ? "bg-sidebar-gradient text-black shadow-lg scale-105"
-                    : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:shadow-md border border-gray-200 dark:border-gray-700"
-                }`}
+                className={`relative px-3 py-2 md:px-6 md:py-2.5 text-sm md:text-base font-black tracking-wide transition-all duration-200 ${activeTab === "trending"
+                    ? "text-black dark:text-white"
+                    : "text-gray-400 dark:text-gray-500 hover:text-black dark:hover:text-white"
+                  }`}
               >
                 TRENDING
+                <span
+                  className={`absolute bottom-0 left-0 right-0 h-1 rounded-full bg-sidebar-gradient transition-all duration-200 ${activeTab === "trending" ? "opacity-100" : "opacity-0"
+                    }`}
+                />
               </button>
 
               <button
                 onClick={() => handleLocalTabChange("personalized")}
-                className={`px-6 py-2.5 rounded-full text-base font-bold transition-all ${
-                  activeTab === "personalized"
-                    ? "bg-sidebar-gradient text-black shadow-lg scale-105"
-                    : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:shadow-md border border-gray-200 dark:border-gray-700"
-                }`}
+                className={`relative px-3 py-2 md:px-6 md:py-2.5 text-sm md:text-base font-black tracking-wide transition-all duration-200 ${activeTab === "personalized"
+                    ? "text-black dark:text-white"
+                    : "text-gray-400 dark:text-gray-500 hover:text-black dark:hover:text-white"
+                  }`}
               >
                 EXPLORE
+                <span
+                  className={`absolute bottom-0 left-0 right-0 h-1 rounded-full bg-sidebar-gradient transition-all duration-200 ${activeTab === "personalized" ? "opacity-100" : "opacity-0"
+                    }`}
+                />
               </button>
 
               {activeTab === "search" && (
-                <div className="px-6 py-2.5 rounded-full text-base font-bold bg-sidebar-gradient text-white shadow-lg">
+                <div className="relative px-3 py-2 md:px-6 md:py-2.5 text-sm md:text-base font-black tracking-wide text-black dark:text-white">
                   SEARCH: &ldquo;{searchQuery}&rdquo;
+                  <span className="absolute bottom-0 left-0 right-0 h-1 rounded-full bg-sidebar-gradient" />
                 </div>
               )}
             </div>

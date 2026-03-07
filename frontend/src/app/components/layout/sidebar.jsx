@@ -181,7 +181,7 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
               )}
             </button>
 
-            {topicsExpanded && (
+            {/* {topicsExpanded && (
               <div className="mt-2 space-y-1 pl-4">
                 {topicsItems.map((item) => (
                   <button
@@ -196,19 +196,35 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
                   </button>
                 ))}
               </div>
-            )}
+            )} */}
+            {topicsExpanded && (
+  <div className="mt-2 space-y-1 pl-4">
+    {topicsItems.map((item) => (
+      <button
+        key={item.id}
+        onClick={() => handleMenuClick(item.href)}
+        className="group w-full text-left px-4 py-2 text-black font-bold hover:text-white hover:bg-black hover:bg-opacity-80 rounded-lg transition-all duration-200"
+      >
+        {item.label}
+        <p className="text-sm font-medium mt-0.5 text-gray-400 max-h-0 overflow-hidden group-hover:max-h-10 transition-all duration-200">
+          {item.description}
+        </p>
+      </button>
+    ))}
+  </div>
+)}
           </div>
 
           {/* Divider */}
           <div className="border-t border-black border-opacity-20 mx-6"></div>
 
-          {/* Resources Section */}
+          {/* About Section */}
           <div className="px-6 py-4 flex-grow">
             <button
               onClick={() => setResourcesExpanded(!resourcesExpanded)}
               className="w-full flex items-center justify-between px-4 py-3 text-lg text-black hover:text-white font-semibold rounded-xl hover:bg-black transition-all duration-200"
             >
-              <span>Resources</span>
+              <span>About</span>
               {resourcesExpanded ? (
                 <ChevronUp className="w-5 h-5" />
               ) : (

@@ -45,7 +45,7 @@ export default function AboutUs() {
         </div>
 
         {/* CTA Section with gradient background */}
-        <div className="bg-ui-cards-gradient rounded-xl sm:rounded-2xl p-8 sm:p-12 lg:p-16 text-center text-white">
+        {/* <div className="bg-ui-cards-gradient rounded-xl sm:rounded-2xl p-8 sm:p-12 lg:p-16 text-center text-white">
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-4 sm:mb-6">
             Join our community today and be part of something meaningful.
           </h2>
@@ -94,7 +94,7 @@ export default function AboutUs() {
               </Link>
             )}
           </div>
-        </div>
+        </div> */}
       </main>
     </div>
   );

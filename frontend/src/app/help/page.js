@@ -100,7 +100,7 @@ export default function Help() {
         </div>
 
         {/* Need More Help CTA */}
-        <div className="bg-ui-cards-gradient rounded-xl sm:rounded-2xl p-8 sm:p-12 text-center text-white">
+        {/* <div className="bg-ui-cards-gradient rounded-xl sm:rounded-2xl p-8 sm:p-12 text-center text-white">
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-4 sm:mb-6">
             Need more Help?
           </h2>
@@ -122,7 +122,7 @@ export default function Help() {
               Contact Support
             </Button>
           </div>
-        </div>
+        </div> */}
       </main>
     </div>
   );

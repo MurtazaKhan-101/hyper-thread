@@ -119,7 +119,7 @@ export default function ExplorePage() {
             Explore
           </h1>
           <p className="text-gray-600 dark:text-gray-400">
-            Discover posts from different categories
+            Discover stories and trending news from around the world
           </p>
         </div>
 
