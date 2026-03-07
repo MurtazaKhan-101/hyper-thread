@@ -59,7 +59,7 @@ export default function Home() {
         <div className="text-center mb-16">
           <div className="flex-col justify-center mb-8">
             <h2
-              className={`${aileronBlack.className} tracking-tighter text-8xl font-bold text-gray-900 dark:text-gray-100`}
+              className={`${aileronBlack.className} tracking-tighter text-6xl sm:text-8xl font-bold text-gray-900 dark:text-gray-100`}
             >
               newsnatter.
             </h2>
