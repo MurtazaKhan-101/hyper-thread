@@ -10,9 +10,8 @@ export const CategoryPostsSection = ({
   posts = [],
 }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const POSTS_PER_VIEW = 3;
+  const POSTS_PER_VIEW = 5;
 
-  // Calculate how many posts are available
   const totalPosts = posts.length;
   const canScrollLeft = currentIndex > 0;
   const canScrollRight = currentIndex + POSTS_PER_VIEW < totalPosts;
@@ -27,7 +26,6 @@ export const CategoryPostsSection = ({
     );
   };
 
-  // Get the current visible posts
   const visiblePosts = posts.slice(currentIndex, currentIndex + POSTS_PER_VIEW);
 
   if (!posts || posts.length === 0) {
@@ -37,7 +35,7 @@ export const CategoryPostsSection = ({
   return (
     <div className="mb-10">
       {/* Category Header */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-2">
         <h2 className="text-2xl font-bold text-gray-900 dark:text-white capitalize">
           {categoryLabel}
         </h2>
@@ -71,16 +69,16 @@ export const CategoryPostsSection = ({
         </div>
       </div>
 
-      {/* Posts Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      {/* Posts List */}
+      <div className="flex flex-col">
         {visiblePosts.map((post) => (
           <ExplorePostCard key={post._id} post={post} />
         ))}
       </div>
 
-      {/* Progress Indicator (Optional) */}
+      {/* Progress Indicator */}
       {totalPosts > POSTS_PER_VIEW && (
-        <div className="flex justify-center mt-4 gap-2">
+        <div className="flex justify-center mt-3 gap-2">
           {Array.from({
             length: Math.ceil(totalPosts / POSTS_PER_VIEW),
           }).map((_, idx) => {
