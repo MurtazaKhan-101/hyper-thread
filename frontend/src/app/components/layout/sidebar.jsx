@@ -26,7 +26,7 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
       icon: TrendingUp,
       href: "/dashboard?tab=trending",
     },
-    { id: "explore", label: "Explore", icon: Compass, href: "/explore" },
+    { id: "explore", label: "News Hub", icon: Compass, href: "/explore" },
     { id: "pricing", label: "Pricing", icon: Crown, href: "/pricing" },
   ];
 

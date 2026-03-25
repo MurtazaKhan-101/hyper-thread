@@ -99,6 +99,27 @@ export default function Help() {
           </div>
         </div>
 
+        {/* Need Help */}
+        <div className="mb-12 sm:mb-16">
+          <div className="bg-buttons-gradient p-[2px] rounded-lg">
+            <Card className="bg-white dark:bg-gray-900 rounded-lg p-6 sm:p-8">
+              <h2 className="text-xl sm:text-2xl font-bold text-buttons-gradient mb-2">
+                Need help?
+              </h2>
+              <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 leading-relaxed">
+                Email us at{" "}
+                <a
+                  href="mailto:hello@newsnatter.com"
+                  className="text-buttons-gradient font-semibold underline underline-offset-4"
+                >
+                  hello@newsnatter.com
+                </a>
+                {" "}and we’ll get back to you as soon as possible.
+              </p>
+            </Card>
+          </div>
+        </div>
+
         {/* Need More Help CTA */}
         {/* <div className="bg-ui-cards-gradient rounded-xl sm:rounded-2xl p-8 sm:p-12 text-center text-white">
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-4 sm:mb-6">

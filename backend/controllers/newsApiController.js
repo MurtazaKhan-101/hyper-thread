@@ -17,15 +17,15 @@ const CATEGORY_MAPPING = {
 // Get or create the system user for external news posts
 const getSystemUser = async () => {
   try {
-    let systemUser = await User.findOne({ username: "newsaggregator" });
+    let systemUser = await User.findOne({ username: "newsnatter" });
 
     if (!systemUser) {
       systemUser = await User.create({
-        username: "newsaggregator",
+        username: "newsnatter",
         email: "newsaggregator@newsnatter.com",
         password: "N0tR3@lP@ssw0rd!ExternalNewsOnly",
         firstName: "News",
-        lastName: "Aggregator",
+        lastName: "Natter",
         isVerified: true,
         isSystemAccount: true,
       });
