@@ -5,7 +5,7 @@ import { useAuth } from "../../context/AuthContext";
 import { userPreferencesService } from "../../lib/engagement";
 import { useRouter } from "next/navigation";
 import { Spinner, Button } from "../../components/ui";
-import { Bell, Mail, Calendar, Check } from "lucide-react";
+import { Bell, Mail, Calendar, Check, ArrowLeft } from "lucide-react";
 
 export default function NotificationSettingsPage() {
   const { user, loading: authLoading, isAuthenticated } = useAuth();
@@ -96,6 +96,17 @@ export default function NotificationSettingsPage() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
       <div className="max-w-3xl mx-auto px-4">
+        <div className="mb-6">
+          <Button
+            onClick={() => router.push("/settings")}
+            variant="outline"
+            className="inline-flex items-center gap-2"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back
+          </Button>
+        </div>
+
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">
@@ -260,7 +271,7 @@ export default function NotificationSettingsPage() {
             <Button
               onClick={handleSave}
               disabled={saving}
-              className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
+              className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-black rounded-lg transition-colors"
             >
               {saving ? <Spinner size="sm" /> : "Save Changes"}
             </Button>

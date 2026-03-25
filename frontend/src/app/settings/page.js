@@ -12,6 +12,7 @@ import {
   Loader2,
   User,
   Lock,
+  Bell,
   Trash2,
   Check,
   X,
@@ -498,7 +499,7 @@ export default function SettingsPage() {
               }`}
             >
               <Lock className="w-4 h-4 inline mr-2" />
-              Password
+              Account
             </button>
             <button
               onClick={() => setActiveTab("subscription")}
@@ -510,6 +511,13 @@ export default function SettingsPage() {
             >
               <Crown className="w-4 h-4 inline mr-2" />
               Subscription
+            </button>
+            <button
+              onClick={() => router.push("/settings/notifications")}
+              className="pb-4 px-2 text-sm font-medium border-b-2 border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 transition-colors"
+            >
+              <Bell className="w-4 h-4 inline mr-2" />
+              Notifications
             </button>
           </nav>
         </div>
@@ -683,7 +691,7 @@ export default function SettingsPage() {
                     (usernameAvailable === false &&
                       profileData.username !== user.username)
                   }
-                  className="bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700 shadow-md hover:shadow-lg transition-all duration-200"
+                  className="bg-gradient-to-r from-purple-600 to-pink-600 text-black hover:from-purple-700 hover:to-pink-700 shadow-md hover:shadow-lg transition-all duration-200"
                 >
                   {savingProfile ? <>Saving...</> : "Save Changes"}
                 </Button>
@@ -692,28 +700,18 @@ export default function SettingsPage() {
           </div>
         )}
 
-        {/* Password Tab */}
+        {/* Account Tab */}
         {activeTab === "password" && (
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
             <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4">
               <h2 className="text-xl font-bold text-white flex items-center gap-2">
                 <Lock className="w-6 h-6" />
-                Change Password
+                Account
               </h2>
             </div>
 
             <div className="p-6 space-y-6">
-              {user.googleId && !user.password ? (
-                <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-                  <div className="flex items-center gap-2 text-blue-700 dark:text-blue-400">
-                    <AlertCircle className="w-5 h-5" />
-                    <p className="text-sm">
-                      Your account is connected with Google OAuth. Password
-                      management is not available for OAuth accounts.
-                    </p>
-                  </div>
-                </div>
-              ) : (
+              {!(user.googleId && !user.password) && (
                 <>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -806,7 +804,7 @@ export default function SettingsPage() {
                       </p>
                       <Button
                         onClick={() => setShowDeleteModal(true)}
-                        className="bg-red-600 text-white hover:bg-red-700 shadow-md hover:shadow-lg transition-all duration-200"
+                        className="bg-red-600 text-black hover:bg-red-700 shadow-md hover:shadow-lg transition-all duration-200"
                       >
                         Delete My Account
                       </Button>

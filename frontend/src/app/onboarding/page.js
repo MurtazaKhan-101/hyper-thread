@@ -93,9 +93,9 @@ export default function OnboardingPage() {
               <div
                 className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-colors ${
                   currentStep === 0
-                    ? "bg-buttons-gradient text-white"
+                    ? "bg-buttons-gradient text-black"
                     : currentStep > 0
-                    ? "bg-[#46D160] text-white"
+                    ? "bg-[#46D160] text-black"
                     : "bg-gray-300 dark:bg-gray-700 text-gray-600 dark:text-gray-400"
                 }`}
               >
@@ -126,9 +126,9 @@ export default function OnboardingPage() {
               <div
                 className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-colors ${
                   currentStep === 1
-                    ? "bg-buttons-gradient text-white"
+                    ? "bg-buttons-gradient text-black"
                     : currentStep > 1
-                    ? "bg-[#46D160] text-white"
+                    ? "bg-[#46D160] text-black"
                     : "bg-gray-300 dark:bg-gray-700 text-gray-600 dark:text-gray-400"
                 }`}
               >
