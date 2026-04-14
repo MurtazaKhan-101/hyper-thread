@@ -32,6 +32,19 @@ const postSchema = new mongoose.Schema(
       default: null,
     },
 
+    category: {
+      type: String,
+      enum: [
+        "politics",
+        "business",
+        "entertainment",
+        "lifestyle",
+        "technology",
+        "community",
+      ],
+      default: null,
+    },
+
     tags: {
       type: [String],
       default: [],
@@ -105,6 +118,58 @@ const postSchema = new mongoose.Schema(
       default: "published",
     },
 
+    isEdited: {
+      type: Boolean,
+      default: false,
+    },
+
+    lastEditedAt: {
+      type: Date,
+      default: null,
+    },
+
+    // Moderation
+    moderationStatus: {
+      type: String,
+      enum: ["approved", "pending_review", "flagged", "removed"],
+      default: "approved",
+    },
+
+    moderationScores: {
+      profanity: {
+        hasProfanity: Boolean,
+        cleanedText: String,
+      },
+      toxicity: {
+        isToxic: Boolean,
+        scores: {
+          toxicity: Number,
+          severeToxicity: Number,
+          identityAttack: Number,
+          insult: Number,
+          profanity: Number,
+          threat: Number,
+        },
+      },
+      spam: {
+        isSpam: Boolean,
+        spamScore: Number,
+        confidence: Number,
+      },
+    },
+
+    // Trending
+    trendingScore: {
+      type: Number,
+      default: 0,
+      index: true,
+    },
+
+    lastTrendingUpdate: {
+      type: Date,
+      default: Date.now,
+    },
+
     // Engagement
     likes: {
       type: Number,
@@ -118,43 +183,18 @@ const postSchema = new mongoose.Schema(
       },
     ],
 
-    // Comments
+    // Comments - Now using separate Comment model for infinite nesting
     comments: [
       {
-        user: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "User",
-        },
-        comment: {
-          type: String,
-          required: true,
-        },
-        createdAt: {
-          type: Date,
-          default: Date.now,
-        },
-        likes: {
-          type: Number,
-          default: 0,
-        },
-        replies: [
-          {
-            user: {
-              type: mongoose.Schema.Types.ObjectId,
-              ref: "User",
-            },
-            comment: {
-              type: String,
-              required: true,
-            },
-            createdAt: {
-              type: Date,
-              default: Date.now,
-            },
-          },
-        ],
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Comment",
       },
     ],
+
+    isExternal: {
+      type: Boolean,
+      default: false,
+    },
 
     createdAt: {
       type: Date,
@@ -172,10 +212,13 @@ const postSchema = new mongoose.Schema(
 );
 
 // Indexes for better performance
-// postSchema.index({ author: 1, createdAt: -1 });
-// postSchema.index({ postType: 1 });
-// postSchema.index({ status: 1 });
-// postSchema.index({ tags: 1 });
+postSchema.index({ author: 1, createdAt: -1 });
+postSchema.index({ postType: 1 });
+postSchema.index({ status: 1 });
+postSchema.index({ tags: 1 });
+postSchema.index({ trendingScore: -1, createdAt: -1 });
+postSchema.index({ category: 1, createdAt: -1 });
+postSchema.index({ moderationStatus: 1 });
 
 // Virtual for comment count
 postSchema.virtual("commentCount").get(function () {
@@ -196,4 +239,4 @@ postSchema.pre("save", function (next) {
 
 const Post = mongoose.model("Post", postSchema);
 
-module.exports = Post;
+module.exports = { Post };

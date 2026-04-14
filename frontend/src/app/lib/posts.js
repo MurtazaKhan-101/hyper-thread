@@ -20,25 +20,15 @@ export const postService = {
         formData.append("media", file);
       });
 
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3003"}${
-          API_ENDPOINTS.UPLOAD_MEDIA
-        }`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${apiClient.getToken()}`,
-          },
-          body: formData,
-        }
-      );
+      // Use apiClient for automatic token refresh handling
+      const response = await apiClient.request(API_ENDPOINTS.UPLOAD_MEDIA, {
+        method: "POST",
+        body: formData,
+        // No need to set headers manually - apiClient will handle auth headers
+        // and won't set Content-Type for FormData
+      });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw errorData;
-      }
-
-      return await response.json();
+      return response;
     } catch (error) {
       throw error;
     }
@@ -134,10 +124,79 @@ export const postService = {
     }
   },
 
+  // Add reply to comment
+  async addReply(postId, commentId, comment) {
+    try {
+      return await apiClient.post(
+        `${API_ENDPOINTS.ADD_REPLY}/${postId}/comment/${commentId}/reply`,
+        { comment }
+      );
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  // Like/unlike a comment
+  async toggleCommentLike(postId, commentId) {
+    try {
+      return await apiClient.post(
+        `${API_ENDPOINTS.LIKE_COMMENT}/${postId}/comment/${commentId}/like`
+      );
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  // Like/unlike a reply
+  async toggleReplyLike(postId, commentId, replyId) {
+    try {
+      return await apiClient.post(
+        `${API_ENDPOINTS.LIKE_REPLY}/${postId}/comment/${commentId}/reply/${replyId}/like`
+      );
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  // Edit comment
+  async editComment(postId, commentId, comment) {
+    try {
+      return await apiClient.put(
+        `${API_ENDPOINTS.EDIT_COMMENT}/${postId}/comment/${commentId}`,
+        { comment }
+      );
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  // Delete comment
+  async deleteComment(postId, commentId) {
+    try {
+      return await apiClient.delete(
+        `${API_ENDPOINTS.DELETE_COMMENT}/${postId}/comment/${commentId}`
+      );
+    } catch (error) {
+      throw error;
+    }
+  },
+
   // Delete post
   async deletePost(postId) {
     try {
       return await apiClient.delete(`${API_ENDPOINTS.DELETE_POST}/${postId}`);
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  // Update post
+  async updatePost(postId, postData) {
+    try {
+      return await apiClient.put(
+        `${API_ENDPOINTS.UPDATE_POST}/${postId}`,
+        postData
+      );
     } catch (error) {
       throw error;
     }

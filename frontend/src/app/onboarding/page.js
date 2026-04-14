@@ -8,6 +8,7 @@ import InterestsSelection from "@/app/components/onboarding/interestsSelection";
 import { Spinner, Card } from "@/app/components/ui";
 import { ROUTES } from "@/app/lib/constants";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function OnboardingPage() {
   const router = useRouter();
@@ -68,7 +69,13 @@ export default function OnboardingPage() {
         <div className="max-w-6xl mx-auto px-4">
           <div className="flex items-center justify-between h-14">
             <Link href={ROUTES.HOME}>
-              <h1 className="text-xl font-bold text-[#FF4500]">Hyper Thread</h1>
+              <Image
+                src="/images/NEWS_NET-V2.svg"
+                alt="newsnatter Logo"
+                width={150}
+                height={150}
+                className="hidden sm:inline"
+              />
             </Link>
             <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
               <span className="font-medium">Welcome, {user?.firstName}!</span>
@@ -86,9 +93,9 @@ export default function OnboardingPage() {
               <div
                 className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-colors ${
                   currentStep === 0
-                    ? "bg-[#FF4500] text-white"
+                    ? "bg-buttons-gradient text-black"
                     : currentStep > 0
-                    ? "bg-[#46D160] text-white"
+                    ? "bg-[#46D160] text-black"
                     : "bg-gray-300 dark:bg-gray-700 text-gray-600 dark:text-gray-400"
                 }`}
               >
@@ -119,9 +126,9 @@ export default function OnboardingPage() {
               <div
                 className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-colors ${
                   currentStep === 1
-                    ? "bg-[#FF4500] text-white"
+                    ? "bg-buttons-gradient text-black"
                     : currentStep > 1
-                    ? "bg-[#46D160] text-white"
+                    ? "bg-[#46D160] text-black"
                     : "bg-gray-300 dark:bg-gray-700 text-gray-600 dark:text-gray-400"
                 }`}
               >

@@ -148,7 +148,7 @@ export default function ResetPassword() {
           {loading ? (
             <Spinner size="sm" className="mx-auto" />
           ) : (
-            "Reset Password"
+            <span className="text-black">Reset Password</span>
           )}
         </Button>
       </form>

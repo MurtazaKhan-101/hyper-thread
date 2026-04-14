@@ -13,6 +13,7 @@ export const API_ENDPOINTS = {
   VERIFY_RESET_OTP: "/auth/verify-reset-otp",
   RESET_PASSWORD: "/auth/reset-password",
   REFRESH_TOKEN: "/auth/refresh-token",
+  LOGOUT: "/auth/logout",
   GET_ME: "/auth/me",
 
   // Google OAuth endpoints
@@ -38,14 +39,55 @@ export const API_ENDPOINTS = {
   GET_POST_BY_ID: "/posts",
   LIKE_POST: "/posts",
   ADD_COMMENT: "/posts",
+  ADD_REPLY: "/posts",
+  LIKE_COMMENT: "/posts",
+  LIKE_REPLY: "/posts",
+  EDIT_COMMENT: "/posts",
+  DELETE_COMMENT: "/posts",
+  UPDATE_POST: "/posts",
   DELETE_POST: "/posts",
+
+  // Engagement endpoints
+  TRACK_VIEW: "/engagement/view",
+  TRACK_LIKE: "/engagement/like",
+  TRACK_COMMENT: "/engagement/comment",
+  TRACK_SEARCH: "/engagement/search",
+  GET_ENGAGEMENT_STATS: "/engagement/stats",
+
+  // Feed endpoints
+  PERSONALIZED_FEED: "/feed/personalized",
+  TRENDING_FEED: "/feed/trending",
+  SIMILAR_POSTS: "/feed/similar",
+
+  // User preferences endpoints
+  NOTIFICATION_PREFERENCES: "/user/notification-preferences",
+  GET_USER_PROFILE: "/user/profile",
+  UPDATE_PROFILE: "/user/profile",
+  GENERATE_PROFILE_IMAGE_UPLOAD_URL: "/user/profile/image/upload-url",
+  UPDATE_PROFILE_IMAGE: "/user/profile/image",
+  UPDATE_PASSWORD: "/user/password",
+  DELETE_ACCOUNT: "/user/account",
+  CHECK_USERNAME: "/user/check-username",
+
+  // Chat endpoints
+  GET_CHAT_ROOM: "/chat",
+  // JOIN_CHAT_ROOM: "/chat", // Handled via Socket.IO only
+  // LEAVE_CHAT_ROOM: "/chat", // Handled via Socket.IO only
+  GET_CHAT_HISTORY: "/chat",
+  GET_CHAT_PARTICIPANTS: "/chat",
+  UPDATE_LAST_SEEN: "/chat",
+  ADD_MESSAGE_REACTION: "/chat",
+  UPLOAD_CHAT_IMAGE: "/chat",
+  GET_ACTIVE_CHAT_ROOMS: "/chat",
+
+  // News endpoints
+  GET_ALL_EXTERNAL_NEWS: "/news/external",
+  GET_EXTERNAL_NEWS_BY_CATEGORY: "/news/external",
 };
 
 // Local Storage Keys
 export const STORAGE_KEYS = {
-  TOKEN: "auth_token",
-  USER: "user_data",
-  REFRESH_TOKEN: "refresh_token",
+  USER: "user_data", // Only store user data, not tokens
 };
 
 // Routes
@@ -60,7 +102,12 @@ export const ROUTES = {
   OAUTH_SUCCESS: "/auth/oauth-success",
   ONBOARDING: "/onboarding",
   DASHBOARD: "/dashboard",
+  EXPLORE: "/explore",
   CREATE_POST: "/create-post",
+  CHAT: "/chat",
+  HELP: "/help",
+  ABOUT: "/about",
+  RULES: "/rules",
 };
 
 // Error Messages

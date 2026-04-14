@@ -1,15 +1,145 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  --color-background: #ffffff;
+  --color-foreground: #171717;
+
+  /* --gradient-sidebar: linear-gradient(#b733a7 0%, #f05d24 100%); */
+  --gradient-sidebar: url("/images/sidebar-bg-v4.svg");
+  --gradient-trending: linear-gradient(90deg, #0e004c 0%, #6100a3 100%);
+  /* --gradient-buttons: linear-gradient(90deg, #1a94d0 0%, #a41c5e 100%); */
+  --gradient-buttons: url("/images/sidebar-bg-v4.svg");
+  /* --gradient-chat: linear-gradient(180deg, #1a94d0 0%, #a41c5e 100%); */
+  --gradient-chat: url("/images/sidebar-bg-v4.svg");
+  /* --gradient-buttons-hover: linear-gradient(90deg, #a41c5e 0%, #1a94d0 100%); */
+  --gradient-buttons-hover: linear-gradient(90deg, #a41c5e 0%, #1a94d0 100%);
+  /* --gradient-ui-cards: linear-gradient(90deg, #e01254 0%, #ffad3b 100%); */
+  --gradient-ui-cards: url("/images/sidebar-bg-v4.svg");
+
+  --color-auth-btn-bg: #1a94d0;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+@layer base, components, utilities;
+
+/* Custom gradient utilities */
+@layer utilities {
+  .xs\:block {
+    @media (min-width: 475px) {
+      display: block;
+    }
+  }
+  .bg-sidebar-gradient {
+    background: var(--gradient-sidebar);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+  .hover\:bg-post-hover:hover {
+    background: var(--gradient-post-hover);
+  }
+
+  .bg-gradient-sidebar {
+    background: var(--gradient-sidebar);
+  }
+  .bg-trending-gradient {
+    background: var(--gradient-trending);
+  }
+  .bg-buttons-gradient {
+    background: var(--gradient-sidebar);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+  .bg-chat-gradient {
+    background: var(--gradient-sidebar);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+  .bg-buttons-gradient-hover:hover {
+    background: var(--gradient-buttons-hover);
+  }
+  .bg-ui-cards-gradient {
+    background: var(--gradient-sidebar);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+  .hover\:bg-buttons-gradient:hover {
+    background: var(--gradient-buttons);
+  }
+  .ring-buttons-gradient {
+    --tw-ring-color: var(--gradient-buttons);
+  }
+  .border-buttons-gradient {
+    border-image: var(--gradient-buttons) 1;
+    border-image-slice: 1;
+  }
+  .text-buttons-gradient {
+    background: var(--gradient-buttons);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+  .stroke-buttons-gradient {
+    stroke: url(#buttons-gradient);
+  }
+  .stroke-gray-500 {
+    stroke: #6b7280;
+  }
+  .dark .dark\:stroke-gray-400 {
+    stroke: #9ca3af;
+  }
+
+  .post-card-border {
+    background: #e5e7eb6e;
+  }
+
+  /* Animations for modals */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fadeIn {
+    animation: fadeIn 0.2s ease-out;
+  }
+
+  .animate-slideUp {
+    animation: slideUp 0.3s ease-out;
+  }
+
+  /* Hover state - animated colorful border */
+  .post-card-border:hover {
+    background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899, #3b82f6) 0 0 /
+      300% 100%;
+    animation: movingBorder 1.5s linear infinite;
+  }
+
+  @keyframes movingBorder {
+    0% {
+      background-position: 0 0;
+    }
+    100% {
+      background-position: 300% 0;
+    }
+  }
 }
 
 @media (prefers-color-scheme: dark) {
@@ -38,4 +168,80 @@ body {
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+.scrollbar-hide {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+/* Text wrapping utilities for better overflow handling */
+.break-words {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.overflow-wrap-anywhere {
+  overflow-wrap: anywhere;
+}
+
+.word-break-break-word {
+  word-break: break-word;
+}
+
+/* Moving border animation */
+@keyframes moving-border {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.moving-border {
+  background: linear-gradient(
+    45deg,
+    #b733a7 0%,
+    #f05d24 25%,
+    #1a94d0 50%,
+    #a41c5e 75%,
+    #b733a7 100%
+  );
+  background-size: 400% 400%;
+  animation: moving-border 3s ease-in-out infinite;
+}
+
+.moving-border-fast {
+  background: linear-gradient(
+    45deg,
+    #b733a7 0%,
+    #f05d24 25%,
+    #1a94d0 50%,
+    #a41c5e 75%,
+    #b733a7 100%
+  );
+  background-size: 400% 400%;
+  animation: moving-border 1.5s ease-in-out infinite;
+}
+
+/* Text overflow utilities */
+.text-wrap-anywhere {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  hyphens: auto;
+}
+
+.container-no-overflow {
+  max-width: 100%;
+  min-width: 0;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: break-word;
 }

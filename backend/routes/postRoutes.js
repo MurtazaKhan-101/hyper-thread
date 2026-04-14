@@ -1,26 +1,47 @@
 const express = require("express");
 const router = express.Router();
 const { authenticate } = require("../middleware/auth");
+const { checkPremium } = require("../middleware/premiumCheck");
 const {
   validatePost,
-  validateComment,
   validateLinkPreview,
 } = require("../middleware/postValidation");
+const {
+  moderatePost,
+  rateLimitByUser,
+} = require("../middleware/contentModeration");
 const postController = require("../controllers/postController");
 
-// Post creation routes
-router.post("/", authenticate, validatePost, postController.createPost);
-router.post("/media/upload", authenticate, postController.uploadMedia);
+// Post creation routes (with moderation and rate limiting) - PREMIUM ONLY
+router.post(
+  "/",
+  authenticate,
+  checkPremium, // Premium required
+  rateLimitByUser(10, 60 * 60 * 1000), // 10 posts per hour
+  validatePost,
+  moderatePost,
+  postController.createPost
+);
+router.post(
+  "/media/upload",
+  authenticate,
+  checkPremium, // Premium required
+  postController.uploadMedia
+);
 router.post(
   "/media",
   authenticate,
+  checkPremium, // Premium required
+  rateLimitByUser(10, 60 * 60 * 1000), // 10 posts per hour
   validatePost,
+  moderatePost,
   postController.createMediaPost
 );
 router.post(
   "/link-preview",
   authenticate,
   validateLinkPreview,
+  moderatePost,
   postController.generateLinkPreview
 );
 
@@ -32,14 +53,15 @@ router.get("/:postId", postController.getPostById);
 
 // Post interaction routes
 router.post("/:postId/like", authenticate, postController.toggleLike);
-router.post(
-  "/:postId/comment",
-  authenticate,
-  validateComment,
-  postController.addComment
-);
 
-// Post management routes
+// Post management routes (with moderation on edit)
+router.put(
+  "/:postId",
+  authenticate,
+  validatePost,
+  moderatePost,
+  postController.updatePost
+);
 router.delete("/:postId", authenticate, postController.deletePost);
 
 module.exports = router;

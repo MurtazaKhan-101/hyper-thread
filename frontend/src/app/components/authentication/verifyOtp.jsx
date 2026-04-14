@@ -141,7 +141,11 @@ export default function VerifyOtp() {
         />
 
         <Button type="submit" variant="primary" fullWidth disabled={loading}>
-          {loading ? <Spinner size="sm" className="mx-auto" /> : "Verify Email"}
+          {loading ? (
+            <Spinner size="sm" className="mx-auto" />
+          ) : (
+            <span className="text-black">Verify Email</span>
+          )}
         </Button>
       </form>
 

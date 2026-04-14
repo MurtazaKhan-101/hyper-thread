@@ -3,6 +3,9 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "./context/AuthContext";
+import { SearchProvider } from "./context/SearchContext";
+import { ChatProvider } from "./context/ChatContext";
+import LayoutWrapper from "./components/layout/LayoutWrapper";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -18,13 +21,19 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <head>
-        <title>Hyper Thread - Connect & Share</title>
+        <title>newsnatter - Connect & Share</title>
         <meta name="description" content="A modern community platform" />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <AuthProvider>{children}</AuthProvider>
+        <AuthProvider>
+          <SearchProvider>
+            <ChatProvider>
+              <LayoutWrapper>{children}</LayoutWrapper>
+            </ChatProvider>
+          </SearchProvider>
+        </AuthProvider>
       </body>
     </html>
   );

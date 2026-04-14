@@ -134,7 +134,11 @@ export default function VerifyResetOtp() {
         />
 
         <Button type="submit" variant="primary" fullWidth disabled={loading}>
-          {loading ? <Spinner size="sm" className="mx-auto" /> : "Verify Code"}
+          {loading ? (
+            <Spinner size="sm" className="mx-auto" />
+          ) : (
+            <span className="text-black">Verify Code</span>
+          )}
         </Button>
       </form>
 

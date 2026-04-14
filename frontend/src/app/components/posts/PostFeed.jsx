@@ -2,10 +2,16 @@
 
 import { useState, useEffect } from "react";
 import { postService } from "../../lib/posts";
+import { feedService } from "../../lib/engagement";
 import { PostCard } from "./PostCard";
 import { Spinner, Button } from "../ui";
+import { Newspaper } from "lucide-react";
 
-export const PostFeed = ({ feedType = "latest", searchQuery = "" }) => {
+export const PostFeed = ({
+  feedType = "latest",
+  searchQuery = "",
+  category = "",
+}) => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -24,9 +30,17 @@ export const PostFeed = ({ feedType = "latest", searchQuery = "" }) => {
       let response;
       const params = { page, limit: 10 };
 
+      // Add category filter if specified
+      if (category) {
+        params.category = category;
+      }
+
       switch (feedType) {
+        case "personalized":
+          response = await feedService.getPersonalizedFeed(params);
+          break;
         case "trending":
-          response = await postService.getTrendingPosts(params);
+          response = await feedService.getTrendingPosts(params);
           break;
         case "search":
           if (!searchQuery.trim()) {
@@ -40,9 +54,25 @@ export const PostFeed = ({ feedType = "latest", searchQuery = "" }) => {
       }
 
       if (append) {
-        setPosts((prev) => [...prev, ...response.posts]);
+        setPosts((prev) => {
+          // Deduplicate posts by _id
+          const existingIds = new Set(prev.map((p) => p._id));
+          const newPosts = response.posts.filter(
+            (post) => !existingIds.has(post._id),
+          );
+          return [...prev, ...newPosts];
+        });
       } else {
-        setPosts(response.posts);
+        // Deduplicate posts in initial load as well
+        const seenIds = new Set();
+        const uniquePosts = response.posts.filter((post) => {
+          if (seenIds.has(post._id)) {
+            return false;
+          }
+          seenIds.add(post._id);
+          return true;
+        });
+        setPosts(uniquePosts);
       }
 
       setPagination(response.pagination);
@@ -58,7 +88,7 @@ export const PostFeed = ({ feedType = "latest", searchQuery = "" }) => {
 
   useEffect(() => {
     fetchPosts(1, false);
-  }, [feedType, searchQuery]);
+  }, [feedType, searchQuery, category]);
 
   const handleLoadMore = () => {
     if (pagination.hasNext && !loadingMore) {
@@ -93,7 +123,9 @@ export const PostFeed = ({ feedType = "latest", searchQuery = "" }) => {
   if (posts.length === 0) {
     return (
       <div className="text-center py-8">
-        <div className="text-6xl mb-4">📝</div>
+        <div className="text-6xl mb-4">
+          <Newspaper className="mx-auto text-gray-300 dark:text-gray-600 w-12 h-12" />
+        </div>
         <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
           {searchQuery ? "No posts found" : "No posts yet"}
         </h3>
@@ -121,7 +153,9 @@ export const PostFeed = ({ feedType = "latest", searchQuery = "" }) => {
             disabled={loadingMore}
             className="min-w-32"
           >
-            {loadingMore ? <Spinner size="sm" /> : "Load More"}
+            <span className="flex items-center justify-center min-w-[80px]">
+              {loadingMore ? <Spinner size="sm" /> : "Load More"}
+            </span>
           </Button>
         </div>
       )}

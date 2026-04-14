@@ -156,7 +156,11 @@ export default function Signup() {
         />
 
         <Button type="submit" variant="primary" fullWidth disabled={loading}>
-          {loading ? <Spinner size="sm" className="mx-auto" /> : "Sign Up"}
+          {loading ? (
+            <Spinner size="sm" className="mx-auto" />
+          ) : (
+            <span className="text-black">Sign Up</span>
+          )}
         </Button>
       </form>
 

@@ -1,12 +1,9 @@
-const Post = require("../models/Posts");
+const { Post } = require("../models/Posts");
+const { Comment } = require("../models/Comments");
 const User = require("../models/User");
 const multer = require("multer");
 const path = require("path");
-const {
-  S3Client,
-  PutObjectCommand,
-  DeleteObjectCommand,
-} = require("@aws-sdk/client-s3");
+const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
 const crypto = require("crypto");
 const linkPreviewService = require("../utils/linkPreview");
 
@@ -41,6 +38,37 @@ const upload = multer({
 });
 
 class PostController {
+  //   // Helper function to recursively populate comments and their replies
+  async populateCommentsRecursively(comments, depth = 0, maxDepth = 5) {
+    if (depth > maxDepth) return comments;
+
+    const populatedComments = await Comment.populate(comments, [
+      {
+        path: "user",
+        select: "firstName lastName username profileImage isVerified",
+      },
+      {
+        path: "replies",
+        populate: {
+          path: "user",
+          select: "firstName lastName username profileImage isVerified",
+        },
+      },
+    ]);
+
+    // Recursively populate nested replies
+    for (let comment of populatedComments) {
+      if (comment.replies && comment.replies.length > 0) {
+        comment.replies = await this.populateCommentsRecursively(
+          comment.replies,
+          depth + 1,
+          maxDepth
+        );
+      }
+    }
+
+    return populatedComments;
+  }
   // Create a new post
   async createPost(req, res) {
     try {
@@ -49,10 +77,12 @@ class PostController {
         content,
         postType,
         flair,
+        category,
         tags,
         linkUrl,
         linkTitle,
         linkDescription,
+        linkThumbnail,
         isMarkdown,
       } = req.body;
       const userId = req.user._id;
@@ -103,6 +133,7 @@ class PostController {
         author: userId,
         postType: postType || "text",
         flair: flair?.trim() || null,
+        category: category?.trim() || null,
         tags: processedTags,
         status: "published",
         isMarkdown: Boolean(isMarkdown),
@@ -114,6 +145,7 @@ class PostController {
         postData.linkUrl = linkUrl.trim();
         postData.linkTitle = linkTitle?.trim() || null;
         postData.linkDescription = linkDescription?.trim() || null;
+        postData.linkThumbnail = linkThumbnail?.trim() || null;
 
         // Generate link preview if not provided
         if (!linkTitle || !linkDescription) {
@@ -132,6 +164,12 @@ class PostController {
             // Continue without preview
           }
         }
+      }
+
+      // Add moderation data from middleware
+      if (req.moderationData) {
+        postData.moderationStatus = req.moderationData.moderationStatus;
+        postData.moderationScores = req.moderationData.moderationScores;
       }
 
       const newPost = new Post(postData);
@@ -223,7 +261,8 @@ class PostController {
   // Create media post with uploaded files
   async createMediaPost(req, res) {
     try {
-      const { title, content, flair, tags, mediaFiles, isMarkdown } = req.body;
+      const { title, content, flair, category, tags, mediaFiles, isMarkdown } =
+        req.body;
       const userId = req.user._id;
 
       // Validate required fields
@@ -257,6 +296,7 @@ class PostController {
         author: userId,
         postType: "media",
         flair: flair?.trim() || null,
+        category: category?.trim() || null,
         tags: processedTags,
         media: mediaFiles,
         status: "published",
@@ -313,6 +353,10 @@ class PostController {
         filter.author = req.query.author;
       }
 
+      if (req.query.category) {
+        filter.category = req.query.category;
+      }
+
       if (req.query.tags) {
         const tagArray = Array.isArray(req.query.tags)
           ? req.query.tags
@@ -338,10 +382,13 @@ class PostController {
           "author",
           "firstName lastName username profileImage isVerified"
         )
-        .populate(
-          "comments.user",
-          "firstName lastName username profileImage isVerified"
-        )
+        .populate({
+          path: "comments",
+          populate: {
+            path: "user",
+            select: "firstName lastName username profileImage isVerified",
+          },
+        })
         .sort(sortOption)
         .skip(skip)
         .limit(limit)
@@ -369,7 +416,6 @@ class PostController {
       });
     }
   }
-
   // Get single post by ID
   async getPostById(req, res) {
     try {
@@ -380,20 +426,24 @@ class PostController {
           "author",
           "firstName lastName username profileImage isVerified"
         )
-        .populate(
-          "comments.user",
-          "firstName lastName username profileImage isVerified"
-        )
-        .populate(
-          "comments.replies.user",
-          "firstName lastName username profileImage isVerified"
-        );
+        .populate({
+          path: "comments",
+          populate: {
+            path: "user",
+            select: "firstName lastName username profileImage isVerified",
+          },
+        });
 
       if (!post || post.status !== "published") {
         return res.status(404).json({
           success: false,
           message: "Post not found",
         });
+      }
+
+      // Populate comments recursively
+      if (post.comments && post.comments.length > 0) {
+        post.comments = await this.populateCommentsRecursively(post.comments);
       }
 
       res.status(200).json({
@@ -473,67 +523,6 @@ class PostController {
       res.status(500).json({
         success: false,
         message: "Server error toggling like",
-      });
-    }
-  }
-
-  // Add comment to post
-  async addComment(req, res) {
-    try {
-      const { postId } = req.params;
-      const { comment } = req.body;
-      const userId = req.user._id;
-
-      if (!comment || !comment.trim()) {
-        return res.status(400).json({
-          success: false,
-          message: "Comment is required",
-        });
-      }
-
-      const post = await Post.findById(postId);
-
-      if (!post || post.status !== "published") {
-        return res.status(404).json({
-          success: false,
-          message: "Post not found",
-        });
-      }
-
-      const newComment = {
-        user: userId,
-        comment: comment.trim(),
-        createdAt: new Date(),
-        likes: 0,
-        replies: [],
-      };
-
-      post.comments.push(newComment);
-      await post.save();
-
-      // Update user comment count
-      await User.findByIdAndUpdate(userId, {
-        $inc: { "stats.commentsCount": 1 },
-      });
-
-      // Populate the new comment
-      await post.populate(
-        "comments.user",
-        "firstName lastName username profileImage isVerified"
-      );
-
-      const addedComment = post.comments[post.comments.length - 1];
-
-      res.status(201).json({
-        success: true,
-        message: "Comment added successfully",
-        comment: addedComment,
-      });
-    } catch (error) {
-      console.error("Error adding comment:", error);
-      res.status(500).json({
-        success: false,
-        message: "Server error adding comment",
       });
     }
   }
@@ -644,8 +633,14 @@ class PostController {
           { content: { $regex: searchRegex } },
           { tags: { $in: [searchRegex] } },
           { flair: { $regex: searchRegex } },
+          { category: { $regex: searchRegex } },
         ],
       };
+
+      // Add category filter if specified
+      if (req.query.category) {
+        filter.category = req.query.category;
+      }
 
       const posts = await Post.find(filter)
         .populate(
@@ -685,6 +680,165 @@ class PostController {
     }
   }
 
+  // Update post (author only)
+  async updatePost(req, res) {
+    try {
+      const { postId } = req.params;
+      const userId = req.user._id;
+      const {
+        title,
+        content,
+        flair,
+        category,
+        tags,
+        linkUrl,
+        linkTitle,
+        linkDescription,
+        linkThumbnail,
+        mediaFiles,
+        isMarkdown,
+      } = req.body;
+
+      const post = await Post.findById(postId);
+
+      if (!post) {
+        return res.status(404).json({
+          success: false,
+          message: "Post not found",
+        });
+      }
+
+      // Check if user is the author
+      if (!post.author.equals(userId)) {
+        return res.status(403).json({
+          success: false,
+          message: "You can only edit your own posts",
+        });
+      }
+
+      // Validate title
+      if (title !== undefined) {
+        if (!title || !title.trim()) {
+          return res.status(400).json({
+            success: false,
+            message: "Title is required",
+          });
+        }
+        if (title.length > 300) {
+          return res.status(400).json({
+            success: false,
+            message: "Title must be 300 characters or less",
+          });
+        }
+        post.title = title.trim();
+      }
+
+      // Update content
+      if (content !== undefined) {
+        post.content = content.trim();
+      }
+
+      // Update flair
+      if (flair !== undefined) {
+        post.flair = flair?.trim() || null;
+      }
+
+      // Update category
+      if (category !== undefined) {
+        post.category = category?.trim() || null;
+      }
+
+      // Update tags
+      if (tags !== undefined) {
+        post.tags = Array.isArray(tags)
+          ? tags.filter((tag) => tag.trim()).slice(0, 5)
+          : [];
+      }
+
+      // Update markdown setting
+      if (isMarkdown !== undefined) {
+        post.isMarkdown = Boolean(isMarkdown);
+        post.contentFormat = isMarkdown ? "markdown" : "plain";
+      }
+
+      // Update link-specific fields
+      if (post.postType === "link") {
+        if (linkUrl !== undefined) {
+          if (!linkUrl || !/^https?:\/\/.+/.test(linkUrl)) {
+            return res.status(400).json({
+              success: false,
+              message: "Valid URL is required for link posts",
+            });
+          }
+          post.linkUrl = linkUrl.trim();
+
+          // Generate new preview if URL changed
+          if (post.linkUrl !== linkUrl.trim()) {
+            try {
+              const preview = await linkPreviewService.generateLinkPreview(
+                linkUrl.trim()
+              );
+              if (preview.success) {
+                post.linkTitle = preview.data.title;
+                post.linkDescription = preview.data.description;
+                post.linkThumbnail = preview.data.thumbnail;
+              }
+            } catch (error) {
+              console.error("Error generating link preview:", error);
+            }
+          }
+        }
+
+        if (linkTitle !== undefined) {
+          post.linkTitle = linkTitle?.trim() || null;
+        }
+
+        if (linkDescription !== undefined) {
+          post.linkDescription = linkDescription?.trim() || null;
+        }
+
+        if (linkThumbnail !== undefined) {
+          post.linkThumbnail = linkThumbnail?.trim() || null;
+        }
+      }
+
+      // Update media files
+      if (post.postType === "media" && mediaFiles !== undefined) {
+        if (!Array.isArray(mediaFiles) || mediaFiles.length === 0) {
+          return res.status(400).json({
+            success: false,
+            message: "At least one media file is required for media posts",
+          });
+        }
+        post.media = mediaFiles;
+      }
+
+      // Mark as edited
+      post.isEdited = true;
+      post.lastEditedAt = new Date();
+
+      await post.save();
+
+      // Populate author info
+      await post.populate(
+        "author",
+        "firstName lastName username profileImage isVerified"
+      );
+
+      res.status(200).json({
+        success: true,
+        message: "Post updated successfully",
+        post: post,
+      });
+    } catch (error) {
+      console.error("Error updating post:", error);
+      res.status(500).json({
+        success: false,
+        message: "Server error updating post",
+      });
+    }
+  }
+
   // Delete post (author only)
   async deletePost(req, res) {
     try {
@@ -709,8 +863,7 @@ class PostController {
       }
 
       // Soft delete by updating status
-      post.status = "deleted";
-      await post.save();
+      await post.deleteOne();
 
       // Update user's post count
       await User.findByIdAndUpdate(userId, {
@@ -745,7 +898,7 @@ module.exports = {
   getTrendingPosts: postController.getTrendingPosts.bind(postController),
   searchPosts: postController.searchPosts.bind(postController),
   toggleLike: postController.toggleLike.bind(postController),
-  addComment: postController.addComment.bind(postController),
   generateLinkPreview: postController.generateLinkPreview.bind(postController),
+  updatePost: postController.updatePost.bind(postController),
   deletePost: postController.deletePost.bind(postController),
 };
