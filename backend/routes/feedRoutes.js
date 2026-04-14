@@ -17,7 +17,7 @@ router.get("/personalized", async (req, res) => {
       req.user.id,
       page,
       limit,
-      category
+      category,
     );
 
     res.status(200).json(result);
@@ -40,13 +40,56 @@ router.get("/trending", async (req, res) => {
     const result = await recommendationService.getTrendingPosts(
       page,
       limit,
-      category
+      category,
     );
     res.status(200).json(result);
   } catch (error) {
     console.error("Error getting trending posts:", error);
     res.status(500).json({
       message: "Error fetching trending posts",
+      error: error.message,
+    });
+  }
+});
+
+// Get trending topics for topic-first UI
+router.get("/trending/topics", async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || 6;
+    const previewPostsPerTopic = parseInt(req.query.previewPostsPerTopic) || 2;
+
+    const result = await recommendationService.getTrendingTopics(
+      limit,
+      previewPostsPerTopic,
+    );
+
+    res.status(200).json(result);
+  } catch (error) {
+    console.error("Error getting trending topics:", error);
+    res.status(500).json({
+      message: "Error fetching trending topics",
+      error: error.message,
+    });
+  }
+});
+
+// Get trending posts by topic key
+router.get("/trending/topic/:topicKey", async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+
+    const result = await recommendationService.getTrendingPostsByTopic(
+      req.params.topicKey,
+      page,
+      limit,
+    );
+
+    res.status(200).json(result);
+  } catch (error) {
+    console.error("Error getting trending posts by topic:", error);
+    res.status(500).json({
+      message: "Error fetching trending posts by topic",
       error: error.message,
     });
   }
@@ -59,7 +102,7 @@ router.get("/similar/:postId", async (req, res) => {
 
     const posts = await recommendationService.getSimilarPosts(
       req.params.postId,
-      limit
+      limit,
     );
 
     res.status(200).json({ posts });

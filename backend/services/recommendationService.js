@@ -2,7 +2,282 @@ const { Post } = require("../models/Posts");
 const UserEngagement = require("../models/UserEngagement");
 const User = require("../models/User");
 
+const CATEGORY_LABELS = {
+  politics: "Politics",
+  business: "Business",
+  entertainment: "Entertainment",
+  lifestyle: "Lifestyle",
+  technology: "Technology",
+  community: "Community",
+};
+
 class RecommendationService {
+  toTopicKey(value) {
+    return (value || "")
+      .toString()
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9\s-]/g, " ")
+      .replace(/\s+/g, " ")
+      .replace(/\s/g, "-")
+      .replace(/-+/g, "-")
+      .replace(/^-|-$/g, "");
+  }
+
+  toTopicLabel(value) {
+    return (value || "")
+      .toString()
+      .trim()
+      .split(/\s+/)
+      .filter(Boolean)
+      .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+      .join(" ");
+  }
+
+  normalizeTag(tag) {
+    if (!tag) return "";
+
+    return tag.toString().replace(/^#+/, "").trim().replace(/\s+/g, " ");
+  }
+
+  getPostCommentCount(post) {
+    if (typeof post.commentCount === "number") {
+      return post.commentCount;
+    }
+
+    if (Array.isArray(post.comments)) {
+      return post.comments.length;
+    }
+
+    return 0;
+  }
+
+  getPostRankScore(post) {
+    const now = Date.now();
+    const ageHours =
+      (now - new Date(post.createdAt).getTime()) / (1000 * 60 * 60) || 0;
+    const freshnessBonus = Math.exp(-Math.max(ageHours, 0) / 72) * 30;
+    const commentCount = this.getPostCommentCount(post);
+    const engagementScore = (post.likes || 0) * 2 + commentCount * 3;
+
+    if (post.isExternal) {
+      return (
+        Math.round((40 + freshnessBonus + engagementScore * 0.3) * 100) / 100
+      );
+    }
+
+    const baseTrending =
+      typeof post.trendingScore === "number" && post.trendingScore > 0
+        ? post.trendingScore
+        : this.calculateTrendingScore({
+            ...post,
+            comments: post.comments || [],
+          });
+
+    return (
+      Math.round((baseTrending + freshnessBonus + engagementScore) * 100) / 100
+    );
+  }
+
+  extractTopicCandidates(post) {
+    const candidates = [];
+    const seen = new Set();
+
+    const addCandidate = (type, rawValue, label, weight = 1) => {
+      if (!label) return;
+      const normalizedLabel = label.toString().trim().replace(/\s+/g, " ");
+      if (!normalizedLabel) return;
+
+      const normalizedValue = this.toTopicKey(rawValue);
+      if (!normalizedValue || normalizedValue.length < 3) return;
+
+      const key = `${type}__${normalizedValue}`;
+      if (!key || key.length < 3 || seen.has(key)) return;
+
+      seen.add(key);
+      candidates.push({
+        key,
+        label: this.toTopicLabel(normalizedLabel),
+        type,
+        matchValue: normalizedValue,
+        weight,
+      });
+    };
+
+    if (post.category) {
+      addCandidate(
+        "category",
+        post.category,
+        CATEGORY_LABELS[post.category] || post.category,
+        1.2,
+      );
+    }
+
+    if (Array.isArray(post.tags)) {
+      post.tags
+        .map((tag) => this.normalizeTag(tag))
+        .filter((tag) => tag && tag.length >= 3 && tag.length <= 40)
+        .slice(0, 5)
+        .forEach((tag) => addCandidate("tag", tag, tag, 1.8));
+    }
+
+    return candidates;
+  }
+
+  async getTrendingTopicCandidates() {
+    const now = Date.now();
+    const windowStart = new Date(now - 7 * 24 * 60 * 60 * 1000);
+
+    const posts = await Post.find({
+      status: "published",
+      moderationStatus: { $in: ["approved", "pending_review"] },
+      createdAt: { $gte: windowStart },
+    })
+      .populate("author", "firstName lastName username profileImage isVerified")
+      .sort({ trendingScore: -1, createdAt: -1 })
+      .limit(300)
+      .lean();
+
+    const scoredPosts = posts
+      .map((post) => ({
+        ...post,
+        _topicRankScore: this.getPostRankScore(post),
+      }))
+      .sort((a, b) => b._topicRankScore - a._topicRankScore);
+
+    return scoredPosts;
+  }
+
+  async getTrendingTopics(limit = 6, previewPostsPerTopic = 2) {
+    const candidatePosts = await this.getTrendingTopicCandidates();
+    const topicsMap = new Map();
+
+    for (const post of candidatePosts) {
+      const candidates = this.extractTopicCandidates(post);
+      if (candidates.length === 0) continue;
+
+      // Assign one primary topic per post to reduce overlap across topic buckets.
+      const primaryCandidate = candidates.sort(
+        (a, b) => b.weight - a.weight,
+      )[0];
+      if (!primaryCandidate) continue;
+
+      const existing = topicsMap.get(primaryCandidate.key) || {
+        topicKey: primaryCandidate.key,
+        label: primaryCandidate.label,
+        topicType: primaryCandidate.type,
+        matchValue: primaryCandidate.matchValue,
+        topicScore: 0,
+        postCount: 0,
+        latestPostAt: post.createdAt,
+        previewPosts: [],
+        _seenPostIds: new Set(),
+      };
+
+      const weightedScore = post._topicRankScore * primaryCandidate.weight;
+      existing.topicScore += weightedScore;
+      existing.latestPostAt =
+        new Date(existing.latestPostAt) > new Date(post.createdAt)
+          ? existing.latestPostAt
+          : post.createdAt;
+
+      if (!existing._seenPostIds.has(String(post._id))) {
+        existing._seenPostIds.add(String(post._id));
+        existing.postCount += 1;
+
+        if (existing.previewPosts.length < previewPostsPerTopic) {
+          existing.previewPosts.push(post);
+        }
+      }
+
+      topicsMap.set(primaryCandidate.key, existing);
+    }
+
+    const rawTopics = Array.from(topicsMap.values())
+      .map((topic) => ({
+        topicKey: topic.topicKey,
+        label: topic.label,
+        topicType: topic.topicType,
+        matchValue: topic.matchValue,
+        topicScore: Math.round(topic.topicScore * 100) / 100,
+        postCount: topic.postCount,
+        latestPostAt: topic.latestPostAt,
+        previewPosts: topic.previewPosts,
+      }))
+      .filter((topic) => topic.postCount > 0)
+      .sort((a, b) => {
+        if (b.topicScore !== a.topicScore) return b.topicScore - a.topicScore;
+        return new Date(b.latestPostAt) - new Date(a.latestPostAt);
+      });
+
+    const professionalTopics =
+      rawTopics.filter((topic) => topic.postCount >= 2).length > 0
+        ? rawTopics.filter((topic) => topic.postCount >= 2)
+        : rawTopics;
+
+    const topics = professionalTopics.slice(0, Math.max(1, limit));
+
+    return {
+      topics,
+      meta: {
+        totalTopics: topics.length,
+        generatedAt: new Date().toISOString(),
+      },
+    };
+  }
+
+  async getTrendingPostsByTopic(topicKey, page = 1, limit = 10) {
+    const normalizedKey = (topicKey || "").toString().trim().toLowerCase();
+    if (!normalizedKey) {
+      throw new Error("Invalid topic key");
+    }
+
+    const candidatePosts = await this.getTrendingTopicCandidates();
+    let matchedPosts = [];
+
+    if (normalizedKey.startsWith("category__")) {
+      const categoryValue = normalizedKey.replace("category__", "");
+      matchedPosts = candidatePosts.filter(
+        (post) => this.toTopicKey(post.category) === categoryValue,
+      );
+    } else if (normalizedKey.startsWith("tag__")) {
+      const tagValue = normalizedKey.replace("tag__", "");
+      matchedPosts = candidatePosts.filter((post) => {
+        if (!Array.isArray(post.tags) || post.tags.length === 0) return false;
+
+        return post.tags.some(
+          (tag) => this.toTopicKey(this.normalizeTag(tag)) === tagValue,
+        );
+      });
+    } else {
+      // Backward-compatible fallback for older keys
+      matchedPosts = candidatePosts.filter((post) => {
+        const candidates = this.extractTopicCandidates(post);
+        return candidates.some(
+          (candidate) =>
+            candidate.key === normalizedKey ||
+            candidate.matchValue === normalizedKey ||
+            this.toTopicKey(candidate.label) === normalizedKey,
+        );
+      });
+    }
+
+    const skip = (page - 1) * limit;
+    const paginatedPosts = matchedPosts.slice(skip, skip + limit);
+
+    return {
+      topicKey: normalizedKey,
+      posts: paginatedPosts,
+      pagination: {
+        currentPage: page,
+        totalPages: Math.ceil(matchedPosts.length / limit) || 1,
+        totalPosts: matchedPosts.length,
+        hasNext: skip + limit < matchedPosts.length,
+        hasPrev: page > 1,
+      },
+    };
+  }
+
   /**
    * Calculate personalization score for a post based on user engagement
    */
@@ -18,7 +293,7 @@ class RecommendationService {
     if (post.category && userEngagement) {
       const categoryScore = await UserEngagement.getCategoryScore(
         user._id,
-        post.category
+        post.category,
       );
       score += categoryScore * 5;
     }
@@ -38,11 +313,11 @@ class RecommendationService {
       const hasInteractedWithAuthor =
         userEngagement.likedPosts.some(
           (lp) =>
-            lp.post && post.author.toString() === lp.post.author?.toString()
+            lp.post && post.author.toString() === lp.post.author?.toString(),
         ) ||
         userEngagement.commentedPosts.some(
           (cp) =>
-            cp.post && post.author.toString() === cp.post.author?.toString()
+            cp.post && post.author.toString() === cp.post.author?.toString(),
         );
 
       if (hasInteractedWithAuthor) {
@@ -85,7 +360,7 @@ class RecommendationService {
       const posts = await Post.find(filter)
         .populate(
           "author",
-          "firstName lastName username profileImage isVerified"
+          "firstName lastName username profileImage isVerified",
         )
         .lean();
 
@@ -95,10 +370,10 @@ class RecommendationService {
           const score = await this.calculatePostScore(
             post,
             user,
-            userEngagement
+            userEngagement,
           );
           return { ...post, personalizedScore: score };
-        })
+        }),
       );
 
       // Sort by personalized score
@@ -218,7 +493,7 @@ class RecommendationService {
       const posts = await Post.find(filter)
         .populate(
           "author",
-          "firstName lastName username profileImage isVerified"
+          "firstName lastName username profileImage isVerified",
         )
         .sort({ trendingScore: -1, createdAt: -1 })
         .skip(skip)
@@ -261,7 +536,7 @@ class RecommendationService {
       })
         .populate(
           "author",
-          "firstName lastName username profileImage isVerified"
+          "firstName lastName username profileImage isVerified",
         )
         .sort({ createdAt: -1 })
         .limit(limit)

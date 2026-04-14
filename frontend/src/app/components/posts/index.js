@@ -1,4 +1,5 @@
 export { PostCard } from "./PostCard";
+export { TrendingSection } from "./TrendingSection";
 export { PostFeed } from "./PostFeed";
 export { ImageSlider } from "./ImageSlider";
 export { CommentThread } from "./CommentThread";

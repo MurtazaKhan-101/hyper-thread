@@ -90,6 +90,38 @@ export const feedService = {
     }
   },
 
+  // Get trending topic cards for topic-first layout
+  async getTrendingTopics(params = {}) {
+    try {
+      const queryParams = new URLSearchParams({
+        limit: params.limit || 6,
+        previewPostsPerTopic: params.previewPostsPerTopic || 2,
+      });
+
+      return await apiClient.get(`/feed/trending/topics?${queryParams}`);
+    } catch (error) {
+      console.error("Error getting trending topics:", error);
+      throw error;
+    }
+  },
+
+  // Get trending posts for one topic
+  async getTrendingPostsByTopic(topicKey, params = {}) {
+    try {
+      const queryParams = new URLSearchParams({
+        page: params.page || 1,
+        limit: params.limit || 10,
+      });
+
+      return await apiClient.get(
+        `/feed/trending/topic/${encodeURIComponent(topicKey)}?${queryParams}`,
+      );
+    } catch (error) {
+      console.error("Error getting trending posts by topic:", error);
+      throw error;
+    }
+  },
+
   // Get similar posts
   async getSimilarPosts(postId, limit = 5) {
     try {

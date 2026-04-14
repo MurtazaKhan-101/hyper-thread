@@ -6,6 +6,7 @@ import { useAuth } from "../context/AuthContext";
 import { useSearch } from "../context/SearchContext";
 import { Spinner, UpgradeModal, UpgradeBanner } from "../components/ui";
 import { PostFeed } from "../components/posts/PostFeed";
+import { TrendingSection } from "../components/posts/TrendingSection";
 import { ROUTES } from "../lib/constants";
 import Link from "next/link";
 import Image from "next/image";
@@ -99,43 +100,49 @@ export default function DashboardPage() {
             <div className="flex flex-wrap items-center gap-3 md:gap-6">
               <button
                 onClick={() => handleLocalTabChange("latest")}
-                className={`relative px-3 py-2 md:px-6 md:py-2.5 text-sm md:text-base font-black tracking-wide transition-all duration-200 ${activeTab === "latest"
+                className={`relative px-3 py-2 md:px-6 md:py-2.5 text-sm md:text-base font-black tracking-wide transition-all duration-200 ${
+                  activeTab === "latest"
                     ? "text-black dark:text-white"
                     : "text-gray-400 dark:text-gray-500 hover:text-black dark:hover:text-white"
-                  }`}
+                }`}
               >
                 LATEST
                 <span
-                  className={`absolute bottom-0 left-0 right-0 h-1 rounded-full bg-sidebar-gradient transition-all duration-200 ${activeTab === "latest" ? "opacity-100" : "opacity-0"
-                    }`}
+                  className={`absolute bottom-0 left-0 right-0 h-1 rounded-full bg-sidebar-gradient transition-all duration-200 ${
+                    activeTab === "latest" ? "opacity-100" : "opacity-0"
+                  }`}
                 />
               </button>
 
               <button
                 onClick={() => handleLocalTabChange("trending")}
-                className={`relative px-3 py-2 md:px-6 md:py-2.5 text-sm md:text-base font-black tracking-wide transition-all duration-200 ${activeTab === "trending"
+                className={`relative px-3 py-2 md:px-6 md:py-2.5 text-sm md:text-base font-black tracking-wide transition-all duration-200 ${
+                  activeTab === "trending"
                     ? "text-black dark:text-white"
                     : "text-gray-400 dark:text-gray-500 hover:text-black dark:hover:text-white"
-                  }`}
+                }`}
               >
                 TRENDING
                 <span
-                  className={`absolute bottom-0 left-0 right-0 h-1 rounded-full bg-sidebar-gradient transition-all duration-200 ${activeTab === "trending" ? "opacity-100" : "opacity-0"
-                    }`}
+                  className={`absolute bottom-0 left-0 right-0 h-1 rounded-full bg-sidebar-gradient transition-all duration-200 ${
+                    activeTab === "trending" ? "opacity-100" : "opacity-0"
+                  }`}
                 />
               </button>
 
               <button
                 onClick={() => handleLocalTabChange("personalized")}
-                className={`relative px-3 py-2 md:px-6 md:py-2.5 text-sm md:text-base font-black tracking-wide transition-all duration-200 ${activeTab === "personalized"
+                className={`relative px-3 py-2 md:px-6 md:py-2.5 text-sm md:text-base font-black tracking-wide transition-all duration-200 ${
+                  activeTab === "personalized"
                     ? "text-black dark:text-white"
                     : "text-gray-400 dark:text-gray-500 hover:text-black dark:hover:text-white"
-                  }`}
+                }`}
               >
                 EXPLORE
                 <span
-                  className={`absolute bottom-0 left-0 right-0 h-1 rounded-full bg-sidebar-gradient transition-all duration-200 ${activeTab === "personalized" ? "opacity-100" : "opacity-0"
-                    }`}
+                  className={`absolute bottom-0 left-0 right-0 h-1 rounded-full bg-sidebar-gradient transition-all duration-200 ${
+                    activeTab === "personalized" ? "opacity-100" : "opacity-0"
+                  }`}
                 />
               </button>
 
@@ -237,11 +244,15 @@ export default function DashboardPage() {
 
           {/* Post Feed - Scrollable Content */}
           <div className="pb-8">
-            <PostFeed
-              feedType={activeTab}
-              searchQuery={activeTab === "search" ? searchQuery : ""}
-              category={category}
-            />
+            {activeTab === "trending" && !category ? (
+              <TrendingSection />
+            ) : (
+              <PostFeed
+                feedType={activeTab}
+                searchQuery={activeTab === "search" ? searchQuery : ""}
+                category={category}
+              />
+            )}
           </div>
         </div>
 
