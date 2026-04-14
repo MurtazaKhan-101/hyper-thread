@@ -6,6 +6,7 @@ import { useAuth } from "../context/AuthContext";
 import { useSearch } from "../context/SearchContext";
 import { Spinner, UpgradeModal, UpgradeBanner } from "../components/ui";
 import { PostFeed } from "../components/posts/PostFeed";
+import { TrendingSection } from "../components/posts/TrendingSection";
 import { ROUTES } from "../lib/constants";
 import Link from "next/link";
 import Image from "next/image";
@@ -237,11 +238,15 @@ export default function DashboardPage() {
 
           {/* Post Feed - Scrollable Content */}
           <div className="pb-8">
-            <PostFeed
-              feedType={activeTab}
-              searchQuery={activeTab === "search" ? searchQuery : ""}
-              category={category}
-            />
+            {activeTab === "trending" && !category ? (
+              <TrendingSection />
+            ) : (
+              <PostFeed
+                feedType={activeTab}
+                searchQuery={activeTab === "search" ? searchQuery : ""}
+                category={category}
+              />
+            )}
           </div>
         </div>
 
