@@ -1,17 +1,17 @@
-const NewsAPI = require("newsapi");
-const newsapi = new NewsAPI(process.env.NEWS_API_KEY);
+const axios = require("axios");
 const { Post } = require("../models/Posts");
 const User = require("../models/User");
-const mongoose = require("mongoose");
+const GNEWS_BASE_URL = "https://gnews.io/api/v4";
+const GNEWS_API_KEY = process.env.GNEWS_API_KEY;
+const CATEGORY_DELAY_MS = Number(process.env.GNEWS_CATEGORY_DELAY_MS || 1500);
 
-// Category mapping: app categories to NewsAPI categories
+// Category mapping: app categories to GNews categories
 const CATEGORY_MAPPING = {
-  politics: "general",
+  politics: "world",
   business: "business",
   entertainment: "entertainment",
   lifestyle: "health",
   technology: "technology",
-  community: "general",
 };
 
 // Get or create the system user for external news posts
@@ -38,7 +38,7 @@ const getSystemUser = async () => {
   }
 };
 
-// Fetch news for a specific category from NewsAPI
+// Fetch news for a specific category from GNews
 const fetchCategoryNews = async (appCategory, limit = 3) => {
   try {
     const newsApiCategory = CATEGORY_MAPPING[appCategory];
@@ -47,28 +47,37 @@ const fetchCategoryNews = async (appCategory, limit = 3) => {
       return [];
     }
 
-    const response = await newsapi.v2.topHeadlines({
-      category: newsApiCategory,
-      language: "en",
-      country: "us",
-      pageSize: limit,
+    if (!GNEWS_API_KEY) {
+      console.error("Missing GNEWS_API_KEY; cannot fetch external news.");
+      return [];
+    }
+
+    const response = await axios.get(`${GNEWS_BASE_URL}/top-headlines`, {
+      params: {
+        category: newsApiCategory,
+        lang: "en",
+        country: "us",
+        max: limit,
+        apikey: GNEWS_API_KEY,
+      },
+      timeout: 10000,
     });
 
-    if (response.status === "ok" && response.articles) {
-      return response.articles;
+    if (response.data && Array.isArray(response.data.articles)) {
+      return response.data.articles;
     }
 
     return [];
   } catch (error) {
     console.error(
       `Error fetching news for category ${appCategory}:`,
-      error.message
+      error.message,
     );
     return [];
   }
 };
 
-// Convert NewsAPI article to Post format
+// Convert GNews article to Post format
 const convertArticleToPost = (article, category, systemUserId) => {
   return {
     postType: "link",
@@ -77,7 +86,7 @@ const convertArticleToPost = (article, category, systemUserId) => {
     author: systemUserId,
     category: category,
     linkUrl: article.url,
-    linkThumbnail: article.urlToImage || null,
+    linkThumbnail: article.image || null,
     linkTitle: article.title || null,
     linkDescription: article.description || null,
     isExternal: true,
@@ -102,7 +111,7 @@ exports.syncExternalNews = async () => {
           category: category,
         });
         console.log(
-          `Deleted ${deleteResult.deletedCount} old external posts for ${category}`
+          `Deleted ${deleteResult.deletedCount} old external posts for ${category}`,
         );
 
         // Fetch new articles
@@ -111,13 +120,19 @@ exports.syncExternalNews = async () => {
 
         // Convert and save new posts
         const posts = articles.map((article) =>
-          convertArticleToPost(article, category, systemUser._id)
+          convertArticleToPost(article, category, systemUser._id),
         );
 
         if (posts.length > 0) {
           await Post.insertMany(posts);
           totalSynced += posts.length;
           console.log(`Saved ${posts.length} external posts for ${category}`);
+        }
+
+        if (CATEGORY_DELAY_MS > 0) {
+          await new Promise((resolve) =>
+            setTimeout(resolve, CATEGORY_DELAY_MS),
+          );
         }
       } catch (error) {
         console.error(`Error syncing category ${category}:`, error.message);

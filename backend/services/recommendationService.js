@@ -8,7 +8,6 @@ const CATEGORY_LABELS = {
   entertainment: "Entertainment",
   lifestyle: "Lifestyle",
   technology: "Technology",
-  community: "Community",
 };
 
 class RecommendationService {

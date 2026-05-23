@@ -40,7 +40,6 @@ const postSchema = new mongoose.Schema(
         "entertainment",
         "lifestyle",
         "technology",
-        "community",
       ],
       default: null,
     },
@@ -208,7 +207,7 @@ const postSchema = new mongoose.Schema(
   {
     collection: "posts",
     timestamps: true,
-  }
+  },
 );
 
 // Indexes for better performance

@@ -20,7 +20,6 @@ const userEngagementSchema = new mongoose.Schema(
             "entertainment",
             "lifestyle",
             "technology",
-            "community",
           ],
         },
         interactions: {
@@ -115,7 +114,7 @@ const userEngagementSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 // Indexes for better performance
@@ -126,7 +125,7 @@ userEngagementSchema.index({ "likedPosts.post": 1 });
 // Static method to update category engagement
 userEngagementSchema.statics.updateCategoryEngagement = async function (
   userId,
-  category
+  category,
 ) {
   const engagement = await this.findOne({ user: userId });
 
@@ -144,7 +143,7 @@ userEngagementSchema.statics.updateCategoryEngagement = async function (
   }
 
   const categoryIndex = engagement.categoryEngagement.findIndex(
-    (ce) => ce.category === category
+    (ce) => ce.category === category,
   );
 
   if (categoryIndex === -1) {
@@ -165,14 +164,14 @@ userEngagementSchema.statics.updateCategoryEngagement = async function (
 // Static method to get category engagement score
 userEngagementSchema.statics.getCategoryScore = async function (
   userId,
-  category
+  category,
 ) {
   const engagement = await this.findOne({ user: userId });
 
   if (!engagement) return 0;
 
   const categoryEngagement = engagement.categoryEngagement.find(
-    (ce) => ce.category === category
+    (ce) => ce.category === category,
   );
 
   if (!categoryEngagement) return 0;

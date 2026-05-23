@@ -62,12 +62,6 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
       href: "/dashboard?category=technology",
       description: "Scientific research, technology, and innovation.",
     },
-    {
-      id: "community",
-      label: "COMMUNITY",
-      href: "/dashboard?category=community",
-      description: " Local news, events, and social issues.",
-    },
   ];
 
   const resourcesItems = [

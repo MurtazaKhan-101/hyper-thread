@@ -15,7 +15,6 @@ const CATEGORIES = [
   { id: "entertainment", label: "Entertainment" },
   { id: "lifestyle", label: "Lifestyle" },
   { id: "technology", label: "Science & Tech" },
-  { id: "community", label: "Community" },
 ];
 
 export default function ExplorePage() {

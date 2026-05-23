@@ -42,7 +42,7 @@ function TrendingTopicCard({ label, postCount, index, isActive, onClick }) {
       >
         <path
           d={shape.path}
-          stroke={isActive ? "#2563EB" : "#60A5FA"}
+          stroke={isActive ? "#6c5c83" : "#7f6e9b"}
           strokeWidth="4"
         />
       </svg>

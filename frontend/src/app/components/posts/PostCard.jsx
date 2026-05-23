@@ -14,7 +14,7 @@ export const PostCard = ({ post, onUpdate }) => {
   const router = useRouter();
   const [isMobile, setIsMobile] = useState(false);
   const [isLiked, setIsLiked] = useState(
-    post.likedBy?.includes(user?._id) || false
+    post.likedBy?.includes(user?._id) || false,
   );
   const [likeCount, setLikeCount] = useState(post.likes || 0);
   const [showFullContent, setShowFullContent] = useState(false);
@@ -121,7 +121,7 @@ export const PostCard = ({ post, onUpdate }) => {
           post.content &&
           renderContentWithReadMore(
             post.content,
-            "mt-3 text-gray-800 dark:text-gray-200"
+            "mt-3 text-gray-800 dark:text-gray-200",
           )
         );
 
@@ -175,7 +175,7 @@ export const PostCard = ({ post, onUpdate }) => {
             {post.content &&
               renderContentWithReadMore(
                 post.content,
-                "mt-3 text-gray-800 dark:text-gray-200"
+                "mt-3 text-gray-800 dark:text-gray-200",
               )}
           </div>
         );
@@ -191,7 +191,7 @@ export const PostCard = ({ post, onUpdate }) => {
             {post.content &&
               renderContentWithReadMore(
                 post.content,
-                "mt-3 text-gray-800 dark:text-gray-200"
+                "mt-3 text-gray-800 dark:text-gray-200",
               )}
           </div>
         );
@@ -332,7 +332,7 @@ export const PostCard = ({ post, onUpdate }) => {
               {formatNumber(likeCount)}
             </button>
 
-            <button
+            {/* <button
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
@@ -354,7 +354,7 @@ export const PostCard = ({ post, onUpdate }) => {
                 />
               </svg>
               {formatNumber(getTotalCommentCount(comments))}
-            </button>
+            </button> */}
 
             <button
               onClick={(e) => {

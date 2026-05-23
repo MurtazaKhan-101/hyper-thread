@@ -9,7 +9,6 @@ const CATEGORIES = [
   { id: "entertainment", label: "Entertainment" },
   { id: "lifestyle", label: "Lifestyle" },
   { id: "technology", label: "Science & Technology" },
-  { id: "community", label: "Community" },
 ];
 
 export const CategorySelector = ({ value, onChange, error }) => {
