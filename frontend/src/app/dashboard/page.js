@@ -83,6 +83,9 @@ export default function DashboardPage() {
     // Clear tab parameter from URL
     const params = new URLSearchParams(searchParams.toString());
     params.delete("tab");
+    if (tab === "trending") {
+      params.delete("category");
+    }
     const newUrl = params.toString()
       ? `/dashboard?${params.toString()}`
       : "/dashboard";

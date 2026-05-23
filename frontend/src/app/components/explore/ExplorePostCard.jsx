@@ -3,9 +3,14 @@
 import { useRouter } from "next/navigation";
 import { formatPostTime } from "../../lib/posts";
 import { ExternalLink } from "lucide-react";
+import { ExternalNewsCard } from "../news/ExternalNewsCard";
 
 export const ExplorePostCard = ({ post }) => {
   const router = useRouter();
+
+  if (post.isExternal) {
+    return <ExternalNewsCard post={post} />;
+  }
 
   const handleClick = () => {
     if (post.isExternal && post.linkUrl) {
