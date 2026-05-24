@@ -3,7 +3,7 @@ const { Post } = require("../models/Posts");
 const User = require("../models/User");
 const GNEWS_BASE_URL = "https://gnews.io/api/v4";
 const GNEWS_API_KEY = process.env.GNEWS_API_KEY;
-const CATEGORY_DELAY_MS = Number(process.env.GNEWS_CATEGORY_DELAY_MS || 1500);
+const CATEGORY_DELAY_MS = Number(1500);
 
 // Category mapping: app categories to GNews categories
 const CATEGORY_MAPPING = {
