@@ -72,8 +72,8 @@ export default function OnboardingPage() {
               <Image
                 src="/images/NEWS_NET-V2.svg"
                 alt="newsnatter Logo"
-                width={150}
-                height={150}
+                width={55}
+                height={55}
                 className="hidden sm:inline"
               />
             </Link>
@@ -95,8 +95,8 @@ export default function OnboardingPage() {
                   currentStep === 0
                     ? "bg-buttons-gradient text-black"
                     : currentStep > 0
-                    ? "bg-[#46D160] text-black"
-                    : "bg-gray-300 dark:bg-gray-700 text-gray-600 dark:text-gray-400"
+                      ? "bg-[#46D160] text-black"
+                      : "bg-gray-300 dark:bg-gray-700 text-gray-600 dark:text-gray-400"
                 }`}
               >
                 {currentStep > 0 ? "✓" : "1"}
@@ -128,8 +128,8 @@ export default function OnboardingPage() {
                   currentStep === 1
                     ? "bg-buttons-gradient text-black"
                     : currentStep > 1
-                    ? "bg-[#46D160] text-black"
-                    : "bg-gray-300 dark:bg-gray-700 text-gray-600 dark:text-gray-400"
+                      ? "bg-[#46D160] text-black"
+                      : "bg-gray-300 dark:bg-gray-700 text-gray-600 dark:text-gray-400"
                 }`}
               >
                 {currentStep > 1 ? "✓" : "2"}

@@ -364,8 +364,8 @@ export default function DashboardPage() {
                   <Image
                     src="/images/NEWS_NET-V2.svg"
                     alt="newsnatter Logo"
-                    width={80}
-                    height={80}
+                    width={55}
+                    height={55}
                     className="hidden sm:inline"
                   />
                 </div>
