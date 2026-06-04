@@ -37,9 +37,8 @@ export default function Home() {
             <Image
               src="/images/NEWS_NET-V2.svg"
               alt="newsnatter Logo"
-              width={55}
-              height={55}
-              className="hidden sm:inline"
+              width={50}
+              height={50}
             />
 
             <div className="flex items-center gap-3">

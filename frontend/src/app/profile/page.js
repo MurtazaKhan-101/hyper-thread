@@ -94,7 +94,7 @@ export default function ProfilePage() {
       if (response.success) {
         // Remove post from list
         setUserPosts((prev) =>
-          prev.filter((post) => post._id !== postToDelete._id)
+          prev.filter((post) => post._id !== postToDelete._id),
         );
         setDeleteModalOpen(false);
         setPostToDelete(null);

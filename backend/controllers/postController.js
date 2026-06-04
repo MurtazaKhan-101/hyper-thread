@@ -62,7 +62,7 @@ class PostController {
         comment.replies = await this.populateCommentsRecursively(
           comment.replies,
           depth + 1,
-          maxDepth
+          maxDepth,
         );
       }
     }
@@ -151,7 +151,7 @@ class PostController {
         if (!linkTitle || !linkDescription) {
           try {
             const preview = await linkPreviewService.generateLinkPreview(
-              linkUrl.trim()
+              linkUrl.trim(),
             );
             if (preview.success) {
               postData.linkTitle = linkTitle?.trim() || preview.data.title;
@@ -183,7 +183,7 @@ class PostController {
       // Populate author info
       await newPost.populate(
         "author",
-        "firstName lastName username profileImage isVerified"
+        "firstName lastName username profileImage isVerified",
       );
 
       res.status(201).json({
@@ -221,8 +221,8 @@ class PostController {
         const mediaType = file.mimetype.startsWith("image/")
           ? "image"
           : file.mimetype.startsWith("video/")
-          ? "video"
-          : "image";
+            ? "video"
+            : "image";
 
         // Upload to R2
         const uploadParams = {
@@ -315,7 +315,7 @@ class PostController {
       // Populate author info
       await newPost.populate(
         "author",
-        "firstName lastName username profileImage isVerified"
+        "firstName lastName username profileImage isVerified",
       );
 
       res.status(201).json({
@@ -364,6 +364,10 @@ class PostController {
         filter.tags = { $in: tagArray };
       }
 
+      if (req.query.excludeExternal === "true") {
+        filter.isExternal = false;
+      }
+
       // Sort options
       let sortOption = {};
       switch (req.query.sort) {
@@ -380,7 +384,7 @@ class PostController {
       const posts = await Post.find(filter)
         .populate(
           "author",
-          "firstName lastName username profileImage isVerified"
+          "firstName lastName username profileImage isVerified",
         )
         .populate({
           path: "comments",
@@ -424,7 +428,7 @@ class PostController {
       const post = await Post.findById(postId)
         .populate(
           "author",
-          "firstName lastName username profileImage isVerified"
+          "firstName lastName username profileImage isVerified",
         )
         .populate({
           path: "comments",
@@ -571,11 +575,11 @@ class PostController {
       })
         .populate(
           "author",
-          "firstName lastName username profileImage isVerified"
+          "firstName lastName username profileImage isVerified",
         )
         .populate(
           "comments.user",
-          "firstName lastName username profileImage isVerified"
+          "firstName lastName username profileImage isVerified",
         )
         .sort({ likes: -1, commentCount: -1, createdAt: -1 })
         .skip(skip)
@@ -645,11 +649,11 @@ class PostController {
       const posts = await Post.find(filter)
         .populate(
           "author",
-          "firstName lastName username profileImage isVerified"
+          "firstName lastName username profileImage isVerified",
         )
         .populate(
           "comments.user",
-          "firstName lastName username profileImage isVerified"
+          "firstName lastName username profileImage isVerified",
         )
         .sort({ createdAt: -1 })
         .skip(skip)
@@ -776,7 +780,7 @@ class PostController {
           if (post.linkUrl !== linkUrl.trim()) {
             try {
               const preview = await linkPreviewService.generateLinkPreview(
-                linkUrl.trim()
+                linkUrl.trim(),
               );
               if (preview.success) {
                 post.linkTitle = preview.data.title;
@@ -822,7 +826,7 @@ class PostController {
       // Populate author info
       await post.populate(
         "author",
-        "firstName lastName username profileImage isVerified"
+        "firstName lastName username profileImage isVerified",
       );
 
       res.status(200).json({

@@ -12,7 +12,7 @@ export const PostView = ({ post, onUpdate, isDiscussionView = false }) => {
   const { user, isAuthenticated } = useAuth();
   const router = useRouter();
   const [isLiked, setIsLiked] = useState(
-    post.likedBy?.includes(user?._id) || false
+    post.likedBy?.includes(user?._id) || false,
   );
   const [likeCount, setLikeCount] = useState(post.likes || 0);
   const [showFullContent, setShowFullContent] = useState(false);
@@ -66,7 +66,7 @@ export const PostView = ({ post, onUpdate, isDiscussionView = false }) => {
           post.content &&
           renderContentWithReadMore(
             post.content,
-            "mt-4 text-gray-800 dark:text-gray-200 text-lg leading-relaxed"
+            "mt-4 text-gray-800 dark:text-gray-200 text-lg leading-relaxed",
           )
         );
 
@@ -120,7 +120,7 @@ export const PostView = ({ post, onUpdate, isDiscussionView = false }) => {
             {post.content &&
               renderContentWithReadMore(
                 post.content,
-                "mt-4 text-gray-800 dark:text-gray-200 text-lg leading-relaxed"
+                "mt-4 text-gray-800 dark:text-gray-200 text-lg leading-relaxed",
               )}
           </div>
         );
@@ -131,7 +131,7 @@ export const PostView = ({ post, onUpdate, isDiscussionView = false }) => {
             {post.content &&
               renderContentWithReadMore(
                 post.content,
-                "mb-4 text-gray-800 dark:text-gray-200 text-lg leading-relaxed"
+                "mb-4 text-gray-800 dark:text-gray-200 text-lg leading-relaxed",
               )}
             {post.media && post.media.length > 0 && (
               <div className="max-w-full overflow-hidden">
@@ -272,7 +272,7 @@ export const PostView = ({ post, onUpdate, isDiscussionView = false }) => {
             <span className="sm:hidden">{formatNumber(likeCount)}</span>
           </button>
 
-          <div className="flex items-center gap-1 md:gap-2 px-3 md:px-4 py-2 text-gray-600 dark:text-gray-400">
+          {/* <div className="flex items-center gap-1 md:gap-2 px-3 md:px-4 py-2 text-gray-600 dark:text-gray-400">
             <svg
               className="w-4 h-4 md:w-5 md:h-5"
               fill="none"
@@ -295,7 +295,7 @@ export const PostView = ({ post, onUpdate, isDiscussionView = false }) => {
             <span className="sm:hidden">
               {formatNumber(getTotalCommentCount(post.comments))}
             </span>
-          </div>
+          </div> */}
 
           <button
             onClick={() => router.push(`/chat/${post._id}`)}

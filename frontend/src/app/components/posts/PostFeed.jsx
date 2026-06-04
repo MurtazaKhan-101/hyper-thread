@@ -6,7 +6,6 @@ import { feedService } from "../../lib/engagement";
 import { PostCard } from "./PostCard";
 import { Spinner, Button } from "../ui";
 import { Newspaper } from "lucide-react";
-import { ExternalNewsCard } from "../news/ExternalNewsCard";
 
 export const PostFeed = ({
   feedType = "latest",
@@ -34,6 +33,10 @@ export const PostFeed = ({
       // Add category filter if specified
       if (category) {
         params.category = category;
+      }
+
+      if (feedType === "latest") {
+        params.excludeExternal = true;
       }
 
       switch (feedType) {
@@ -141,13 +144,9 @@ export const PostFeed = ({
 
   return (
     <div className="space-y-4">
-      {posts.map((post) =>
-        post.isExternal && feedType === "latest" ? (
-          <ExternalNewsCard key={post._id} post={post} />
-        ) : (
-          <PostCard key={post._id} post={post} onUpdate={handlePostUpdate} />
-        ),
-      )}
+      {posts.map((post) => (
+        <PostCard key={post._id} post={post} onUpdate={handlePostUpdate} />
+      ))}
 
       {/* Load More Button */}
       {pagination.hasNext && (

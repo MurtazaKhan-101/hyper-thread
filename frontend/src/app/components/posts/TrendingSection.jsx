@@ -23,39 +23,25 @@ function TrendingTopicCard({ label, postCount, index, isActive, onClick }) {
   return (
     <button
       onClick={onClick}
-      className="relative w-full group transition-transform duration-200 hover:scale-[1.02] active:scale-[0.98]"
+      className={`
+    relative w-full group transition-transform duration-200 
+    hover:scale-[1.02] active:scale-[0.98]
+    rounded-2xl border-4 px-6 py-6
+    flex flex-col items-center justify-center
+    ${
+      isActive
+        ? "border-[#6c5c83] shadow-[0_0_8px_rgba(37,99,235,0.35)]"
+        : "border-[#7f6e9b] hover:shadow-[0_0_6px_rgba(37,99,235,0.25)]"
+    }
+  `}
       style={{ aspectRatio: "323 / 116" }}
     >
-      {/* SVG border shape */}
-      <svg
-        width="100%"
-        height="100%"
-        viewBox={shape.viewBox}
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        className={`absolute inset-0 w-full h-full transition-all duration-200 ${
-          isActive
-            ? "drop-shadow-[0_0_8px_rgba(37,99,235,0.35)]"
-            : "group-hover:drop-shadow-[0_0_6px_rgba(37,99,235,0.25)]"
-        }`}
-        preserveAspectRatio="none"
-      >
-        <path
-          d={shape.path}
-          stroke={isActive ? "#6c5c83" : "#7f6e9b"}
-          strokeWidth="4"
-        />
-      </svg>
-
-      {/* Topic label */}
-      <div className="absolute inset-0 flex flex-col items-center justify-center px-6">
-        <span className="text-black dark:text-white font-bold text-base sm:text-lg text-center leading-tight line-clamp-2">
-          {label}
-        </span>
-        <span className="mt-2 text-xs sm:text-sm text-gray-600 dark:text-gray-300">
-          {postCount} posts
-        </span>
-      </div>
+      <span className="text-black dark:text-white font-bold text-base sm:text-lg text-center leading-tight line-clamp-2">
+        {label}
+      </span>
+      <span className="mt-2 text-xs sm:text-sm text-gray-600 dark:text-gray-300">
+        {postCount} posts
+      </span>
     </button>
   );
 }

@@ -25,7 +25,6 @@ export const AuthLayout = ({ children, title, subtitle }) => {
               alt="newsnatter Logo"
               width={55}
               height={55}
-              className="hidden sm:inline"
             />
           </Link>
         </div>
