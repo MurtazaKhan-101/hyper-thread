@@ -109,7 +109,7 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
             bg-sidebar-gradient
             transition-all duration-300 ease-in-out
             h-[calc(100vh-3.5rem)] w-80 lg:w-72
-            overflow-y-auto scrollbar-hide
+            overflow-y-auto overflow-x-hidden overscroll-contain scrollbar-hide
             ${
               isMobileOpen
                 ? "translate-x-0"
@@ -192,21 +192,21 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
               </div>
             )} */}
             {topicsExpanded && (
-  <div className="mt-2 space-y-1 pl-4">
-    {topicsItems.map((item) => (
-      <button
-        key={item.id}
-        onClick={() => handleMenuClick(item.href)}
-        className="group w-full text-left px-4 py-2 text-black font-bold hover:text-white hover:bg-black hover:bg-opacity-80 rounded-lg transition-all duration-200"
-      >
-        {item.label}
-        <p className="text-sm font-medium mt-0.5 text-gray-400 max-h-0 overflow-hidden group-hover:max-h-10 transition-all duration-200">
-          {item.description}
-        </p>
-      </button>
-    ))}
-  </div>
-)}
+              <div className="mt-2 space-y-1 pl-4">
+                {topicsItems.map((item) => (
+                  <button
+                    key={item.id}
+                    onClick={() => handleMenuClick(item.href)}
+                    className="group w-full text-left px-4 py-2 text-black font-bold hover:text-white hover:bg-black hover:bg-opacity-80 rounded-lg transition-all duration-200"
+                  >
+                    {item.label}
+                    <p className="text-sm font-medium mt-0.5 text-gray-400 max-h-0 overflow-hidden group-hover:max-h-10 transition-all duration-200">
+                      {item.description}
+                    </p>
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Divider */}
