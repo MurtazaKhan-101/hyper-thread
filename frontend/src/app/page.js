@@ -39,6 +39,7 @@ export default function Home() {
               alt="newsnatter Logo"
               width={50}
               height={50}
+              className="hidden sm:inline"
             />
 
             <div className="flex items-center gap-3">
