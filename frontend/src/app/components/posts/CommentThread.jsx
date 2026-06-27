@@ -325,7 +325,7 @@ export const CommentThread = ({
                     </div>
                   </div>
                 ) : (
-                  <div className="text-sm text-black whitespace-pre-wrap break-words overflow-wrap-anywhere word-break-break-word">
+                  <div className="text-sm text-black whitespace-pre-wrap break-words">
                     {localComment.comment}
                   </div>
                 )}
@@ -600,7 +600,7 @@ export const CommentThread = ({
               </div>
             </div>
           ) : (
-            <p className="text-sm text-black mb-3 whitespace-pre-wrap break-words overflow-wrap-anywhere word-break-break-word">
+            <p className="text-sm text-black mb-3 whitespace-pre-wrap break-words">
               {localComment.comment}
             </p>
           )}

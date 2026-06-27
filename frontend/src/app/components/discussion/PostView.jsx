@@ -41,7 +41,7 @@ export const PostView = ({ post, onUpdate, isDiscussionView = false }) => {
 
     return (
       <div
-        className={`break-words break-all overflow-wrap-anywhere hyphens-auto ${className}`}
+        className={`break-words hyphens-auto ${className}`}
       >
         <span className="whitespace-pre-wrap">{displayContent}</span>
         {shouldTruncate && (
