@@ -33,11 +33,17 @@ export const DiscussionPanel = ({
   const adminUser = user?.role === "admin";
   const hasPremiumAccess = isPremium || adminUser;
 
+  const isInitialMount = useRef(true);
+
   useEffect(() => {
     setLocalComments(comments || []);
   }, [comments]);
 
   useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
     scrollToBottom();
   }, [localComments]);
 
