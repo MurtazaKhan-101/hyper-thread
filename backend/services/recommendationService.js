@@ -1,6 +1,7 @@
 const { Post } = require("../models/Posts");
 const UserEngagement = require("../models/UserEngagement");
 const User = require("../models/User");
+const TrendingKeyword = require("../models/TrendingKeyword");
 
 const CATEGORY_LABELS = {
   politics: "Politics",
@@ -10,7 +11,67 @@ const CATEGORY_LABELS = {
   technology: "Technology",
 };
 
+const KEYWORD_CACHE_TTL_MS = 5 * 60 * 1000;
+const MAX_KEYWORD_BOOST = 100;
+
+const escapeRegExp = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
 class RecommendationService {
+  constructor() {
+    this._keywordCache = { keywords: [], lastFetched: 0 };
+  }
+
+  // Force the next keyword cache read to refetch from the DB
+  invalidateKeywordCache() {
+    this._keywordCache.lastFetched = 0;
+  }
+
+  // Refresh the in-memory admin trending-keyword cache if it's stale
+  async ensureKeywordCache() {
+    const isStale =
+      Date.now() - this._keywordCache.lastFetched > KEYWORD_CACHE_TTL_MS;
+    if (!isStale) return;
+
+    try {
+      const rawKeywords = await TrendingKeyword.find({ isActive: true })
+        .select("word boost")
+        .lean();
+
+      // Compile each word into a whole-word-boundary regex once per cache
+      // refresh, so "cat" doesn't match inside "category"/"concatenate".
+      const keywords = rawKeywords.map(({ word, boost }) => ({
+        word,
+        boost,
+        regex: new RegExp(`\\b${escapeRegExp(word)}\\b`, "i"),
+      }));
+
+      this._keywordCache = { keywords, lastFetched: Date.now() };
+    } catch (error) {
+      console.error("Error refreshing trending keyword cache:", error);
+    }
+  }
+
+  // Sum admin-configured boosts for keywords found in a post's title/content/tags
+  getKeywordBoost(post) {
+    const keywords = this._keywordCache.keywords;
+    if (!keywords || keywords.length === 0) return 0;
+
+    const haystack = [post.title, post.content, ...(post.tags || [])]
+      .filter(Boolean)
+      .join(" ");
+
+    if (!haystack) return 0;
+
+    let totalBoost = 0;
+    for (const { regex, boost } of keywords) {
+      if (regex && regex.test(haystack)) {
+        totalBoost += boost || 0;
+      }
+    }
+
+    return Math.min(totalBoost, MAX_KEYWORD_BOOST);
+  }
+
   toTopicKey(value) {
     return (value || "")
       .toString()
@@ -58,13 +119,20 @@ class RecommendationService {
     const freshnessBonus = Math.exp(-Math.max(ageHours, 0) / 72) * 30;
     const commentCount = this.getPostCommentCount(post);
     const engagementScore = (post.likes || 0) * 2 + commentCount * 3;
+    const keywordBoost = this.getKeywordBoost(post);
 
     if (post.isExternal) {
       return (
-        Math.round((40 + freshnessBonus + engagementScore * 0.3) * 100) / 100
+        Math.round(
+          (40 + freshnessBonus + engagementScore * 0.3 + keywordBoost) * 100,
+        ) / 100
       );
     }
 
+    // baseTrending (whether cached on the post or computed fresh via
+    // calculateTrendingScore) already includes the keyword boost, so it's
+    // not added again here — only for the isExternal branch above, which
+    // never goes through calculateTrendingScore.
     const baseTrending =
       typeof post.trendingScore === "number" && post.trendingScore > 0
         ? post.trendingScore
@@ -124,6 +192,8 @@ class RecommendationService {
   }
 
   async getTrendingTopicCandidates() {
+    await this.ensureKeywordCache();
+
     const now = Date.now();
     const windowStart = new Date(now - 7 * 24 * 60 * 60 * 1000);
 
@@ -424,11 +494,15 @@ class RecommendationService {
         }).length
       : 0;
 
+    // Admin-curated trending word boost
+    const keywordBoost = this.getKeywordBoost(post);
+
     // Trending score formula
     const trendingScore =
       engagementVelocity * 100 +
       recentLikes * 5 +
       post.comments.length * 10 +
+      keywordBoost +
       timeDecay * 50;
 
     return Math.round(trendingScore * 100) / 100; // Round to 2 decimals
@@ -440,6 +514,8 @@ class RecommendationService {
   async updateTrendingScores() {
     try {
       console.log("🔥 Updating trending scores...");
+
+      await this.ensureKeywordCache();
 
       // Get posts from last 7 days
       const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);

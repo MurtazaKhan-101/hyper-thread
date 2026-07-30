@@ -78,14 +78,15 @@ export const DiscussionLayout = ({ post, onPostUpdate }) => {
           </div>
 
           {/* Discussion panel below post */}
-          <div className="border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-[#1a1a1a] min-h-[60vh] w-full overflow-hidden">
+          {/* Hidden per client request - discussion panel looked disconnected from the post */}
+          {/* <div className="border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-[#1a1a1a] min-h-[60vh] w-full overflow-hidden">
             <DiscussionPanel
               post={post}
               comments={comments}
               onCommentsUpdate={handleCommentsUpdate}
               isMobile={true}
             />
-          </div>
+          </div> */}
         </div>
       </div>
     </div>

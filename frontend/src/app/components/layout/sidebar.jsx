@@ -11,10 +11,13 @@ import {
   X,
   Menu,
   Crown,
+  Shield,
 } from "lucide-react";
+import { useAuth } from "../../context/AuthContext";
 
 const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
   const router = useRouter();
+  const { user } = useAuth();
   const [topicsExpanded, setTopicsExpanded] = useState(true);
   const [resourcesExpanded, setResourcesExpanded] = useState(false);
 
@@ -28,6 +31,16 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
     },
     { id: "explore", label: "News Hub", icon: Compass, href: "/explore" },
     { id: "pricing", label: "Pricing", icon: Crown, href: "/pricing" },
+    ...(user?.role === "admin"
+      ? [
+          {
+            id: "admin-trending-keywords",
+            label: "Trending Keywords",
+            icon: Shield,
+            href: "/admin/trending-keywords",
+          },
+        ]
+      : []),
   ];
 
   const topicsItems = [

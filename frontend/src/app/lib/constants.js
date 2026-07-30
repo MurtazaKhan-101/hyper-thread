@@ -83,6 +83,9 @@ export const API_ENDPOINTS = {
   // News endpoints
   GET_ALL_EXTERNAL_NEWS: "/news/external",
   GET_EXTERNAL_NEWS_BY_CATEGORY: "/news/external",
+
+  // Admin - trending keywords
+  TRENDING_KEYWORDS: "/admin/trending-keywords",
 };
 
 // Local Storage Keys
@@ -108,6 +111,7 @@ export const ROUTES = {
   HELP: "/help",
   ABOUT: "/about",
   RULES: "/rules",
+  ADMIN_TRENDING_KEYWORDS: "/admin/trending-keywords",
 };
 
 // Error Messages
