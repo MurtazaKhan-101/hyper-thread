@@ -35,7 +35,7 @@ export default function Home() {
         <div className="max-w-6xl mx-auto px-4">
           <div className="flex items-center justify-between h-14">
             <Image
-              src="/images/NEWS_NET-V2.svg"
+              src="/images/logo.svg"
               alt="newsnatter Logo"
               width={50}
               height={50}
