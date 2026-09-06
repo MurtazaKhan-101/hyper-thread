@@ -101,7 +101,7 @@ export function TrendingSection() {
   }
 
   return (
-    <div>
+    <div className="pl-3 sm:pl-5">
       <div className="relative mb-8">
         <div
           className="pointer-events-none absolute -top-10 -right-6 h-40 w-40 rounded-full bg-gradient-to-br from-blue-400 via-purple-400 to-pink-400 opacity-20 blur-3xl dark:opacity-25"
