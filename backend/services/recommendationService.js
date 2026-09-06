@@ -34,14 +34,15 @@ class RecommendationService {
 
     try {
       const rawKeywords = await TrendingKeyword.find({ isActive: true })
-        .select("word boost")
+        .select("word boost createdAt")
         .lean();
 
       // Compile each word into a whole-word-boundary regex once per cache
       // refresh, so "cat" doesn't match inside "category"/"concatenate".
-      const keywords = rawKeywords.map(({ word, boost }) => ({
+      const keywords = rawKeywords.map(({ word, boost, createdAt }) => ({
         word,
         boost,
+        createdAt,
         regex: new RegExp(`\\b${escapeRegExp(word)}\\b`, "i"),
       }));
 
@@ -51,14 +52,20 @@ class RecommendationService {
     }
   }
 
+  // Build the searchable text blob (title + content + tags) used both for
+  // keyword-boost scoring and for matching posts to a keyword topic.
+  buildKeywordHaystack(post) {
+    return [post.title, post.content, ...(post.tags || [])]
+      .filter(Boolean)
+      .join(" ");
+  }
+
   // Sum admin-configured boosts for keywords found in a post's title/content/tags
   getKeywordBoost(post) {
     const keywords = this._keywordCache.keywords;
     if (!keywords || keywords.length === 0) return 0;
 
-    const haystack = [post.title, post.content, ...(post.tags || [])]
-      .filter(Boolean)
-      .join(" ");
+    const haystack = this.buildKeywordHaystack(post);
 
     if (!haystack) return 0;
 
@@ -217,6 +224,75 @@ class RecommendationService {
     return scoredPosts;
   }
 
+  // Build one guaranteed trending-topic entry per active admin keyword,
+  // matched against the same candidate pool used for category/tag topics.
+  buildKeywordTopics(candidatePosts, previewPostsPerTopic) {
+    const keywordSlugSeen = new Set();
+    const keywordTopics = [];
+
+    for (const kw of this._keywordCache.keywords) {
+      const slug = this.toTopicKey(kw.word);
+      if (!slug || keywordSlugSeen.has(slug)) {
+        if (slug && keywordSlugSeen.has(slug)) {
+          console.warn(
+            `Trending keyword "${kw.word}" slugifies to an already-used ` +
+              `topic key ("keyword__${slug}") and will be skipped as a ` +
+              `duplicate trending topic.`,
+          );
+        }
+        continue;
+      }
+      keywordSlugSeen.add(slug);
+
+      // candidatePosts is already sorted desc by _topicRankScore, so
+      // matchedPosts preserves that order — previewPosts = first N is
+      // already "top N by rank score", no re-sort needed.
+      const matchedPosts = candidatePosts.filter((post) =>
+        kw.regex.test(this.buildKeywordHaystack(post)),
+      );
+
+      const topicScore =
+        Math.round(
+          matchedPosts.reduce((sum, p) => sum + p._topicRankScore, 0) * 100,
+        ) / 100;
+
+      const latestPostAt =
+        matchedPosts.length > 0
+          ? matchedPosts.reduce(
+              (latest, p) =>
+                new Date(p.createdAt) > new Date(latest)
+                  ? p.createdAt
+                  : latest,
+              matchedPosts[0].createdAt,
+            )
+          : kw.createdAt || new Date(0);
+
+      keywordTopics.push({
+        topicKey: `keyword__${slug}`,
+        label: this.toTopicLabel(kw.word),
+        topicType: "keyword",
+        matchValue: slug,
+        topicScore,
+        postCount: matchedPosts.length,
+        latestPostAt,
+        previewPosts: matchedPosts.slice(0, previewPostsPerTopic),
+      });
+    }
+
+    // Order keyword chips amongst themselves: strongest matches first,
+    // then most recent, then alphabetical as a deterministic tiebreak.
+    // 0-match keywords naturally sort last (still visible per product
+    // decision — admin keywords always show while active).
+    keywordTopics.sort((a, b) => {
+      if (b.topicScore !== a.topicScore) return b.topicScore - a.topicScore;
+      const dateDiff = new Date(b.latestPostAt) - new Date(a.latestPostAt);
+      if (dateDiff !== 0) return dateDiff;
+      return a.label.localeCompare(b.label);
+    });
+
+    return keywordTopics;
+  }
+
   async getTrendingTopics(limit = 6, previewPostsPerTopic = 2) {
     const candidatePosts = await this.getTrendingTopicCandidates();
     const topicsMap = new Map();
@@ -279,12 +355,33 @@ class RecommendationService {
         return new Date(b.latestPostAt) - new Date(a.latestPostAt);
       });
 
-    const professionalTopics =
-      rawTopics.filter((topic) => topic.postCount >= 2).length > 0
-        ? rawTopics.filter((topic) => topic.postCount >= 2)
-        : rawTopics;
+    // Admin-curated keywords get guaranteed slots alongside the computed
+    // category/tag topics above. If a keyword's slug collides with an
+    // existing computed topic, the keyword wins — drop the computed
+    // duplicate rather than showing two identical-looking chips.
+    const keywordTopics = this.buildKeywordTopics(
+      candidatePosts,
+      previewPostsPerTopic,
+    );
+    const keywordSlugs = new Set(keywordTopics.map((t) => t.matchValue));
+    const rawTopicsDeduped = rawTopics.filter(
+      (topic) => !keywordSlugs.has(topic.matchValue),
+    );
 
-    const topics = professionalTopics.slice(0, Math.max(1, limit));
+    const professionalTopics =
+      rawTopicsDeduped.filter((topic) => topic.postCount >= 2).length > 0
+        ? rawTopicsDeduped.filter((topic) => topic.postCount >= 2)
+        : rawTopicsDeduped;
+
+    // Keyword topics are never truncated; computed topics fill only the
+    // remaining non-negative slots up to `limit`.
+    const remainingSlots = Math.max(0, limit - keywordTopics.length);
+    const computedTopics =
+      keywordTopics.length > 0
+        ? professionalTopics.slice(0, remainingSlots)
+        : professionalTopics.slice(0, Math.max(1, limit));
+
+    const topics = [...keywordTopics, ...computedTopics];
 
     return {
       topics,
@@ -318,6 +415,20 @@ class RecommendationService {
           (tag) => this.toTopicKey(this.normalizeTag(tag)) === tagValue,
         );
       });
+    } else if (normalizedKey.startsWith("keyword__")) {
+      const keywordSlug = normalizedKey.replace("keyword__", "");
+      const keyword = this._keywordCache.keywords.find(
+        (kw) => this.toTopicKey(kw.word) === keywordSlug,
+      );
+
+      // Keyword may have been deleted/deactivated since the chip was
+      // rendered (or fallen out of the cache TTL) — degrade to an empty
+      // result instead of throwing.
+      matchedPosts = keyword
+        ? candidatePosts.filter((post) =>
+            keyword.regex.test(this.buildKeywordHaystack(post)),
+          )
+        : [];
     } else {
       // Backward-compatible fallback for older keys
       matchedPosts = candidatePosts.filter((post) => {
